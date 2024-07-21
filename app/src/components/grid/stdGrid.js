@@ -22,7 +22,7 @@ const StdAgGrid = () => {
                 header: true, 
                 delimiter: ',',
                 transform: (value, header) => {
-                    if (header === 'Value' || header === 'Transaction_count') {
+                    if (header === 'Value' || header === 'Transaction_count' || header === 'rn') {
                         return parseFloat(value);
                     }
                     return value;
@@ -65,7 +65,10 @@ const StdAgGrid = () => {
         { headerName: 'Transaction_count', field: 'Transaction_count', 
                     enableValue: true,  
                     // Trying to use custom function here (same as sum)
-                    }
+                    },
+        { headerName: 'rn', field: 'rn', 
+                    enableValue: true, 
+                    aggFunc: "sum"},
     ], []);
    
 
