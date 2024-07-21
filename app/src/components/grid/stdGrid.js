@@ -1,35 +1,37 @@
-import React from 'react';
+import React, {useCallback, useMemo} from 'react';
 import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-const StdAgGrid = () => {
 
-    const rowData = [
-        { id: 1, name: 'John Doe', age: 25, city: 'New York' },
-        { id: 2, name: 'Jane Smith', age: 30, city: 'Los Angeles' },
-        { id: 3, name: 'Mike Johnson', age: 35, city: 'Chicago' },
-        { id: 4, name: 'Sarah Williams', age: 28, city: 'San Francisco' },
-        { id: 5, name: 'David Brown', age: 32, city: 'Seattle' },
-    ];
-    
-    const columnDefs = [
-        { headerName: 'ID', field: 'id' },
-        { headerName: 'Name', field: 'name' },
-        { headerName: 'Age', field: 'age' },
-        { headerName: 'City', field: 'city' },
-    ];
+const StdAgGrid = ({ rowData, columnDefs }) => {
+
+    const containerStyle = useMemo(() => ({ width: '100%', height: '100%' }), []);
+    const gridStyle = useMemo(() => ({ height: '1000px', width: '100%' }), []);
 
     return (
-        <div className="ag-theme-alpine" style={{ height: '400px', width: '100%' }}>
-            <AgGridReact
-                rowData={rowData}
-                columnDefs={columnDefs}
-            />
+        <div style={containerStyle}>
+            <div style={{ height: '100%', boxSizing: 'border-box' }}>
+                <div 
+                    style={gridStyle}
+                    className="ag-theme-alpine" 
+                    
+                >
+                    <AgGridReact
+                        rowData={rowData}
+                        columnDefs={columnDefs}
+                        sideBar={true}
+                    />
+                </div>
+            </div>
         </div>
+        
     );
 };
 
+
 export default StdAgGrid;
+
 
 

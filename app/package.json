@@ -2,25 +2,19 @@
   "name": "app",
   "version": "0.1.0",
   "private": true,
-  "browser": {
-    "crypto": false,
-    "fs": false,
-    "path": false
-  },
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "ag-grid-community": "^32.0.2",
+    "ag-grid-enterprise": "^32.0.2",
     "ag-grid-react": "^32.0.2",
-    "crypto-browserify": "^3.12.0",
-    "fs": "^0.0.1-security",
-    "parquetjs": "^0.11.2",
-    "parquetjs-lite": "^0.8.7",
+    "papaparse": "^5.4.1",
     "path": "^0.12.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scripts": "5.0.1",
+    "stream": "^0.0.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -46,5 +40,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:3000"
 }
