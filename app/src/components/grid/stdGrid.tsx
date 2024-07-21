@@ -5,16 +5,25 @@ import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
+interface RowData {
+    [key: string]: string | number;
+}
 
-const StdAgGrid = () => {
-    const [rowData, setRowData] = useState(null);
-    const [aggFunc, setAggFunc] = useState('sum'); // Add this line
-    const [gridApi, setGridApi] = useState(null);
+const StdAgGrid: React.FC = () => {
+    const [rowData, setRowData] = useState<RowData[] | null>(null);
+    const [aggFunc, setAggFunc] = useState<string>('sum');
+    const [gridApi, setGridApi] = useState<any>(null);
     
     useEffect(() => {
         async function fetchData() {
             const response = await fetch("/bankdataset.csv");
-            const reader = response.body.getReader();
+            if (!response.ok) {
+                throw new Error("Failed to fetch the CSV file.");
+            }
+            const reader = response.body?.getReader();
+            if (!reader) {
+                throw new Error("Failed to get the reader from the response body.");
+            }
             const result = await reader.read(); // raw array
             const decoder = new TextDecoder("utf-8");
             const csv = decoder.decode(result.value); // the csv text
@@ -28,7 +37,7 @@ const StdAgGrid = () => {
                     return value;
                 } 
             }); // object with { data, errors, meta }
-            const rows = results.data; // array of objects
+            const rows = results.data as RowData[]; // array of objects
             console.log(rows.length);
             console.log(rows);
             setRowData(rows);
@@ -55,7 +64,7 @@ const StdAgGrid = () => {
     }, []);
 
 
-    const [columnDefs, seColumnDefs] = useState([
+    const [columnDefs, setColumnDefs] = useState([
         { headerName: 'Domain', field: 'Domain', enableRowGroup: true, enableValue: true },
         { headerName: 'Date', field: 'Date', enableRowGroup: true, enableValue: true },
         { headerName: 'Location', field: 'Location', enableRowGroup: true, enableValue: true },
@@ -64,13 +73,11 @@ const StdAgGrid = () => {
                     aggFunc: "sum"},
         { headerName: 'Transaction_count', field: 'Transaction_count', 
                     enableValue: true,  
-                    // Trying to use custom function here (same as sum)
                     },
         { headerName: 'rn', field: 'rn', 
                     enableValue: true, 
                     aggFunc: "sum"},
-    ], []);
-   
+    ]);
 
     return (
         <div style={containerStyle}>
@@ -82,14 +89,12 @@ const StdAgGrid = () => {
                     <AgGridReact
                         rowData={rowData}
                         columnDefs={columnDefs}
-                        // defaultColDef={defaultColDef}
-                        // auto ColumnDef={autoGroupColumnDef}
-                        sideBar={true}
-                    />
+                        defaultColDef={defaultColDef}
+                        autoGroupColumnDef={autoGroupColumnDef}
+                        sideBar={true} />
                 </div>
             </div>
         </div>
-        
     );
 };
 
