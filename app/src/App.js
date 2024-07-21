@@ -7,12 +7,11 @@ import { AgGridReact } from 'ag-grid-react';
 import logo from './logo.svg';
 import './App.css';
 import StdAgGrid from './components/grid/stdGrid';
-import CsvAgGrid from './components/grid/csvGrid';
 
 function App() {
   return (
     <div>
-      <CsvAgGrid />
+      <StdAgGrid />
     </div>
   );
 }
