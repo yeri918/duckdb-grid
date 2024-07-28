@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
     "ag-grid-community": "^32.0.2",
     "ag-grid-enterprise": "^32.0.2",
     "ag-grid-react": "^32.0.2",
