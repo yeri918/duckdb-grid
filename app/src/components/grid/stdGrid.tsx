@@ -15,41 +15,6 @@ const StdAgGrid: React.FC = () => {
   const [aggFunc, setAggFunc] = useState<string>("sum");
   const [gridApi, setGridApi] = useState<any>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      const response = await fetch("/bankdataset.csv");
-      if (!response.ok) {
-        throw new Error("Failed to fetch the CSV file.");
-      }
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error("Failed to get the reader from the response body.");
-      }
-      const result = await reader.read(); // raw array
-      const decoder = new TextDecoder("utf-8");
-      const csv = decoder.decode(result.value); // the csv text
-      const results = Papa.parse(csv, {
-        header: true,
-        delimiter: ",",
-        transform: (value, header) => {
-          if (
-            header === "Value" ||
-            header === "Transaction_count" ||
-            header === "rn"
-          ) {
-            return parseFloat(value);
-          }
-          return value;
-        },
-      }); // object with { data, errors, meta }
-      const rows = results.data as RowData[]; // array of objects
-      console.log(rows.length);
-      console.log(rows);
-      setRowData(rows);
-    }
-    fetchData();
-  }, []);
-
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ height: "1000px", width: "100%" }), []);
 
@@ -94,8 +59,8 @@ const StdAgGrid: React.FC = () => {
     { headerName: "rn", field: "rn", enableValue: true, aggFunc: "sum" },
   ]);
 
-  const src = new URL("./bankdataset.parquet", document.baseURI).href;
-  const source = `SELECT * FROM read_parquet('${src}')`;
+  const source = `FROM bankdata
+                  SELECT *, row_number() over () as rn `;
   const datasource = createServerSideDatasource(duckdb, source);
   return (
     <div style={containerStyle}>
