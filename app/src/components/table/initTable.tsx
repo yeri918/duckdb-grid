@@ -49,36 +49,8 @@ export const InitParquetTable = () => {
                             FROM read_parquet('${src}')
                             SELECT *, row_number() over () as rn `;
             await c.query(source);
+            console.log("CHECK1")
             
-            
-            /*
-                S3 Parquet FIles
-
-                                CREATE SECRET secret1 (
-                    TYPE S3,
-                    KEY_ID '${import.meta.env.VITE_S3_ACCESS_KEY}',
-                    SECRET '${import.meta.env.VITE_S3_SECRET_ACCESS_KEY}',
-                    REGION 'ap-southeast-2'
-                );
-            */
-        //    TODO: THIS IS NOT WORKING
-        // region: NOT WORKING
-            const s3Login = `
-                INSTALL httpfs;
-                LOAD httpfs;
-            `;
-            await c.query(s3Login);
-
-            const taxiBucket = 'taxi';
-            const taxiPath = 'taxi_202403.parquet';
-            const taxiTableName = 'taxi';
-            const taxiQuery = `
-                            CREATE TABLE ${taxiTableName} AS
-                            SELECT *
-                            FROM 's3://${taxiBucket}/${taxiPath}';
-                            SELECT *, row_number() over () as rn `;
-            await c.query(taxiQuery);
-            await c.close();
         };
         // endregion
 
@@ -87,6 +59,49 @@ export const InitParquetTable = () => {
 
     return null;
 };
+
+export const InitS3ParquetTable = () => {
+    useEffect(() => {
+        const initTable = async() => {
+            const c = await db.connect();
+
+            /*
+                First we do a S3 Login.
+                WIP on using Secret Manager.
+            */
+            // const loginQuery = `
+            //     CREATE SECRET secret1 (
+            //         TYPE S3,
+            //         KEY_ID '${import.meta.env.VITE_S3_ACCESS_KEY}',
+            //         SECRET '${import.meta.env.VITE_S3_SECRET_ACCESS_KEY}',
+            //         REGION 'ap-southeast-2'
+            //     );
+            // `;
+            // console.log(loginQuery);
+            // c.query(loginQuery);
+            
+            console.log("CHECK")
+            const taxiBucket = 'bucket-duck';
+            const taxiPath = 'taxi_202304.parquet';
+            const taxiTableName = 'taxi';
+            const taxiQuery = `
+                            SET s3_region = 'ap-southeast-2';
+                            SET s3_use_ssl = false;
+                            SET s3_access_key_id = '${import.meta.env.VITE_S3_ACCESS_KEY}';
+                            SET s3_secret_access_key = '${import.meta.env.VITE_S3_SECRET_ACCESS_KEY}';
+                            CREATE OR REPLACE TABLE ${taxiTableName} AS
+                            SELECT *
+                            FROM 's3://${taxiBucket}/${taxiPath}';
+                            `;
+            await c.query(taxiQuery);
+            const result = await c.query(`SELECT * FROM ${taxiTableName} LIMIT 10`);
+            await c.close();
+            console.log(result);
+        }
+        initTable();
+    }, []);
+    return null;
+}
 
 export default InitUserTable;
 
