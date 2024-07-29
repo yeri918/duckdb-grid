@@ -50,7 +50,13 @@ const StdAgGrid: React.FC = () => {
       enableRowGroup: true,
       enableValue: true,
     },
-    { headerName: "Value", field: "Value", enableValue: true, aggFunc: "sum" },
+    {
+      headerName: "Value",
+      field: "Value",
+      enableValue: true,
+      aggFunc: "sum",
+      allowedAggFuncs: ["sum", "min", "max"],
+    },
     {
       headerName: "Transaction_count",
       field: "Transaction_count",
@@ -62,6 +68,15 @@ const StdAgGrid: React.FC = () => {
   const source = `FROM bankdata
                   SELECT *, row_number() over () as rn `;
   const datasource = createServerSideDatasource(duckdb, source);
+
+  const onModelUpdated = (params: any) => {
+    datasource.getRows(params);
+    console.log("coldefs", params.api.getGridOption("columnDefs"));
+  };
+
+  const onGridReady = (params: any) => {
+    setGridApi(params.api);
+  };
   return (
     <div style={containerStyle}>
       <div style={{ height: "100%", boxSizing: "border-box" }}>
@@ -74,6 +89,9 @@ const StdAgGrid: React.FC = () => {
             defaultColDef={defaultColDef}
             autoGroupColumnDef={autoGroupColumnDef}
             sideBar={true}
+            serverSidePivotResultFieldSeparator="_"
+            onModelUpdated={onModelUpdated}
+            onGridReady={onGridReady}
           />
         </div>
       </div>
