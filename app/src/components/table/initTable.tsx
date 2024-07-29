@@ -49,7 +49,6 @@ export const InitParquetTable = () => {
                             FROM read_parquet('${src}')
                             SELECT *, row_number() over () as rn `;
             await c.query(source);
-            console.log("CHECK1")
             
         };
         // endregion
