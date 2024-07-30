@@ -5,14 +5,13 @@ import {
 } from "ag-grid-community";
 
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
-import { isPivotQueryRequest } from "./datasourceHelper";
+import buildSelect from "./sql_builder/select";
+import buildGroupBy from "./sql_builder/groupby";
 
 const createServerSideDatasource = (
   database: AsyncDuckDB,
   source: string
 ): IServerSideDatasource => {
-  console.log("source", source);
-
   // 'getRows' and 'destroy' are properties of IServerSideDatasource
   // Reference: https://www.ag-grid.com/javascript-data-grid/server-side-model-datasource/
   return {
@@ -22,24 +21,9 @@ const createServerSideDatasource = (
       console.log("Agg values", params.request?.valueCols); // Aggregated values
       console.log("Sort by", params.request?.sortModel); // Sort model
       console.log("Column Defs", params.api.getGridOption("columnDefs"));
-      const columnDefs = params.api.getGridOption("columnDefs");
 
-      // Formulate the sql depending on whether there is any 'GROUP BY' columns
-      const groupByKeys = params.request?.rowGroupCols.map((key) => key.field);
-      const groupByKeysString =
-        groupByKeys && groupByKeys.length > 0
-          ? `GROUP BY ${groupByKeys.join(", ")}`
-          : "";
-      const aggCols =
-        params.request?.valueCols.length > 0
-          ? params.request?.valueCols.map(
-              (key) => `${key.aggFunc}(${key.field}) AS ${key.field}`
-            )
-          : [""];
-      const selectCols =
-        groupByKeys && groupByKeys.length > 0
-          ? `${groupByKeys.join(", ")}, ${aggCols.join(",")}`
-          : "*";
+      const select = await buildSelect(database, params);
+      const groupby = await buildGroupBy(database, params);
 
       // Construct the SQL query
       const sql = `
@@ -51,7 +35,7 @@ const createServerSideDatasource = (
             SELECT * FROM FILTERED
         ),
         QUERY AS (
-            SELECT ${selectCols} FROM GROUPFILTERED ${groupByKeysString}
+            SELECT ${select} FROM GROUPFILTERED ${groupby}
         )
         SELECT * FROM QUERY
     `;
