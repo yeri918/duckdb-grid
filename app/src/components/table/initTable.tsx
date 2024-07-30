@@ -45,18 +45,62 @@ export const InitParquetTable = () => {
             */
             const src = new URL("./bankdataset.parquet", document.baseURI).href;
             const source = `
-                            CREATE VIEW bankdata AS
+                            CREATE OR REPLACE VIEW bankdata AS
                             FROM read_parquet('${src}')
                             SELECT *, row_number() over () as rn `;
             await c.query(source);
-            await c.close();
+            
         };
+        // endregion
 
         initTable();
     }, []);
 
     return null;
 };
+
+export const InitS3ParquetTable = () => {
+    useEffect(() => {
+        const initTable = async() => {
+            const c = await db.connect();
+
+            /*
+                First we do a S3 Login.
+                WIP on using Secret Manager.
+            */
+            // const loginQuery = `
+            //     CREATE SECRET secret1 (
+            //         TYPE S3,
+            //         KEY_ID '${import.meta.env.VITE_S3_ACCESS_KEY}',
+            //         SECRET '${import.meta.env.VITE_S3_SECRET_ACCESS_KEY}',
+            //         REGION 'ap-southeast-2'
+            //     );
+            // `;
+            // console.log(loginQuery);
+            // c.query(loginQuery);
+            
+            console.log("CHECK")
+            const taxiBucket = 'bucket-duck';
+            const taxiPath = 'taxi_202304.parquet';
+            const taxiTableName = 'taxi';
+            const taxiQuery = `
+                            SET s3_region = 'ap-southeast-2';
+                            SET s3_use_ssl = false;
+                            SET s3_access_key_id = '${import.meta.env.VITE_S3_ACCESS_KEY}';
+                            SET s3_secret_access_key = '${import.meta.env.VITE_S3_SECRET_ACCESS_KEY}';
+                            CREATE OR REPLACE TABLE ${taxiTableName} AS
+                            SELECT *
+                            FROM 's3://${taxiBucket}/${taxiPath}';
+                            `;
+            await c.query(taxiQuery);
+            const result = await c.query(`SELECT * FROM ${taxiTableName} LIMIT 10`);
+            await c.close();
+            console.log(result);
+        }
+        initTable();
+    }, []);
+    return null;
+}
 
 export default InitUserTable;
 
