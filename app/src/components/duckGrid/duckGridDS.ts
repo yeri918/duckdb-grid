@@ -1,21 +1,30 @@
-// serverSideDatasource.ts
+// datasource.ts
 import {
   IServerSideDatasource,
   IServerSideGetRowsParams,
 } from "ag-grid-community";
 
-import Papa from "papaparse";
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
+import buildSelect from "./sql_builder/select";
+import buildGroupBy from "./sql_builder/groupby";
 
 const createServerSideDatasource = (
   database: AsyncDuckDB,
   source: string
 ): IServerSideDatasource => {
-  console.log("source", source);
-
+  // 'getRows' and 'destroy' are properties of IServerSideDatasource
+  // Reference: https://www.ag-grid.com/javascript-data-grid/server-side-model-datasource/
   return {
     getRows: async (params: IServerSideGetRowsParams) => {
       console.log("Requesting rows", params.request);
+      console.log("Row groups", params.request?.rowGroupCols); // Row groups
+      console.log("Agg values", params.request?.valueCols); // Aggregated values
+      console.log("Sort by", params.request?.sortModel); // Sort model
+      console.log("Column Defs", params.api.getGridOption("columnDefs"));
+
+      const select = await buildSelect(database, params);
+      const groupby = await buildGroupBy(database, params);
+
       // Construct the SQL query
       const sql = `
         WITH SOURCE AS (${source}),
@@ -26,26 +35,26 @@ const createServerSideDatasource = (
             SELECT * FROM FILTERED
         ),
         QUERY AS (
-            SELECT * FROM GROUPFILTERED
+            SELECT ${select} FROM GROUPFILTERED ${groupby}
         )
-        
         SELECT * FROM QUERY
     `;
-
       console.log("sql", sql);
 
       // Make a DuckDB connection
       const connection = await database.connect();
+
+      // Execute the query and convert the result to an array of objects
       try {
-        // Execute the query and convert the result to an array of objects
         const result = await connection.query(sql);
         const rowData = result.toArray();
         params.success({ rowData });
-      } catch {
-        params.fail();
       } finally {
         await connection.close();
       }
+    },
+    destroy: () => {
+      console.log("Destroying datasource");
     },
   };
 };
