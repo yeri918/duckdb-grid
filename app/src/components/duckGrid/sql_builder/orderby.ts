@@ -19,12 +19,12 @@ const buildOrderBy = async (
   let sortModel = params.request?.sortModel;
   let rowGroupColIds = params.request?.rowGroupCols?.map((col) => col.id);
   let valueColIds = params.request?.valueCols?.map((col) => col.id);
-  let allCols = rowGroupColIds.concat(valueColIds);
+  let allCols = rowGroupColIds?.concat(valueColIds);
 
   // User might specify a sort keys that are not in the sql query.
   const getEligSortModel = () => {
-    let intersectCols = sortModel.filter(value => allCols.includes(value.colId));
-    let eligSortModel = sortModel.filter(value => intersectCols.includes(value));
+    let intersectCols = sortModel?.filter(value => allCols.includes(value.colId));
+    let eligSortModel = sortModel?.filter(value => intersectCols.includes(value));
     return eligSortModel;
   }
 
@@ -32,7 +32,7 @@ const buildOrderBy = async (
   console.log("Eligible Sort Model: ", eligSortModel);
   
 
-  if (eligSortModel?.length === 0) {
+  if (typeof eligSortModel === 'undefined' || eligSortModel.length === 0) {
     return "";
   }
 
