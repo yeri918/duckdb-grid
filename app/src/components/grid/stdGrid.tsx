@@ -3,7 +3,7 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import createServerSideDatasource from "../duckGrid/duckGridDS";
+import duckGridDataSource from "../duckGrid/duckGridDS";
 import duckdb from "../engine/duckdb";
 interface RowData {
   [key: string]: string | number;
@@ -53,7 +53,6 @@ const StdAgGrid: React.FC = () => {
       headerName: "Value",
       field: "Value",
       enableValue: true,
-      aggFunc: "sum",
       allowedAggFuncs: ["sum", "min", "max"],
     },
     {
@@ -62,12 +61,12 @@ const StdAgGrid: React.FC = () => {
       enableValue: true, 
       aggFunc: "sum"
     },
-    { headerName: "rn", field: "rn", enableValue: true, aggFunc: "sum" },
+    { headerName: "rn", field: "rn", enableValue: true },
   ]);
 
   const source = `FROM bankdata
                   SELECT *, row_number() over () as rn `;
-  const datasource = createServerSideDatasource(duckdb, source);
+  const datasource = duckGridDataSource(duckdb, source);
 
   const onModelUpdated = (params: any) => {
     datasource.getRows(params);

@@ -9,7 +9,7 @@ import buildSelect from "./sql_builder/select";
 import buildGroupBy from "./sql_builder/groupby";
 import buildOrderBy from "./sql_builder/orderby";
 
-const createServerSideDatasource = (
+const duckGridDataSource = (
   database: AsyncDuckDB,
   source: string
 ): IServerSideDatasource => {
@@ -23,7 +23,7 @@ const createServerSideDatasource = (
       console.log("Sort by", params.request?.sortModel); // Sort model
       console.log("Column Defs", params.api.getGridOption("columnDefs"));
 
-      const select = await buildSelect(database, params);
+      const [aggFuncs, select] = await buildSelect(database, params);
       const groupby = await buildGroupBy(database, params);
       const orderBy = await buildOrderBy(database, params);
 
@@ -61,4 +61,4 @@ const createServerSideDatasource = (
   };
 };
 
-export default createServerSideDatasource;
+export default duckGridDataSource;
