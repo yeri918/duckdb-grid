@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from "react";
-import Papa from "papaparse";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
@@ -60,7 +59,8 @@ const StdAgGrid: React.FC = () => {
     {
       headerName: "Transaction_count",
       field: "Transaction_count",
-      enableValue: true,
+      enableValue: true, 
+      aggFunc: "sum"
     },
     { headerName: "rn", field: "rn", enableValue: true, aggFunc: "sum" },
   ]);
@@ -88,6 +88,7 @@ const StdAgGrid: React.FC = () => {
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             autoGroupColumnDef={autoGroupColumnDef}
+            multiSortKey={"ctrl"}
             sideBar={true}
             serverSidePivotResultFieldSeparator="_"
             onModelUpdated={onModelUpdated}

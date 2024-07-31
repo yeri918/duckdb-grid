@@ -11,7 +11,7 @@ function App() {
   const [count, setCount] = useState(0)
   const table = InitUserTable();
   const parquetTable = InitParquetTable();
-  const s3ParquetTable = InitS3ParquetTable();
+  // const s3ParquetTable = InitS3ParquetTable();
 
   return (
     <div style={{ width: '100%' }}>
