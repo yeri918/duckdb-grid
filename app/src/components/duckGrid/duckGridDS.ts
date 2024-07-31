@@ -7,6 +7,7 @@ import {
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 import buildSelect from "./sql_builder/select";
 import buildGroupBy from "./sql_builder/groupby";
+import buildOrderBy from "./sql_builder/orderby";
 
 const createServerSideDatasource = (
   database: AsyncDuckDB,
@@ -24,6 +25,7 @@ const createServerSideDatasource = (
 
       const select = await buildSelect(database, params);
       const groupby = await buildGroupBy(database, params);
+      const orderBy = await buildOrderBy(database, params);
 
       // Construct the SQL query
       const sql = `
@@ -37,7 +39,7 @@ const createServerSideDatasource = (
         QUERY AS (
             SELECT ${select} FROM GROUPFILTERED ${groupby}
         )
-        SELECT * FROM QUERY
+        SELECT * FROM QUERY ${orderBy}
     `;
       console.log("sql", sql);
 
