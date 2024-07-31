@@ -10,7 +10,11 @@ const buildSelect = async (
 ) => {
   const isGrouped = params.request?.rowGroupCols.length > 0;
 
-  
+  // If no grouping, select all columns
+  if (!isGrouped) {
+    return [{}, "*"];
+  }
+
   const groupByKeys = params.request?.rowGroupCols
     .map((key) => key.field)
     .join(",");
@@ -37,19 +41,31 @@ const buildSelect = async (
       (col: { column_name: string }) => col.column_name
     );
 
-    // TODO: change the aggfunc when user specifies it
+    // Pick up the aggfunc specified by users.
     const valueCols = params.request?.valueCols;
-    if (valueCols) {
-      console.log("valueCols", valueCols);
+    const aggDict =
+      valueCols.length > 0
+        ? valueCols.reduce((acc, col) => {
+            if (col.field != null && col.aggFunc != null) {
+              acc[col.field] = col.aggFunc;
+            }
+            return acc;
+          }, {} as { [key: string]: string })
+        : {};
+    // By default, set the aggfunc to sum if not specified
+    if (numericCols.length > 0) {
+      for (const key of numericCols) {
+        if (!Object.keys(aggDict).includes(key)) {
+          aggDict[key] = "sum";
+        }
+      }
     }
-    console.log(numericCols, "numeric");
-    const aggCols = numericCols
-      .map((col: string) => `SUM(${col}) AS ${col}`)
-      .join(", ");
+    const aggCols = Object.entries(aggDict).map(
+      ([col, agg]) => `${agg}(${col}) AS ${col}`
+    );
 
-    return `${groupByKeys}, ${aggCols}`;
-  };
-  
+    return [aggDict, `${groupByKeys}, ${aggCols.join(", ")}`];
+  }
 };
 
 export default buildSelect;
