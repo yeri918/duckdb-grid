@@ -36,6 +36,7 @@ const StdAgGrid: React.FC = () => {
       field: "Domain",
       enableRowGroup: true,
       enableValue: true,
+      filter: 'agTextColumnFilter'
     },
     {
       headerName: "Date",
@@ -54,6 +55,7 @@ const StdAgGrid: React.FC = () => {
       field: "Value",
       enableValue: true,
       allowedAggFuncs: ["sum", "min", "max"],
+      aggFunc: "sum",
     },
     {
       headerName: "Transaction_count",
@@ -61,7 +63,7 @@ const StdAgGrid: React.FC = () => {
       enableValue: true, 
       aggFunc: "sum"
     },
-    { headerName: "rn", field: "rn", enableValue: true },
+    { headerName: "rn", field: "rn", enableValue: true, aggFunc: "sum" },
   ]);
 
   const source = `FROM bankdata
@@ -90,6 +92,7 @@ const StdAgGrid: React.FC = () => {
             multiSortKey={"ctrl"}
             sideBar={true}
             serverSidePivotResultFieldSeparator="_"
+            suppressAggFuncInHeader={true}
             onModelUpdated={onModelUpdated}
             onGridReady={onGridReady}
           />
