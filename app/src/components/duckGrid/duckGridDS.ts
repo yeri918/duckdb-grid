@@ -7,7 +7,9 @@ import {
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 import buildSelect from "./sql_builder/select";
 import buildGroupBy from "./sql_builder/groupby";
+import buildWhere from "./sql_builder/where";
 import buildOrderBy from "./sql_builder/orderby";
+import buildLimit from "./sql_builder/limit";
 
 const duckGridDataSource = (
   database: AsyncDuckDB,
@@ -25,13 +27,16 @@ const duckGridDataSource = (
 
       const [aggFuncs, select] = await buildSelect(database, params);
       const groupby = await buildGroupBy(database, params);
+      const where = await buildWhere(database, params);
       const orderBy = await buildOrderBy(database, params);
+      const limit = await buildLimit(database, params);
 
       // Construct the SQL query
       const sql = `
         WITH SOURCE AS (${source}),
         FILTERED AS (
             SELECT * FROM SOURCE
+            ${where}
         ),
         GROUPFILTERED AS (
             SELECT * FROM FILTERED
@@ -40,6 +45,7 @@ const duckGridDataSource = (
             SELECT ${select} FROM GROUPFILTERED ${groupby}
         )
         SELECT * FROM QUERY ${orderBy}
+        ${limit};
     `;
       console.log("sql", sql);
 

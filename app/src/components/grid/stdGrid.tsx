@@ -36,6 +36,7 @@ const StdAgGrid: React.FC = () => {
       field: "Domain",
       enableRowGroup: true,
       enableValue: true,
+      filter: 'agTextColumnFilter'
     },
     {
       headerName: "Date",
