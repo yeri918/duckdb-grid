@@ -76,7 +76,7 @@ const buildWhere = async (
             const colName = rowGroupCols[index].id;
             whereParts.push(`${colName} = '${key}'`);
         });
-    }
+    };
 
     if (filterModel) {
         Object.keys(filterModel).forEach((key) => {
@@ -86,13 +86,13 @@ const buildWhere = async (
                 whereParts.push(filterSql);
             }
         });
-    }
+    };
 
     if (whereParts.length > 0) {
         return "WHERE " + whereParts.join(" AND ");
     } else {
         return "";
-    }
+    };
 };
 
 export default buildWhere;
