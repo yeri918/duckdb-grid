@@ -13,7 +13,7 @@ import buildLimit from "./sql_builder/limit";
 
 const duckGridDataSource = (
   database: AsyncDuckDB,
-  source: string
+  source: string,
 ): IServerSideDatasource => {
   // 'getRows' and 'destroy' are properties of IServerSideDatasource
   // Reference: https://www.ag-grid.com/javascript-data-grid/server-side-model-datasource/
@@ -25,7 +25,7 @@ const duckGridDataSource = (
       console.log("Sort by", params.request?.sortModel); // Sort model
       console.log("Column Defs", params.api.getGridOption("columnDefs"));
 
-      const [aggFuncs, select] = await buildSelect(database, params);
+      const select = await buildSelect(database, params);
       const groupby = await buildGroupBy(database, params);
       const where = await buildWhere(database, params);
       const orderBy = await buildOrderBy(database, params);

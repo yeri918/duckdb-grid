@@ -6,13 +6,15 @@ import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
 const buildSelect = async (
   database: AsyncDuckDB,
-  params: IServerSideGetRowsParams
+  params: IServerSideGetRowsParams,
 ) => {
   const isGrouped = params.request?.rowGroupCols.length > 0;
+  const isFullyOpened =
+    params.request?.groupKeys.length === params.request?.rowGroupCols.length;
 
   // If no grouping, select all columns
-  if (!isGrouped) {
-    return [{}, "*"];
+  if (!isGrouped || isFullyOpened) {
+    return "*";
   }
 
   const groupByKeys = params.request?.rowGroupCols
@@ -38,19 +40,22 @@ const buildSelect = async (
     await connection.close();
 
     const numericCols = JSON.parse(JSON.stringify(result.toArray())).map(
-      (col: { column_name: string }) => col.column_name
+      (col: { column_name: string }) => col.column_name,
     );
 
     // Pick up the aggfunc specified by users.
     const valueCols = params.request?.valueCols;
     const aggDict =
       valueCols.length > 0
-        ? valueCols.reduce((acc, col) => {
-            if (col.field != null && col.aggFunc != null) {
-              acc[col.field] = col.aggFunc;
-            }
-            return acc;
-          }, {} as { [key: string]: string })
+        ? valueCols.reduce(
+            (acc, col) => {
+              if (col.field != null && col.aggFunc != null) {
+                acc[col.field] = col.aggFunc;
+              }
+              return acc;
+            },
+            {} as { [key: string]: string },
+          )
         : {};
     // By default, set the aggfunc to sum if not specified
     if (numericCols.length > 0) {
@@ -61,10 +66,10 @@ const buildSelect = async (
       }
     }
     const aggCols = Object.entries(aggDict).map(
-      ([col, agg]) => `${agg}(${col}) AS ${col}`
+      ([col, agg]) => `${agg}(${col}) AS ${col}`,
     );
 
-    return [aggDict, `${groupByKeys}, ${aggCols.join(", ")}`];
+    return `${groupByKeys}, ${aggCols.join(", ")}`;
   }
 };
 

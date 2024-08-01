@@ -71,7 +71,7 @@ const buildWhere = async (
     }
   };
 
-  if (groupKeys.length > 0) {
+  if (groupKeys?.length > 0) {
     groupKeys.forEach((key, index) => {
       const colName = rowGroupCols[index].id;
       whereParts.push(`${colName} = '${key}'`);
@@ -88,7 +88,7 @@ const buildWhere = async (
     });
   }
 
-  if (whereParts.length > 0) {
+  if (whereParts?.length > 0) {
     return "WHERE " + whereParts.join(" AND ");
   } else {
     return "";
