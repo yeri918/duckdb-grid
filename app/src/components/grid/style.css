@@ -1,9 +1,9 @@
 .ag-row-even {
-  background-color: #e6f7ff;
+  background-color: #e6f7ff !important;
 }
 
 .ag-row-odd {
-  background-color: #f2f2f2;
+  background-color: #f2f2f2 !important;
 }
 
 .cell-wrap-text{
