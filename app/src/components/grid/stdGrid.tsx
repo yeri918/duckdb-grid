@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-enterprise";
+import './style.css';
+import { RowClassParams } from "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import duckGridDataSource from "../duckGrid/duckGridDS";
@@ -92,6 +94,7 @@ const StdAgGrid: React.FC = () => {
   const onGridReady = (params: any) => {
     setGridApi(params.api);
   };
+
   return (
     <div style={containerStyle}>
       <div style={{ height: "100%", boxSizing: "border-box" }}>
@@ -109,6 +112,7 @@ const StdAgGrid: React.FC = () => {
             suppressAggFuncInHeader={true}
             onModelUpdated={onModelUpdated}
             onGridReady={onGridReady}
+            rowHeight={25}
           />
         </div>
       </div>
