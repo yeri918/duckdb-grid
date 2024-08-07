@@ -1,0 +1,12 @@
+.ag-row-even {
+  background-color: #e6f7ff !important;
+}
+
+.ag-row-odd {
+  background-color: #f2f2f2 !important;
+}
+
+.cell-wrap-text{
+  white-space: normal !important;
+  line-height: 23px !important;
+}
