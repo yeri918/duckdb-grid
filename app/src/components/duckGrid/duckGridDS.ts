@@ -19,11 +19,11 @@ const duckGridDataSource = (
   // Reference: https://www.ag-grid.com/javascript-data-grid/server-side-model-datasource/
   return {
     getRows: async (params: IServerSideGetRowsParams) => {
-      console.log("Requesting rows", params.request);
-      console.log("Row groups", params.request?.rowGroupCols); // Row groups
-      console.log("Agg values", params.request?.valueCols); // Aggregated values
-      console.log("Sort by", params.request?.sortModel); // Sort model
-      console.log("Column Defs", params.api.getGridOption("columnDefs"));
+      // console.log("Requesting rows", params.request);
+      // console.log("Row groups", params.request?.rowGroupCols); // Row groups
+      // console.log("Agg values", params.request?.valueCols); // Aggregated values
+      // console.log("Sort by", params.request?.sortModel); // Sort model
+      // console.log("Column Defs", params.api.getGridOption("columnDefs"));
 
       const select = await buildSelect(database, params);
       const groupby = await buildGroupBy(database, params);
@@ -47,7 +47,7 @@ const duckGridDataSource = (
         SELECT * FROM QUERY ${orderBy}
         ${limit};
     `;
-      console.log("sql", sql);
+      // console.log("sql", sql);
 
       // Make a DuckDB connection
       const connection = await database.connect();

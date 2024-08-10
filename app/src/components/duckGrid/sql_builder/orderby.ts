@@ -55,7 +55,6 @@ const buildOrderBy = async (
       }
     });
   }
-  console.log("Eligible Sort Parts: ", eligSortParts);
 
   return `ORDER BY ${eligSortParts.join(", ")}`;
 };
