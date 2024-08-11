@@ -1,8 +1,9 @@
-// Reference: https://www.ag-grid.com/javascript-data-grid/server-side-model-sorting/
+// 
+// orderby.ts
+// ===========
 //
-// This script performs Server-Side Sorting.
-// We use the data contained in the sortModel object to perform sorting.
-//
+// This script does the order by part of the sql
+// 
 
 import {
   IServerSideDatasource,
@@ -18,7 +19,6 @@ const buildOrderBy = async (
   const rowGroupCols = params.request?.rowGroupCols;
   const groupKeys = params.request?.groupKeys;
   let sortModel = params.request?.sortModel;
-
   let eligSortParts: string[] = [];
 
   // Handle empty sortModel case.
@@ -30,6 +30,10 @@ const buildOrderBy = async (
     // No Group By Case
     sortModel.forEach((key) => {
       eligSortParts.push(`${key.colId} ${key.sort}`);
+    });
+  } else if ( groupKeys.length > 0 && rowGroupCols.length === groupKeys.length ) { // Fully Opened
+    sortModel.forEach((key) => {
+      eligSortParts.push(`${key.colId} ${key.sort}`)
     });
   } else {
     // Handle Group By Case.
@@ -56,7 +60,11 @@ const buildOrderBy = async (
     });
   }
 
-  return `ORDER BY ${eligSortParts.join(", ")}`;
+  if (eligSortParts.length === 0) {
+    return "";
+  } else {
+    return `ORDER BY ${eligSortParts.join(", ")}`;
+  }
 };
 
 export default buildOrderBy;

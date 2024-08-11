@@ -1,3 +1,11 @@
+// 
+// limit.ts
+// ===========
+// 
+// This script defines the limit part of the sql query
+//  
+//
+
 import {
   IServerSideDatasource,
   IServerSideGetRowsParams,

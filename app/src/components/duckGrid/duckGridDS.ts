@@ -10,6 +10,8 @@ import buildGroupBy from "./sql_builder/groupby";
 import buildWhere from "./sql_builder/where";
 import buildOrderBy from "./sql_builder/orderby";
 import buildLimit from "./sql_builder/limit";
+import {useState} from 'react';
+
 
 const duckGridDataSource = (
   database: AsyncDuckDB,
@@ -18,12 +20,8 @@ const duckGridDataSource = (
   // 'getRows' and 'destroy' are properties of IServerSideDatasource
   // Reference: https://www.ag-grid.com/javascript-data-grid/server-side-model-datasource/
   return {
-    getRows: async (params: IServerSideGetRowsParams) => {
-      // console.log("Requesting rows", params.request);
-      // console.log("Row groups", params.request?.rowGroupCols); // Row groups
-      // console.log("Agg values", params.request?.valueCols); // Aggregated values
-      // console.log("Sort by", params.request?.sortModel); // Sort model
-      // console.log("Column Defs", params.api.getGridOption("columnDefs"));
+    getRows: async (params: IServerSideGetRowsParams<any, any> & {columns: any}) => {
+      console.log("Requesting rows", params.request);
 
       const select = await buildSelect(database, params);
       const groupby = await buildGroupBy(database, params);
@@ -55,7 +53,8 @@ const duckGridDataSource = (
       // Execute the query and convert the result to an array of objects
       try {
         const result = await connection.query(sql);
-        const rowData = result.toArray();
+        const promises = result.toArray();
+        const rowData = await Promise.all(promises);
         params.success({ rowData });
       } finally {
         await connection.close();

@@ -27,7 +27,7 @@ const buildWhere = async (
       case "number":
         return createNumberFilterSql(key, item);
       default:
-        // console.log("Unknown filter type: ", item.filterType);
+        console.log("Unknown filter type: ", item.filterType);
     }
   };
 
@@ -48,7 +48,7 @@ const buildWhere = async (
       case "inRange":
         return `${key} BETWEEN ${item.filter}`;
       default:
-        // console.log("Unknown number filter type: ", item.type);
+        console.log("Unknown number filter type: ", item.type);
     }
   };
 
@@ -67,7 +67,7 @@ const buildWhere = async (
       case "endsWith":
         return `${key} LIKE '%${item.filter}'`;
       default:
-        // console.log("Unknown text filter type: ", item.type);
+        console.log("Unknown text filter type: ", item.type);
     }
   };
 
