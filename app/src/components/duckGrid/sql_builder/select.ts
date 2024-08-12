@@ -17,8 +17,10 @@ const buildSelect = async (
     return "*";
   }
 
+  const groupkeyLength = params.request?.groupKeys.length;
   const groupByKeys = params.request?.rowGroupCols
     .map((key) => key.field)
+    .slice(groupkeyLength, groupkeyLength + 1)
     .join(",");
 
   // Get all numeric columns
