@@ -1,9 +1,6 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import StdAgGrid from "./components/grid/stdGrid.tsx";
-// import DuckDBGrid from './components/grid/duckdbGrid.js';
 import InitUserTable, {
   InitParquetTable,
   InitS3ParquetTable,
@@ -16,9 +13,9 @@ function App() {
   // const s3ParquetTable = InitS3ParquetTable();
 
   return (
-    <div style={{ width: "100%" }}>
-      <h1>Standard Grid</h1>
-      <div style={{ width: "100%" }}>
+    <div className="app-container">
+      <h1 className="app-title">Standard Grid</h1>
+      <div className="grid-container">
         <StdAgGrid />
       </div>
     </div>

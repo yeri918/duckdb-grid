@@ -6,7 +6,7 @@ import { RowClassParams } from "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import duckGridDataSource from "../duckGrid/duckGridDS";
-import duckdb from "../engine/duckdb";
+import db from "../table/duckDB";
 
 interface RowData {
   [key: string]: string | number;
@@ -53,9 +53,9 @@ const StdAgGrid: React.FC = () => {
       cellRenderer: (params: RowParams) => {
         if (params.value) {
           const date = new Date(params.value);
-      const year = date.getFullYear();
-      const month = ("0" + (date.getMonth() + 1)).slice(-2); // Months are 0 based, so +1 and pad with 0
-      const day = ("0" + date.getDate()).slice(-2);
+          const year = date.getFullYear();
+          const month = ("0" + (date.getMonth() + 1)).slice(-2); // Months are 0 based, so +1 and pad with 0
+          const day = ("0" + date.getDate()).slice(-2);
       return `${year}-${month}-${day}`;
         }
       }
@@ -84,7 +84,7 @@ const StdAgGrid: React.FC = () => {
 
   const source = `FROM bankdata
                   SELECT *, row_number() over () as rn `;
-  const datasource = duckGridDataSource(duckdb, source);
+  const datasource = duckGridDataSource(db, source);
 
   const onModelUpdated = (params: any) => {
     datasource.getRows(params);

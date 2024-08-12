@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import db from "../engine/duckdb";
+import db from "./duckDB";
 
 /**
  * This function initializes the table.
@@ -47,7 +47,8 @@ export const InitParquetTable = () => {
       const source = `
                             CREATE OR REPLACE VIEW bankdata AS
                             FROM read_parquet('${src}')
-                            SELECT *, row_number() over () as rn `;
+                            SELECT strftime(Date, '%d%b%Y') as Date, * exclude(Date), 
+                                  row_number() over () as rn `;
       await c.query(source);
       await c.close();
     };
