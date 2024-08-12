@@ -6,7 +6,7 @@ import { RowClassParams } from "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import duckGridDataSource from "../duckGrid/duckGridDS";
-import duckdb from "../engine/duckdb";
+import duckdb from "../table/duckDB";
 
 interface RowData {
   [key: string]: string | number;

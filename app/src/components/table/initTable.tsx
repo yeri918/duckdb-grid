@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import db from "../engine/duckdb";
+import db from "./duckDB";
 
 /**
  * This function initializes the table.
