@@ -88,7 +88,7 @@ const StdAgGrid: React.FC = () => {
 
   const onModelUpdated = (params: any) => {
     datasource.getRows(params);
-    console.log("coldefs", params.api.getGridOption("columnDefs"));
+    // console.log("coldefs", params.api.getGridOption("columnDefs"));
   };
 
   const onGridReady = (params: any) => {

@@ -1,3 +1,5 @@
+// groupby.ts
+
 import {
   IServerSideDatasource,
   IServerSideGetRowsParams,
@@ -8,15 +10,19 @@ const buildGroupBy = async (
   database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
 ) => {
-  const isGrouped = params.request?.rowGroupCols.length > 0;
-  const isFullyOpened =
-    params.request?.groupKeys.length > 0 &&
-    params.request?.groupKeys.length === params.request?.rowGroupCols.length;
+
+  const rowGroupLength = params.request?.rowGroupCols.length;
+  const groupKeyLength = params.request?.groupKeys.length;
+
+  const isGrouped = rowGroupLength > 0;
+  const isFullyOpened = groupKeyLength > 0 && groupKeyLength === rowGroupLength;
+
   if (!isGrouped || isFullyOpened) {
     return "";
   }
   const groupByKeys = params.request?.rowGroupCols
     .map((key) => key.field)
+    .slice(groupKeyLength, groupKeyLength + 1)
     .join(",");
   return `GROUP BY ${groupByKeys}`;
 };

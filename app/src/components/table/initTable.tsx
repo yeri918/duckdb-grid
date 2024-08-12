@@ -78,7 +78,6 @@ export const InitS3ParquetTable = () => {
       // console.log(loginQuery);
       // c.query(loginQuery);
 
-      console.log("CHECK");
       const taxiBucket = "bucket-duck";
       const taxiPath = "taxi_202304.parquet";
       const taxiTableName = "taxi";
