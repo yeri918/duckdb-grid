@@ -1,6 +1,14 @@
 import { useEffect } from "react";
 import db from "./duckDB";
 
+interface ColumnAlias {
+  [key: string]: string
+}
+interface Schema {
+  columns: ColumnAlias
+  dateColumn: string
+}
+
 /**
  * This function initializes the table.
  *
@@ -39,16 +47,42 @@ export const InitParquetTable = () => {
       const c = await db.connect();
 
       /*
-                We can use 
-                    - CREATE TABLE for in memory view
-                    - CREATE VIEW for not using meory.
-            */
+        *****************Start of User Input Area****************
+        Specify the table below.
+        We can use 
+            - CREATE TABLE for in memory view
+            - CREATE VIEW for not using meory.
+      */
       const src = new URL("./bankdataset.parquet", document.baseURI).href;
+      let schema: Schema = {
+        columns: {
+          Domain: "domain",
+          Date: "date",
+          Location: "today_location",
+          Value: "today_daily_value",
+          Transaction_count: "today_daily_transaction_count",
+        },
+        dateColumn: "Date"
+      }
+      /*
+        *****************End of User Input Area*****************
+      */
+
+      let selectQuery = "SELECT "
+      for(let key in schema.columns){
+        if(key == schema.dateColumn){
+          selectQuery += `strftime(${key}, '%d%b%Y') as ${schema["columns"][key]}, `
+        } else {
+          selectQuery += `${key} as ${schema["columns"][key]}, `
+        }
+        
+      }
+      console.log("Dom", selectQuery)
       const source = `
                             CREATE OR REPLACE VIEW bankdata AS
                             FROM read_parquet('${src}')
-                            SELECT strftime(Date, '%d%b%Y') as Date, * exclude(Date), 
-                                  row_number() over () as rn `;
+                            ${selectQuery}
+                    `;
       await c.query(source);
       await c.close();
     };
