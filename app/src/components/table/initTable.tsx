@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import db from "./duckDB";
 
-interface ColumnAlias {
+interface DataType {
   [key: string]: string
 }
-interface Schema {
-  columns: ColumnAlias
-  dateColumn: string
+export interface columnDataType {
+  columns: DataType
 }
 
 /**
@@ -41,7 +40,7 @@ export const InitUserTable = () => {
   return null;
 };
 
-export const InitParquetTable = () => {
+export const InitParquetTable = (filename: string) => {
   useEffect(() => {
     const initTable = async () => {
       const c = await db.connect();
@@ -53,35 +52,10 @@ export const InitParquetTable = () => {
             - CREATE TABLE for in memory view
             - CREATE VIEW for not using meory.
       */
-      const src = new URL("./bankdataset.parquet", document.baseURI).href;
-      let schema: Schema = {
-        columns: {
-          Domain: "domain",
-          Date: "date",
-          Location: "today_location",
-          Value: "today_daily_value",
-          Transaction_count: "today_daily_transaction_count",
-        },
-        dateColumn: "Date"
-      }
-      /*
-        *****************End of User Input Area*****************
-      */
-
-      let selectQuery = "SELECT "
-      for(let key in schema.columns){
-        if(key == schema.dateColumn){
-          selectQuery += `strftime(${key}, '%d%b%Y') as ${schema["columns"][key]}, `
-        } else {
-          selectQuery += `${key} as ${schema["columns"][key]}, `
-        }
-        
-      }
-      console.log("Dom", selectQuery)
+      const src = new URL(filename, document.baseURI).href;
       const source = `
                             CREATE OR REPLACE VIEW bankdata AS
                             FROM read_parquet('${src}')
-                            ${selectQuery}
                     `;
       await c.query(source);
       await c.close();
@@ -97,22 +71,6 @@ export const InitS3ParquetTable = () => {
   useEffect(() => {
     const initTable = async () => {
       const c = await db.connect();
-
-      /*
-                First we do a S3 Login.
-                WIP on using Secret Manager.
-            */
-      // const loginQuery = `
-      //     CREATE SECRET secret1 (
-      //         TYPE S3,
-      //         KEY_ID '${import.meta.env.VITE_S3_ACCESS_KEY}',
-      //         SECRET '${import.meta.env.VITE_S3_SECRET_ACCESS_KEY}',
-      //         REGION 'ap-southeast-2'
-      //     );
-      // `;
-      // console.log(loginQuery);
-      // c.query(loginQuery);
-
       const taxiBucket = "bucket-duck";
       const taxiPath = "taxi_202304.parquet";
       const taxiTableName = "taxi";
