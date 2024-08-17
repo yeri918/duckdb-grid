@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
-import {ColumnDataType, RowData, ColumnDef} from './gridTypes';
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import { ColumnDataType, RowData, ColumnDef } from './gridTypes';
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-enterprise";
 import './style.css';
@@ -7,11 +7,13 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import duckGridDataSource from "../duckGrid/duckGridDS";
 import db from "../table/duckDB";
-import {getColumnDefs} from './gridHelper'
+import { getColumnDefs } from './gridHelper'
+
 
 
 interface StdAgGridProps {
   columnDataType: ColumnDataType;
+  setExecutionTime?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
@@ -19,7 +21,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [aggFunc, setAggFunc] = useState<string>("sum");
   const [gridApi, setGridApi] = useState<any>(null);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
-  const gridStyle = useMemo(() => ({ height: "1000px", width: "100%" }), []);
+  const startTime = useRef(performance.now());
+  const gridStyle = useMemo(() => ({ height: "90%", width: "100%" }), []);
   const defaultColDef = useMemo(() => {
     return {
       flex: 1,
@@ -39,25 +42,33 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     setColumnDefs(columnDefs);
     console.log("Check", props.columnDataType);
   }, [props.columnDataType]);
-  
+
 
   const source = `FROM bankdata
                   SELECT *`;
   const datasource = duckGridDataSource(db, source);
 
   const onModelUpdated = (params: any) => {
-    datasource.getRows(params);
-    // console.log("coldefs", params.api.getGridOption("columnDefs"));
   };
 
   const onGridReady = (params: any) => {
-    setGridApi(params.api);
   };
+
+  const onFirstDataRendered = () => {
+    const endTime = performance.now();
+    const execTime = endTime - startTime.current;
+    if (props.setExecutionTime) {
+      props.setExecutionTime(execTime);
+    }
+  };
+
+
 
   return (
     <div >
-      <div style={{ height: "100%", boxSizing: "border-box" }}>
+      <div style={{ height: "100%", boxSizing: "border-box", }}>
         <div style={gridStyle} className="ag-theme-alpine">
+
           <AgGridReact
             rowModelType="serverSide"
             serverSideDatasource={datasource}
@@ -71,6 +82,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             suppressAggFuncInHeader={true}
             onModelUpdated={onModelUpdated}
             onGridReady={onGridReady}
+            onFirstDataRendered={onFirstDataRendered}
             rowHeight={25}
           />
         </div>
