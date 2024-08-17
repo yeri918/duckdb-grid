@@ -1,11 +1,15 @@
 import { useEffect } from "react";
 import db from "./duckDB";
 
-interface DataType {
-  [key: string]: string
-}
+/* 
+  Based on DuckDB WASM Formats
+  https://duckdb.org/docs/sql/data_types/overview.html
+  We didn't enumerate all, but you can add more.
+*/
+type DataType = "VARCHAR" | "DATE" | "INTEGER" | "DOUBLE" | "FLOAT";
+
 export interface columnDataType {
-  columns: DataType
+  [key: string]: DataType
 }
 
 /**

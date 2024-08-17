@@ -2,11 +2,12 @@ import React, { useEffect, useState, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-enterprise";
 import './style.css';
-import { RowClassParams } from "ag-grid-enterprise";
+import { Column, RowClassParams } from "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import duckGridDataSource from "../duckGrid/duckGridDS";
 import db from "../table/duckDB";
+import {columnDataType} from '../table/initTable';
 
 interface RowData {
   [key: string]: string | number;
@@ -16,14 +17,25 @@ interface RowParams {
   value: string;
 }
 
-const StdAgGrid: React.FC = () => {
+interface StdAgGridProps {
+  columnDataType: columnDataType;
+}
+
+interface ColumnDef {
+  headerName: string;
+  field: string;
+  enableRowGroup: boolean;
+  enableValue: boolean;
+  filter: string;
+}
+
+
+const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [rowData, setRowData] = useState<RowData[] | null>(null);
   const [aggFunc, setAggFunc] = useState<string>("sum");
   const [gridApi, setGridApi] = useState<any>(null);
-
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ height: "1000px", width: "100%" }), []);
-
   const defaultColDef = useMemo(() => {
     return {
       flex: 1,
@@ -37,53 +49,33 @@ const StdAgGrid: React.FC = () => {
     };
   }, []);
 
-  const [columnDefs, setColumnDefs] = useState([
-    {
-      headerName: "Domain",
-      field: "Domain",
-      enableRowGroup: true,
-      enableValue: true,
-      filter: 'agTextColumnFilter'
-    },
-    {
-      headerName: "Date",
-      field: "Date",
-      enableRowGroup: true,
-      enableValue: true,
-      cellRenderer: (params: RowParams) => {
-        if (params.value) {
-          const date = new Date(params.value);
-          const year = date.getFullYear();
-          const month = ("0" + (date.getMonth() + 1)).slice(-2); // Months are 0 based, so +1 and pad with 0
-          const day = ("0" + date.getDate()).slice(-2);
-      return `${year}-${month}-${day}`;
-        }
-      }
-    },
-    {
-      headerName: "Location",
-      field: "Location",
-      enableRowGroup: true,
-      enableValue: true,
-    },
-    {
-      headerName: "Value",
-      field: "Value",
-      enableValue: true,
-      allowedAggFuncs: ["sum", "min", "max"],
-      aggFunc: "sum",
-    },
-    {
-      headerName: "Transaction_count",
-      field: "Transaction_count",
-      enableValue: true, 
-      aggFunc: "sum"
-    },
-    { headerName: "rn", field: "rn", enableValue: true, aggFunc: "sum" },
-  ]);
+
+  const getColumnDefs = (columnDataType: columnDataType) => {
+    let columnDefs = [];
+    for (const key in columnDataType) {
+      columnDefs.push({
+        headerName: key,
+        field: key,
+        enableRowGroup: true,
+        enableValue: true,
+        filter: 'agTextColumnFilter'
+      });
+    }
+    return columnDefs;
+  }
+
+
+
+  const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
+  useEffect(() => {
+    const columnDefs = getColumnDefs(props.columnDataType)
+    setColumnDefs(columnDefs);
+    console.log("Check", props.columnDataType);
+  }, [props.columnDataType]);
+  
 
   const source = `FROM bankdata
-                  SELECT *, row_number() over () as rn `;
+                  SELECT *r`;
   const datasource = duckGridDataSource(db, source);
 
   const onModelUpdated = (params: any) => {
@@ -96,7 +88,7 @@ const StdAgGrid: React.FC = () => {
   };
 
   return (
-    <div style={containerStyle}>
+    <div >
       <div style={{ height: "100%", boxSizing: "border-box" }}>
         <div style={gridStyle} className="ag-theme-alpine">
           <AgGridReact

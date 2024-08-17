@@ -1,18 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import StdAgGrid from "./components/grid/stdGrid";
 import InitUserTable, {
-  Schema,
+  columnDataType,
   InitParquetTable,
   InitS3ParquetTable,
 } from "./components/table/initTable";
 
-
-
-
+/* 
+  ------------START OF USER EDITABLE AREA------------
+  Go through the README below to setup the table.
+*/
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [ready, setReady] = useState<boolean>(false);
 
   /* 
     README: Choose the table you want to initialize
@@ -24,25 +25,31 @@ function App() {
   /* 
     README: Choose the table you want to initialize
   */
-  let schema: Schema = {
-      columns: {
-        Domain: "domain",
-        Date: "date",
-        Location: "today_location",
-        Value: "today_daily_value",
-        Transaction_count: "today_daily_transaction_count",
-      },
-      dateColumn: "Date"
-    }
+  const userColumns: columnDataType = {
+    domain: "VARCHAR",
+    date: "DATE",
+    today_location: "VARCHAR",
+    today_daily_value: "DOUBLE",
+    today_daily_transaction_count: "DOUBLE",
+    row_number: "INTEGER",
+  }
 
+  /* 
+    ------------END OF USER EDITABLE AREA------------
+  */
+  useEffect(() => {
+    setReady(true);
+  }, [userColumns]); 
 
-
-  
   return (
     <div className="app-container">
       <h1 className="app-title">Standard Grid</h1>
       <div className="grid-container">
-        <StdAgGrid columnDataType={[]} />
+        {ready ? (
+          <StdAgGrid columnDataType={userColumns} />
+        ) : (
+          <p>Loading...</p>
+        )}
       </div>
     </div>
   );
