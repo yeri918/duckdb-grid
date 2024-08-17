@@ -1,3 +1,3 @@
 # DuckDB-Grid
 
-Please see [https://dominic-lcw.github.io/duckdb-grid/].
+Please see https://dominic-lcw.github.io/duckdb-grid/.
