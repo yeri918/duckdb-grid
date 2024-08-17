@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import StdAgGrid from "./components/grid/stdGrid";
+import { ColumnDataType } from "./components/grid/gridTypes";
 import InitUserTable, {
-  columnDataType,
   InitParquetTable,
   InitS3ParquetTable,
 } from "./components/table/initTable";
@@ -18,14 +18,7 @@ function App() {
   /* 
     README: Choose the table you want to initialize
   */
-  // const table = InitUserTable();
-  const parquetTable = InitParquetTable("./bankdataset.parquet", );
-  // const s3ParquetTable = InitS3ParquetTable();
-
-  /* 
-    README: Choose the table you want to initialize
-  */
-  const userColumns: columnDataType = {
+  const userColumns: ColumnDataType = {
     domain: "VARCHAR",
     date: "DATE",
     today_location: "VARCHAR",
@@ -33,6 +26,13 @@ function App() {
     today_daily_transaction_count: "DOUBLE",
     row_number: "INTEGER",
   }
+
+  /* 
+    README: Choose the table you want to initialize
+  */
+  // const table = InitUserTable();
+  const parquetTable = InitParquetTable("./bankdataset.parquet", userColumns);
+  // const s3ParquetTable = InitS3ParquetTable();
 
   /* 
     ------------END OF USER EDITABLE AREA------------

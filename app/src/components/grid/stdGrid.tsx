@@ -1,34 +1,18 @@
 import React, { useEffect, useState, useMemo } from "react";
+import {ColumnDataType, RowData, ColumnDef} from './gridTypes';
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-enterprise";
 import './style.css';
-import { Column, RowClassParams } from "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import duckGridDataSource from "../duckGrid/duckGridDS";
 import db from "../table/duckDB";
-import {columnDataType} from '../table/initTable';
+import {getColumnDefs} from './gridHelper'
 
-interface RowData {
-  [key: string]: string | number;
-}
-
-interface RowParams {
-  value: string;
-}
 
 interface StdAgGridProps {
-  columnDataType: columnDataType;
+  columnDataType: ColumnDataType;
 }
-
-interface ColumnDef {
-  headerName: string;
-  field: string;
-  enableRowGroup: boolean;
-  enableValue: boolean;
-  filter: string;
-}
-
 
 const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [rowData, setRowData] = useState<RowData[] | null>(null);
@@ -48,23 +32,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       minWidth: 200,
     };
   }, []);
-
-
-  const getColumnDefs = (columnDataType: columnDataType) => {
-    let columnDefs = [];
-    for (const key in columnDataType) {
-      columnDefs.push({
-        headerName: key,
-        field: key,
-        enableRowGroup: true,
-        enableValue: true,
-        filter: 'agTextColumnFilter'
-      });
-    }
-    return columnDefs;
-  }
-
-
 
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   useEffect(() => {

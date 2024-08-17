@@ -45,7 +45,7 @@ const duckGridDataSource = (
         SELECT * FROM QUERY ${orderBy}
         ${limit};
     `;
-      // console.log("sql", sql);
+      console.log("sql", sql);
 
       // Make a DuckDB connection
       const connection = await database.connect();

@@ -1,16 +1,7 @@
 import { useEffect } from "react";
 import db from "./duckDB";
+import { ColumnDataType } from "../grid/gridTypes";
 
-/* 
-  Based on DuckDB WASM Formats
-  https://duckdb.org/docs/sql/data_types/overview.html
-  We didn't enumerate all, but you can add more.
-*/
-type DataType = "VARCHAR" | "DATE" | "INTEGER" | "DOUBLE" | "FLOAT";
-
-export interface columnDataType {
-  [key: string]: DataType
-}
 
 /**
  * This function initializes the table.
@@ -44,7 +35,7 @@ export const InitUserTable = () => {
   return null;
 };
 
-export const InitParquetTable = (filename: string) => {
+export const InitParquetTable = (filename: string, columnDataType: ColumnDataType) => {
   useEffect(() => {
     const initTable = async () => {
       const c = await db.connect();
@@ -57,10 +48,22 @@ export const InitParquetTable = (filename: string) => {
             - CREATE VIEW for not using meory.
       */
       const src = new URL(filename, document.baseURI).href;
+      const selectQuery = Object.keys(columnDataType)
+        .map((key) => {
+          // We force all Date Column to be string.
+          if(columnDataType[key] === "DATE"){
+            return `strftime(${key}, '%Y-%m-%d') as ${key}`
+          } else {
+            return `${key}`
+          }
+        })
+        .join(", "); 
       const source = `
                             CREATE OR REPLACE VIEW bankdata AS
                             FROM read_parquet('${src}')
+                            SELECT ${selectQuery};
                     `;
+      console.log("Check", source);                    
       await c.query(source);
       await c.close();
     };
