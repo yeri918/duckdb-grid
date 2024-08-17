@@ -13,7 +13,6 @@ export interface RowData {
     [key: string]: string | number;
   }
   
-
 export interface ColumnDataType {
   [key: string]: DataType
 }
