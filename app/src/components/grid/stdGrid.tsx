@@ -75,7 +75,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   
 
   const source = `FROM bankdata
-                  SELECT *r`;
+                  SELECT *`;
   const datasource = duckGridDataSource(db, source);
 
   const onModelUpdated = (params: any) => {
