@@ -14,6 +14,7 @@ import InitUserTable, {
 
 function App() {
   const [ready, setReady] = useState<boolean>(false);
+  const [executionTime, setExecutionTime] = useState<number>(0);
 
   /* 
     README: Choose the table you want to initialize
@@ -39,14 +40,17 @@ function App() {
   */
   useEffect(() => {
     setReady(true);
-  }, [userColumns]); 
+  }, [userColumns]);
 
   return (
-    <div className="app-container">
+    <div className="app-container" style={{}}>
+      <div className="top-right" style={{ position: "absolute", top: "10px", right: "10px" }}>
+        <div>Exec: {executionTime.toFixed(2)} ms</div>
+      </div>
       <h1 className="app-title">Standard Grid</h1>
       <div className="grid-container">
         {ready ? (
-          <StdAgGrid columnDataType={userColumns} />
+          <StdAgGrid columnDataType={userColumns} setExecutionTime={setExecutionTime} />
         ) : (
           <p>Loading...</p>
         )}
