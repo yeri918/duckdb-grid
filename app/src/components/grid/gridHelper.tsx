@@ -11,7 +11,12 @@ export const getColumnDefs = (columnDataType: ColumnDataType) => {
         enableValue: true,
         filter: 'agTextColumnFilter'
       };
-  
+      
+      if ( ["INTEGER", "DOUBLE", "FLAOT"].includes(columnDataType[key])) {
+        columnDef.valueFormatter = (params) => {
+          return new Intl.NumberFormat().format(params.value);
+        };
+      }
       columnDefs.push(columnDef);
     }
     return columnDefs;

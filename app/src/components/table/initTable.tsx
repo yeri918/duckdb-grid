@@ -52,9 +52,9 @@ export const InitParquetTable = (filename: string, columnDataType: ColumnDataTyp
         .map((key) => {
           // We force all Date Column to be string.
           if(columnDataType[key] === "DATE"){
-            return `strftime(${key}, '%Y-%m-%d') as ${key}`
+            return `strftime(${key}, '%Y-%m-%d')::VARCHAR as ${key}`
           } else {
-            return `${key}`
+            return `${key}::${columnDataType[key]} as ${key}`;
           }
         })
         .join(", "); 

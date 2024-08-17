@@ -7,6 +7,7 @@ import { Column, RowClassParams, ColDef } from "ag-grid-enterprise";
 */
 export type DataType = "VARCHAR" | "DATE" | "INTEGER" | "DOUBLE" | "FLOAT";
 
+export type NumericDataType = "INTEGER" | "DOUBLE" | "FLOAT";
 
 export interface RowData {
     [key: string]: string | number;
