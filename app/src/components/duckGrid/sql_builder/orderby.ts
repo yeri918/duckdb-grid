@@ -40,10 +40,27 @@ const buildOrderBy = async (
       }
     });
   } else {
-    // Handle Group By Case.
+    // Get No RowGroup Numeric Columns
     let rowGroupColIds = rowGroupCols.map((col) => col.id);
+    const sql = `
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE 
+            table_name = 'bankdata'
+            AND data_type IN ('INTEGER', 'BIGINT', 'SMALLINT', 'TINYINT', 'FLOAT', 'DOUBLE', 'DECIMAL');
+    `;
+    const connection = await database.connect();
+    const result = await connection.query(sql);
+    await connection.close();
+
+    const numericCols = JSON.parse(JSON.stringify(result.toArray())).map(
+      (col: { column_name: string }) => col.column_name,
+    );
+    console.log("order dom numericCols", numericCols);
+
+
     let sortNonGroupCols = sortModel?.filter((value) =>
-      !rowGroupColIds.includes(value.colId) && value.colId !== "ag-Grid-AutoColumn",
+      !rowGroupColIds.includes(value.colId) && numericCols.includes(value.colId),
     );
     console.log("order dom sortNonGroupCols", sortNonGroupCols);
 
@@ -59,6 +76,7 @@ const buildOrderBy = async (
         console.log("Dom sortGroupKey", rowGroupCols);
         eligSortParts.push(`${sortGroupKey.id} ${key.sort}`);
       } if (sortNonGroupCols?.includes(key)) {
+        console.log("Added to order by", key.colId);
         eligSortParts.push(colId + " " + key.sort);
       }
     });
