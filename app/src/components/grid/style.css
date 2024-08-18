@@ -6,7 +6,23 @@
   background-color: #f2f2f2 !important;
 }
 
-.cell-wrap-text{
+.cell-wrap-text {
   white-space: normal !important;
   line-height: 23px !important;
+}
+
+.cell-green {
+  background-color: palegreen !important;
+}
+
+.cell-red {
+  background-color: palevioletred !important;
+}
+
+.cell-blue {
+  background-color: paleturquoise !important;
+}
+
+.cell-orange {
+  background-color: bisque !important;
 }

@@ -10,17 +10,18 @@ export type DataType = "VARCHAR" | "DATE" | "INTEGER" | "DOUBLE" | "FLOAT";
 export type NumericDataType = "INTEGER" | "DOUBLE" | "FLOAT";
 
 export interface RowData {
-    [key: string]: string | number;
-  }
-  
+  [key: string]: string | number;
+}
+
 export interface ColumnDataType {
   [key: string]: DataType
 }
 
 export interface ColumnDef extends ColDef {
-    headerName: string;
-    field: string;
-    enableRowGroup: boolean;
-    enableValue: boolean;
-    filter: string;
+  headerName: string;
+  field: string;
+  enableRowGroup: boolean;
+  enableValue: boolean;
+  filter: string;
+  children?: ColumnDef[] | ColumnDef | null;
 }

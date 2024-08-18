@@ -7,7 +7,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import duckGridDataSource from "../duckGrid/duckGridDS";
 import db from "../table/duckDB";
-import { getColumnDefs } from './gridHelper'
+import { getColumnDefs, getLayeredColumnDefs, getGroupedColumnDefs } from './gridHelper'
 
 
 
@@ -39,14 +39,17 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   useEffect(() => {
     const columnDefs = getColumnDefs(props.columnDataType)
-    setColumnDefs(columnDefs);
+    const layeredColumnDefs = getLayeredColumnDefs(props.columnDataType);
+    const groupedColumnDefs = getGroupedColumnDefs(props.columnDataType);
+    console.log("Domm", layeredColumnDefs)
+    setColumnDefs(groupedColumnDefs);
     console.log("Check", props.columnDataType);
   }, [props.columnDataType]);
 
 
   const source = `FROM bankdata
                   SELECT *`;
-  const datasource = duckGridDataSource(db, source);
+  const datasource = duckGridDataSource(db!, source);
 
   const onModelUpdated = (params: any) => {
   };
@@ -61,6 +64,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       props.setExecutionTime(execTime);
     }
   };
+
+
 
 
 
