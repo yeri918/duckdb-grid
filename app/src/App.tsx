@@ -45,7 +45,15 @@ function App() {
   return (
     <div className="app-container" style={{}}>
       <div className="top-right" style={{ position: "absolute", top: "10px", right: "10px" }}>
-        <div>Exec: {executionTime.toFixed(2)} ms</div>
+        {executionTime === 0 ? (
+          <div className="loading">
+            <span className="dot">🟡</span>
+            <span className="dot">🟡</span>
+            <span className="dot">🟡</span>
+          </div>
+        ) : (
+          <div>Exec: {executionTime.toFixed(2)} ms</div>
+        )}
       </div>
       <h1 className="app-title">Standard Grid</h1>
       <div className="grid-container">
