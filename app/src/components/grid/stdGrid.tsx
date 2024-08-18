@@ -41,9 +41,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     const columnDefs = getColumnDefs(props.columnDataType)
     const layeredColumnDefs = getLayeredColumnDefs(props.columnDataType);
     const groupedColumnDefs = getGroupedColumnDefs(props.columnDataType);
-    console.log("Domm", layeredColumnDefs)
     setColumnDefs(groupedColumnDefs);
-    console.log("Check", props.columnDataType);
   }, [props.columnDataType]);
 
 
@@ -64,10 +62,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       props.setExecutionTime(execTime);
     }
   };
-
-
-
-
 
   return (
     <div >
