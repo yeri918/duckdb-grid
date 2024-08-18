@@ -31,30 +31,48 @@ const buildOrderBy = async (
     sortModel.forEach((key) => {
       eligSortParts.push(`${key.colId} ${key.sort}`);
     });
-  } else if ( groupKeys.length > 0 && rowGroupCols.length === groupKeys.length ) { // Fully Opened
+  } else if (groupKeys.length > 0 && rowGroupCols.length === groupKeys.length) { // Fully Opened
     sortModel.forEach((key) => {
-      eligSortParts.push(`${key.colId} ${key.sort}`)
+      console.log("order check", key.colId);
+      // If fully open, we don't have to care the row group columns
+      if (key.colId !== "ag-Grid-AutoColumn") {
+        eligSortParts.push(`${key.colId} ${key.sort}`)
+      }
     });
   } else {
-    // Handle Group By Case.
+    // Get No RowGroup Numeric Columns
     let rowGroupColIds = rowGroupCols.map((col) => col.id);
-    let valueColIds = params.request?.valueCols?.map((col) => col.id);
-    let allCols = rowGroupColIds?.concat(valueColIds);
+    const sql = `
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE 
+            table_name = 'bankdata'
+            AND data_type IN ('INTEGER', 'BIGINT', 'SMALLINT', 'TINYINT', 'FLOAT', 'DOUBLE', 'DECIMAL');
+    `;
+    const connection = await database.connect();
+    const result = await connection.query(sql);
+    await connection.close();
 
-    let intersectCols = sortModel?.filter((value) =>
-      allCols.includes(value.colId),
+    const numericCols = JSON.parse(JSON.stringify(result.toArray())).map(
+      (col: { column_name: string }) => col.column_name,
     );
 
-    intersectCols.forEach((key) => {
+
+    let sortNonGroupCols = sortModel?.filter((value) =>
+      !rowGroupColIds.includes(value.colId) && numericCols.includes(value.colId),
+    );
+
+    // Case 1: If ag-Grid-AutoColumn is inside
+    // then we sort by the the outermost row group columns.
+    // then we ignore all rowGroupColumn
+    sortModel?.forEach((key) => {
       let colId = key.colId;
-      if (colId === "Auto-Grid-Column") {
-        let autoGroupOrder = rowGroupColIds
-          .map((colId) => {
-            return colId + " " + key.sort;
-          })
-          .join(",");
-        eligSortParts.push(autoGroupOrder);
-      } else {
+      if (colId === "ag-Grid-AutoColumn") {
+
+        const groupKeyLength = params.request?.groupKeys.length ?? 0;
+        const sortGroupKey = rowGroupCols[groupKeyLength]; // We get the next one.
+        eligSortParts.push(`${sortGroupKey.id} ${key.sort}`);
+      } if (sortNonGroupCols?.includes(key)) {
         eligSortParts.push(colId + " " + key.sort);
       }
     });
