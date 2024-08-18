@@ -52,7 +52,6 @@ export const getLayeredColumnDefs = (columnDataType: ColumnDataType) => {
         headerClass: i % 4 === 0 ? "cell-red" : i % 4 === 1 ? "cell-green" : i % 4 === 2 ? "cell-blue" : "cell-orange"
       };
     }, initialColumnDef);
-    console.log("domm", nestedColumnDef)
     layeredColumnDefs.push(nestedColumnDef);
   }
 
@@ -73,15 +72,12 @@ export const getGroupedColumnDefs = (columnDataType: ColumnDataType) => {
   // Assuming the length is not large, we will do a triangular search.
   let k = 0;
   for (let i = 0; i < columnDefs.length; i++) {
-    console.log('check startb', i, j, columnDefs.length)
     if (i === layeredColumnDefs.length - 1) {
       const columnDef = layeredColumnDefs[i];
       groupedColumnDefs.push(columnDef);
-      console.log('check b')
       break;
     }
     for (let j = i + 1; j < columnDefs.length; j++) {
-      console.log('check start', i, j, columnDefs.length)
       const columnDef = layeredColumnDefs[i];
       // console.log('check', i, j, columnDef)
       if (columnDef.children === undefined) {
@@ -90,25 +86,21 @@ export const getGroupedColumnDefs = (columnDataType: ColumnDataType) => {
       }
 
       const currentDef = columnDef;
-      const keys1 = columnDefs[i].field.split('_');
+      const keys1 = columnDefs[j - 1].field.split('_');
       const keys2 = columnDefs[j].field.split('_');
 
       let matchingIndex = -1; // Initialize to -1 to indicate no match found
       for (let k = 0; k < Math.min(keys1.length, keys2.length); k++) {
-        console.log('check detail', keys1[k], keys2[k], k)
         if (keys1[k] === keys2[k]) {
           matchingIndex = k;
         } else {
           break;
         }
       }
-      console.log('matching Index', matchingIndex);
-      console.log('check', keys1, keys2, i, j, matchingIndex);
 
       if (matchingIndex === -1) {
         groupedColumnDefs.push(currentDef);
         i = j - 1;
-        console.log('check d', i, j)
         break;
       };
 
@@ -120,9 +112,27 @@ export const getGroupedColumnDefs = (columnDataType: ColumnDataType) => {
         for (let k = 0; k < matchingIndex + 1; k++) {
           if (k === matchingIndex) {
             parent = child1;
+            if (Array.isArray(parent)) {
+              parent = parent[parent.length - 1]
+            }
           }
-          child1 = child1.children;
-          child2 = child2.children;
+
+          if (Array.isArray(child1)) {
+            child1 = child1[child1.length - 1].children
+          }
+          else {
+            child1 = child1.children
+          };
+          // child1 = child1.children
+          // console.log("check child1", child1, Array.isArray(child1))
+
+          if (Array.isArray(child2)) {
+            child2 = child2[child2.length - 1].children
+          }
+          else {
+            child2 = child2.children
+          };
+          // child2 = child2.children
         }
         const combinedChildren = [...child1, child2[0]];
         parent.children = combinedChildren;
