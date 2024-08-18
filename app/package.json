@@ -14,6 +14,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@ag-grid-community/react": "^32.1.0",
     "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
     "ag-grid-community": "^32.0.2",
     "ag-grid-enterprise": "^32.0.2",
