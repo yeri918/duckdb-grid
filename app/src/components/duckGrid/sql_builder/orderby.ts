@@ -56,13 +56,11 @@ const buildOrderBy = async (
     const numericCols = JSON.parse(JSON.stringify(result.toArray())).map(
       (col: { column_name: string }) => col.column_name,
     );
-    console.log("order dom numericCols", numericCols);
 
 
     let sortNonGroupCols = sortModel?.filter((value) =>
       !rowGroupColIds.includes(value.colId) && numericCols.includes(value.colId),
     );
-    console.log("order dom sortNonGroupCols", sortNonGroupCols);
 
     // Case 1: If ag-Grid-AutoColumn is inside
     // then we sort by the the outermost row group columns.
@@ -73,10 +71,8 @@ const buildOrderBy = async (
 
         const groupKeyLength = params.request?.groupKeys.length ?? 0;
         const sortGroupKey = rowGroupCols[groupKeyLength]; // We get the next one.
-        console.log("Dom sortGroupKey", rowGroupCols);
         eligSortParts.push(`${sortGroupKey.id} ${key.sort}`);
       } if (sortNonGroupCols?.includes(key)) {
-        console.log("Added to order by", key.colId);
         eligSortParts.push(colId + " " + key.sort);
       }
     });
