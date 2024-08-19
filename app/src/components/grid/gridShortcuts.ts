@@ -35,37 +35,54 @@ const handleKeyPressed = (event: KeyboardEvent, gridApi: GridApi,
       ctrlFDown.current = false;
     }
   }
-
-  if (event.key === "esc") {
-    // ctrlFDown = false
-    console.log("ESC reset")
-  }
   // endregion
 
   // region: Group By Shortcuts
-  if (event.ctrlKey && event.key === "1") {
+  if (event.ctrlKey && event.key === "ArrowRight") {
     // Code for Ctrl + S shortcut
     noTriggered = false;
-    console.log("Ctrl + 1 shortcut triggered");
+
+    // Record Maximum NodeLevel
+    let maxLevel = -1;
     gridApi?.forEachNode((node: any) => {
-      if (node.level === 0) {
+      if (node.level > maxLevel && node.displayed === true && node.expanded === true) {
+        maxLevel = node.level
+      }
+    });
+    console.log("check group", maxLevel);
+
+    gridApi?.forEachNode((node: any) => {
+      if (node.level <= maxLevel + 1) {
         node.setExpanded(true);
       } else {
         node.setExpanded(false);
       }
     });
-    console.log("Ctrl + 1 shortcut triggered Done");
   }
 
-  if (event.ctrlKey && event.key === "2") {
+  if (event.ctrlKey && event.key === "ArrowLeft") {
     // Code for Ctrl + S shortcut
     noTriggered = false;
-    console.log("Ctrl + 2 shortcut triggered");
+
+    // Record Maximum NodeLevel
+    let maxLevel = -1;
     gridApi?.forEachNode((node: any) => {
-      if (node.level <= 1) {
-        node.setExpanded(true);
-      } else {
+      if (node.level > maxLevel && node.displayed === true) {
+        console.log("hihi", node.level, node);
+        maxLevel = node.level
+      }
+    });
+    console.log("check group left", maxLevel, "reduced to", maxLevel - 1);
+
+    gridApi?.forEachNode((node: any) => {
+      if (node.level === maxLevel - 1) {
+
         node.setExpanded(false);
+        if (node.level > maxLevel) {
+          node.level = maxLevel
+        }
+      } else {
+        node.setExpanded(true);
       }
     });
   }
