@@ -1,7 +1,7 @@
 import { GridApi } from "ag-grid-enterprise";
 import React, { useRef } from "react"
 
-const handleKeyPressed = (event: KeyboardEvent, gridApi: GridApi,
+const handleKeyDown = (event: KeyboardEvent, gridApi: GridApi,
   ctrlFDown: React.MutableRefObject<boolean>) => {
 
   let noTriggered = true;
@@ -97,4 +97,4 @@ const handleKeyPressed = (event: KeyboardEvent, gridApi: GridApi,
   // endregion
 };
 
-export default handleKeyPressed
+export default handleKeyDown

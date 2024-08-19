@@ -6,7 +6,7 @@ import {
   ColumnDataType, RowData,
   ColumnDef, CountStatusBarComponentType
 } from './gridTypes';
-import handleKeyPressed from "./gridShortcuts";
+import handleKeyDown from "./gridShortcuts";
 import {
   onFilterEqual, onFilterReset,
   onRowGroupCollapseAll, onRowGroupExpandOneLevel
@@ -72,11 +72,11 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const ctrlEDown = useRef<boolean>(false);
   useEffect(() => {
 
-    document.addEventListener("keydown", (event: KeyboardEvent) => handleKeyPressed(event, gridApi, ctrlFDown));
+    document.addEventListener("keydown", (event: KeyboardEvent) => handleKeyDown(event, gridApi, ctrlFDown));
     return () => {
       // This will remove the componet when the component is unmounted.
       // dl: not sur eif we can remove it
-      document.removeEventListener("keydown", (event: KeyboardEvent) => handleKeyPressed(event, gridApi, ctrlFDown));
+      document.removeEventListener("keydown", (event: KeyboardEvent) => handleKeyDown(event, gridApi, ctrlFDown));
     };
   }, [gridApi]);
   // endregion
