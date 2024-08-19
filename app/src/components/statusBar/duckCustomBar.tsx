@@ -14,14 +14,12 @@ export default (props: CustomStatusPanelProps) => {
     `);
 
     const result = arrowResult.toArray().map((row) => row.toJSON());
-    console.log('numeric_data', result[0].c);
     await connection.close();
     return Number(result[0].c);
   };
 
   useEffect(() => {
     const rowCount = fetchData()
-    console.log("numeric_data2", rowCount);
     rowCount.then((data) => {
       setCount(data);
     })
