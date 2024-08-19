@@ -1,24 +1,10 @@
 import { GridApi } from "ag-grid-enterprise";
 import React, { useRef } from "react"
 
-
-
-// let ctrlFDown = false;
-
 const handleKeyPressed = (event: KeyboardEvent, gridApi: GridApi,
   ctrlFDown: React.MutableRefObject<boolean>) => {
-  // console.log("Check Ctrl + F", ctrlFDown);
-  // region: Filtering Shortcuts
-  // const [ctrlFDown, setCtrlFDown] = useState<boolean>(false);
-  // if (event.ctrlKey && event.key === "f") {
-  //   setCtrlFDown(true);
-  //   Code for Ctrl + F and Ctrl + C shortcut
-  // }
-
 
   let noTriggered = true;
-  console.log("ctrl check", "altKey", event.altKey, "pressed", event.key, "ctrlfdlwo", ctrlFDown, gridApi);
-
   // region: New Data
   if (event.ctrlKey && event.key === "e") {
     noTriggered = false;
@@ -41,13 +27,11 @@ const handleKeyPressed = (event: KeyboardEvent, gridApi: GridApi,
   if (ctrlFDown.current && event.key === "c") {
 
     noTriggered = false;
-    console.log("domdom dom   triggered", gridApi);
     gridApi?.setFilterModel(null);
     gridApi?.onFilterChanged();
 
     // This is added because some calls give a null filter.
     if (gridApi) {
-      console.log("switch off ctrl + f")
       ctrlFDown.current = false;
     }
   }
@@ -56,7 +40,6 @@ const handleKeyPressed = (event: KeyboardEvent, gridApi: GridApi,
     // ctrlFDown = false
     console.log("ESC reset")
   }
-
   // endregion
 
   // region: Group By Shortcuts
@@ -86,7 +69,6 @@ const handleKeyPressed = (event: KeyboardEvent, gridApi: GridApi,
       }
     });
   }
-
 
   // Reset the flags
   // Only update when false is tru.
