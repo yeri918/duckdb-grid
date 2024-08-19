@@ -41,7 +41,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [gridApi, setGridApi] = useState<any>(null);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const startTime = useRef(performance.now());
-  const gridStyle = useMemo(() => ({ height: "90%", width: "100%" }), []);
+  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
 
   // region: Column Defs
   const defaultColDef = useMemo(() => {
