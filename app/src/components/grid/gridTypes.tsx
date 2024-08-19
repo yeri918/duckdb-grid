@@ -25,3 +25,7 @@ export interface ColumnDef extends ColDef {
   filter: string;
   children?: ColumnDef[] | ColumnDef | null;
 }
+export interface CountStatusBarComponentType<T, P> {
+  api: T;
+  params: P;
+}
