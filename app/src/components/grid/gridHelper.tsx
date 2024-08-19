@@ -64,11 +64,6 @@ export const getGroupedColumnDefs = (columnDataType: ColumnDataType) => {
   const layeredColumnDefs = getLayeredColumnDefs(columnDataType);
   const columnDefs = getColumnDefs(columnDataType);
 
-  let i = 0;
-  let j = 0;
-  let currentCompare: ColumnDef[] | ColumnDef | null = null;
-  let nextCompare: ColumnDef[] | ColumnDef | null = null;
-
   // Assuming the length is not large, we will do a triangular search.
   let k = 0;
   for (let i = 0; i < columnDefs.length; i++) {

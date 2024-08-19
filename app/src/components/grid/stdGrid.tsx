@@ -1,14 +1,32 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import { ColumnDataType, RowData, ColumnDef, CountStatusBarComponentType } from './gridTypes';
-import CountStatusBarComponent from '../duckGrid/duckStatusBar';
-import handleKeyPressed from "./gridShortcuts";
 import { AgGridReact } from "ag-grid-react";
+
+// grid Folder
+import {
+  ColumnDataType, RowData,
+  ColumnDef, CountStatusBarComponentType
+} from './gridTypes';
+import handleKeyPressed from "./gridShortcuts";
+import {
+  onFilterEqual, onFilterReset,
+  onRowGroupCollapseAll, onRowGroupExpandOneLevel
+} from "./gridContextMenu";
+import {
+  getColumnDefs, getLayeredColumnDefs,
+  getGroupedColumnDefs
+} from './gridHelper'
+import './style.css';
+
+// duckGrid Folder
+import duckGridDataSource from "../duckGrid/duckGridDS";
+import CountStatusBarComponent from '../duckGrid/duckStatusBar';
+
+// table Folder
+import db from "../table/duckDB";
+
+// AgGrid imports
 import { ColDef, StatusPanelDef } from '@ag-grid-community/core';
 import "ag-grid-enterprise";
-import duckGridDataSource from "../duckGrid/duckGridDS";
-import db from "../table/duckDB";
-import { getColumnDefs, getLayeredColumnDefs, getGroupedColumnDefs } from './gridHelper'
-import './style.css';
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
@@ -24,13 +42,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "90%", width: "100%" }), []);
-
-  // region: ShortCuts
-  // dl: useState will trigger a rerender of the grid. The useStates will be invalid.
-  const ctrlFDown = useRef<boolean>(false);
-  const ctrlEDown = useRef<boolean>(false);
-  // endregion
-
 
   // region: Column Defs
   const defaultColDef = useMemo(() => {
@@ -55,89 +66,42 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   }, [props.columnDataType]);
   // endregion
 
+  // region: ShortCuts
+  // dl: useState will trigger a rerender of the grid. The useStates will be invalid.
+  const ctrlFDown = useRef<boolean>(false);
+  const ctrlEDown = useRef<boolean>(false);
   useEffect(() => {
 
     document.addEventListener("keydown", (event: KeyboardEvent) => handleKeyPressed(event, gridApi, ctrlFDown));
     return () => {
       // This will remove the componet when the component is unmounted.
-      // dl: THis is very very import !!!! 
+      // dl: not sur eif we can remove it
       document.removeEventListener("keydown", (event: KeyboardEvent) => handleKeyPressed(event, gridApi, ctrlFDown));
     };
   }, [gridApi]);
+  // endregion
 
   const source = `FROM bankdata
                   SELECT *`;
   const datasource = duckGridDataSource(db!, source);
 
+  // COntextMenuItems
   const getContextMenuItems = (params: any) => {
     return [
-      // ...any other menu items you want to include
       {
         name: "Filters",
         subMenu: [
-          {
-            name: "Filter Equal",
-            action: () => {
-              const selectedValue = params.value;
-              console.log("check", params.column.getColId(), params.value, params)
-              gridApi.setFilterModel({
-                [params.column.getColId()]: {
-                  type: "equals",
-                  filter: selectedValue
-                }
-              });
-              gridApi.onFilterChanged();
-            }
-          },
-          "separator",
-          {
-            name: "Reset Filters",
-            action: () => {
-              gridApi.setFilterModel(null);
-              gridApi.onFilterChanged();
-            }
-          },
-          {
-            name: "Option 3",
-            action: () => {
-              // Code for Option 3
-            }
-          }
+          onFilterEqual(gridApi, params),
+          onFilterReset(gridApi, params),
         ],
       },
+      onFilterEqual(gridApi, params), // This is so commonly used, so we get itout.
       "separator",
       {
         name: "Groups",
         subMenu: [
-          {
-            name: "Collapse All",
-            action: () => {
-              // Code for Option 1
-              gridApi?.collapseAll();
-
-            }
-          },
-          {
-            name: "Expand First Level",
-            action: () => {
-              // Code for Option 2
-
-              gridApi?.forEachNode((node: any) => {
-                if (node.level === 0) {
-                  node.setExpanded(true);
-                } else {
-                  node.setExpanded(false);
-                }
-              });
-            }
-          },
-          {
-            name: "Option 3",
-            action: () => {
-              // Code for Option 3
-
-            }
-          }
+          onRowGroupCollapseAll(gridApi, params),
+          onRowGroupExpandOneLevel(gridApi, params),
         ],
       },
       "separator",
@@ -164,6 +128,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       ],
     };
   }, []);
+
 
   const onModelUpdated = (params: any) => {
   };
