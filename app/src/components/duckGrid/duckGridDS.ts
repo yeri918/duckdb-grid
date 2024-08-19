@@ -18,9 +18,7 @@ const duckGridDataSource = (
   source: string,
 ): IServerSideDatasource => {
 
-
   const getRows = async (params: IServerSideGetRowsParams<any, any> & { columns: any }) => {
-
     console.log("Requesting rows", params.request);
 
     const select = await buildSelect(database, params);

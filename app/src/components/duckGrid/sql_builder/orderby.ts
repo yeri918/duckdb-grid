@@ -43,20 +43,18 @@ const buildOrderBy = async (
     // Get No RowGroup Numeric Columns
     let rowGroupColIds = rowGroupCols.map((col) => col.id);
     const sql = `
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE 
-            table_name = 'bankdata'
-            AND data_type IN ('INTEGER', 'BIGINT', 'SMALLINT', 'TINYINT', 'FLOAT', 'DOUBLE', 'DECIMAL');
+        DESCRIBE bankdata;
     `;
     const connection = await database.connect();
-    const result = await connection.query(sql);
+    const arrowResult = await connection.query(sql);
+    const result = arrowResult.toArray().map((row) => row.toJSON());
+
     await connection.close();
-
-    const numericCols = JSON.parse(JSON.stringify(result.toArray())).map(
-      (col: { column_name: string }) => col.column_name,
-    );
-
+    const numericCols: any[] = result
+      .filter((value) =>
+        ["INTEGER", "DOUBLE", "FLOAT"].includes(value.column_type)).map(
+          (value) => value.column_name)
+      ;
 
     let sortNonGroupCols = sortModel?.filter((value) =>
       !rowGroupColIds.includes(value.colId) && numericCols.includes(value.colId),
