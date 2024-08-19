@@ -6,14 +6,16 @@ export const onFilterEqual = (gridApi: GridApi, params: any): ContextMenuItem =>
   const menuItem: ContextMenuItem = {
     "name": "Filter equal",
     action: () => {
+
+      let filterModel = gridApi.getFilterModel();
+      filterModel = filterModel === undefined ? {} : filterModel
+
       const selectedValue = params.value;
-      console.log("check", params.column.getColId(), params.value, params)
-      gridApi.setFilterModel({
-        [params.column.getColId()]: {
-          type: "equals",
-          filter: selectedValue
-        }
-      });
+      filterModel[params.column.getColId()] = {
+        type: "equals",
+        filter: selectedValue
+      }
+      gridApi.setFilterModel(filterModel);
       gridApi.onFilterChanged();
     }
   }
