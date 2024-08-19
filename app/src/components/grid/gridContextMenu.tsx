@@ -11,7 +11,15 @@ export const onFilterEqual = (gridApi: GridApi, params: any): ContextMenuItem =>
       filterModel = filterModel === undefined ? {} : filterModel
 
       const selectedValue = params.value;
-      filterModel[params.column.getColId()] = {
+      let filterColumn = params.column.getColId();
+
+      // Additional logic so that use can filter on the group columns.
+      if (filterColumn === "ag-Grid-AutoColumn") {
+        filterColumn = gridApi.getRowGroupColumns()[params.node.level]
+          .getColDef()
+          .field
+      }
+      filterModel[filterColumn] = {
         type: "equals",
         filter: selectedValue
       }
