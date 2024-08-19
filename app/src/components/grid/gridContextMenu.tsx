@@ -68,3 +68,32 @@ export const onRowGroupExpandOneLevel = (gridApi: GridApi, params: any): Context
   return menuItem
 }
 // endregion
+
+
+// region: chargin
+export const onChartSelectedCells = (gridApi: GridApi, params: any): ContextMenuItem => {
+  const menuItem: ContextMenuItem = {
+    name: "Chart selected cells",
+    action: () => {
+      if (params.column.getColDef().chartDataType === 'category') {
+        return;
+      }
+      const cellRange = gridApi.getCellRanges();
+      // const selectedData = selectedNodes.map(node => node.data);
+      //   rowStartIndex: selectedNodes[0].rowIndex,
+      //   rowEndIndex: selectedNodes[selectedNodes.length - 1].rowIndex,
+      //   columnStart: params.column,
+      //   columnEnd: params.column
+      // };
+      console.log("hihihi", cellRange)
+
+      const chartRangeParams = {
+        cellRange: cellRange && cellRange[0], // Add null check
+        chartType: 'line'
+      };
+
+      params.api.createRangeChart(chartRangeParams);
+    }
+  }
+  return menuItem;
+}// endregion

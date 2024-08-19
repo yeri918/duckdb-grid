@@ -9,7 +9,8 @@ import {
 import handleKeyDown from "./gridShortcuts";
 import {
   onFilterEqual, onFilterReset,
-  onRowGroupCollapseAll, onRowGroupExpandOneLevel
+  onRowGroupCollapseAll, onRowGroupExpandOneLevel,
+  onChartSelectedCells
 } from "./gridContextMenu";
 import {
   getColumnDefs, getLayeredColumnDefs,
@@ -105,6 +106,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         ],
       },
       "separator",
+      onChartSelectedCells(gridApi, params),
+      "separator",
       "copy",
       "export",
     ];
@@ -143,6 +146,27 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     }
   };
 
+  const onCellClicked = (params: any) => {
+    if (params.column.getColDef().chartDataType === 'category') {
+      return;
+    }
+    console.log("HIHIHI")
+    const cellRange = {
+      rowStartIndex: params.rowIndex,
+      rowEndIndex: params.rowIndex,
+      columnStart: params.column,
+      columnEnd: params.column
+    };
+
+    const chartRangeParams = {
+      cellRange: cellRange,
+      chartType: 'line'
+    };
+
+    params.api.createRangeChart(chartRangeParams);
+  };
+
+
   return (
     <div >
       <div style={{ height: "100%", boxSizing: "border-box", }}>
@@ -172,6 +196,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             suppressRowClickSelection={true}
             // StatusBar
             statusBar={statusBar}
+            enableCharts={true}
           />
         </div>
       </div>
