@@ -19,7 +19,7 @@ import './style.css';
 
 // duckGrid Folder
 import duckGridDataSource from "../duckGrid/duckGridDS";
-import CountStatusBarComponent from '../duckGrid/duckStatusBar';
+import CountStatusBarComponent from '../statusBar/duckCountBar';
 
 // table Folder
 import db from "../table/duckDB";
