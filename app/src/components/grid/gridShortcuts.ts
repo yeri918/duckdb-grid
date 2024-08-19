@@ -76,10 +76,9 @@ const handleKeyDown = (event: KeyboardEvent, gridApi: GridApi,
 
     gridApi?.forEachNode((node: any) => {
       if (node.level === maxLevel - 1) {
-
         node.setExpanded(false);
         if (node.level > maxLevel) {
-          node.level = maxLevel
+          node.level = maxLevel;
         }
       } else {
         node.setExpanded(true);

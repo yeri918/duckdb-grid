@@ -164,6 +164,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             onGridReady={onGridReady}
             onFirstDataRendered={onFirstDataRendered}
             rowHeight={25}
+            headerHeight={25}
             suppressMultiSort={false}
             // Multiple selection
             enableRangeSelection={true}
