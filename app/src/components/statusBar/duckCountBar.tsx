@@ -4,7 +4,7 @@ import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
 import React, { useEffect, useState } from 'react';
 // import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
-export default (props: CustomStatusPanelProps) => {
+export default () => {
   const [count, setCount] = useState<number>(0); // Note not to use bigint
 
   const fetchData = async () => {

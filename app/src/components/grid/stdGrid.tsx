@@ -117,7 +117,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     return {
       statusPanels: [
         {
-          statusPanel: (props: CountStatusBarComponentType<any, any>) => <CountStatusBarComponent context={undefined} {...props} {...db} />,
+          statusPanel: (props: CountStatusBarComponentType<any, any>) => <CountStatusBarComponent />,
         },
         {
           statusPanel: 'agAggregationComponent',
