@@ -19,7 +19,7 @@ import './style.css';
 
 // duckGrid Folder
 import duckGridDataSource from "../duckGrid/duckGridDS";
-import CountStatusBarComponent from '../statusBar/duckCountBar';
+import CountStatusBarComponent from '../statusBar/duckCustomBar';
 
 // table Folder
 import db from "../table/duckDB";
@@ -117,7 +117,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     return {
       statusPanels: [
         {
-          statusPanel: (props: CountStatusBarComponentType<any, any>) => <CountStatusBarComponent />,
+          statusPanel: (props: CountStatusBarComponentType<any, any>) => <CountStatusBarComponent context={undefined} {...props} />,
         },
         {
           statusPanel: 'agAggregationComponent',

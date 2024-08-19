@@ -4,13 +4,10 @@ import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
 import React, { useEffect, useState } from 'react';
 // import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
-export default () => {
+export default (props: CustomStatusPanelProps) => {
   const [count, setCount] = useState<number>(0); // Note not to use bigint
 
   const fetchData = async () => {
-    const sql = `
-      SELECT count(*) FROM bankdata limit 5; 
-    `;
     const connection = await db.connect();
     const arrowResult = await connection.query(`
         SELECT count(*) as c FROM bankdata
