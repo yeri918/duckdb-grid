@@ -43,6 +43,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const [darkMode, setDarkMode] = useState(false);
 
   // region: Column Defs
   const defaultColDef = useMemo(() => {
@@ -160,18 +161,33 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
     const chartRangeParams = {
       cellRange: cellRange,
-      chartType: 'line'
+    chartType: 'line'
     };
 
     params.api.createRangeChart(chartRangeParams);
   };
 
+// Dark Mode
+useEffect(() => {
+  // Check if the user has set their browser to dark mode
+  const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  // Set the state variable based on the user's preference
+  setDarkMode(userPrefersDark);
+
+  if (userPrefersDark) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+  console.log("Dark Mode", userPrefersDark);
+}, []);
+
 
   return (
     <div >
       <div style={{ height: "100%", boxSizing: "border-box", }}>
-        <div style={gridStyle} className="ag-theme-alpine">
-
+        <div style={gridStyle} className={darkMode ? "ag-theme-alpine-dark": "ag-theme-alpine"}>
           <AgGridReact
             rowModelType="serverSide"
             serverSideDatasource={datasource}

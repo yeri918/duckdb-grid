@@ -6,6 +6,13 @@
   background-color: #f2f2f2 !important;
 }
 
+.dark-mode .ag-row-even {
+  background-color: #333 !important;
+}
+
+.dark-mode .ag-row-odd {
+  background-color: #444 !important;
+}
 .cell-wrap-text {
   white-space: normal !important;
   line-height: 23px !important;
@@ -25,4 +32,29 @@
 
 .cell-orange {
   background-color: bisque !important;
+}
+
+.dark-mode .cell-wrap-text {
+  color: #fff !important;
+} 
+
+.dark-mode .cell-green {
+  background-color: darkgreen !important;
+}
+
+.dark-mode .cell-red {
+  background-color: darkred !important;
+}
+
+.dark-mode .cell-blue {
+  background-color: darkturquoise !important;
+}
+
+.dark-mode .cell-orange {
+  background-color: darkorange !important;
+}
+
+.dark-mode {
+  background-color: #333;
+  color: #fff;
 }
