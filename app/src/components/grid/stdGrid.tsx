@@ -158,7 +158,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     if (params.column.getColDef().chartDataType === "category") {
       return;
     }
-    console.log("HIHIHI");
     const cellRange = {
       rowStartIndex: params.rowIndex,
       rowEndIndex: params.rowIndex,
