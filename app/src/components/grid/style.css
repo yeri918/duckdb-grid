@@ -36,7 +36,7 @@
 
 .dark-mode .cell-wrap-text {
   color: #fff !important;
-} 
+}
 
 .dark-mode .cell-green {
   background-color: darkgreen !important;
@@ -57,4 +57,9 @@
 .dark-mode {
   background-color: #333;
   color: #fff;
+}
+
+.menu-button {
+  width: 200px; /* or any other value */
+  margin: 2px 0;
 }
