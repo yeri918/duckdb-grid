@@ -3,30 +3,35 @@ import { AgGridReact } from "ag-grid-react";
 
 // grid Folder
 import {
-  ColumnDataType, RowData,
-  ColumnDef, CountStatusBarComponentType
-} from './gridTypes';
+  ColumnDataType,
+  RowData,
+  ColumnDef,
+  CountStatusBarComponentType,
+} from "./gridTypes";
 import handleKeyDown from "./gridShortcuts";
 import {
-  onFilterEqual, onFilterReset,
-  onRowGroupCollapseAll, onRowGroupExpandOneLevel,
-  onChartSelectedCells
+  onFilterEqual,
+  onFilterReset,
+  onRowGroupCollapseAll,
+  onRowGroupExpandOneLevel,
+  onChartSelectedCells,
 } from "./gridContextMenu";
 import {
-  getColumnDefs, getLayeredColumnDefs,
-  getGroupedColumnDefs
-} from './gridHelper'
-import './style.css';
+  getColumnDefs,
+  getLayeredColumnDefs,
+  getGroupedColumnDefs,
+} from "./gridHelper";
+import "./style.css";
 
 // duckGrid Folder
 import duckGridDataSource from "../duckGrid/duckGridDS";
-import CountStatusBarComponent from '../statusBar/duckCustomBar';
+import CountStatusBarComponent from "../statusBar/duckCustomBar";
 
 // table Folder
 import db from "../table/duckDB";
 
 // AgGrid imports
-import { ColDef, StatusPanelDef } from '@ag-grid-community/core';
+import { ColDef, StatusPanelDef } from "@ag-grid-community/core";
 import "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -43,6 +48,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const [darkMode, setDarkMode] = useState(false);
 
   // region: Column Defs
   const defaultColDef = useMemo(() => {
@@ -60,7 +66,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   useEffect(() => {
-    const columnDefs = getColumnDefs(props.columnDataType)
+    const columnDefs = getColumnDefs(props.columnDataType);
     const layeredColumnDefs = getLayeredColumnDefs(props.columnDataType);
     const groupedColumnDefs = getGroupedColumnDefs(props.columnDataType);
     setColumnDefs(groupedColumnDefs);
@@ -72,12 +78,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const ctrlFDown = useRef<boolean>(false);
   const ctrlEDown = useRef<boolean>(false);
   useEffect(() => {
-
-    document.addEventListener("keydown", (event: KeyboardEvent) => handleKeyDown(event, gridApi, ctrlFDown));
+    document.addEventListener("keydown", (event: KeyboardEvent) =>
+      handleKeyDown(event, gridApi, ctrlFDown),
+    );
     return () => {
       // This will remove the componet when the component is unmounted.
       // dl: not sur eif we can remove it
-      document.removeEventListener("keydown", (event: KeyboardEvent) => handleKeyDown(event, gridApi, ctrlFDown));
+      document.removeEventListener("keydown", (event: KeyboardEvent) =>
+        handleKeyDown(event, gridApi, ctrlFDown),
+      );
     };
   }, [gridApi]);
   // endregion
@@ -113,26 +122,25 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     ];
   };
 
-
   const statusBar = useMemo<{
     statusPanels: StatusPanelDef[];
   }>(() => {
     return {
       statusPanels: [
         {
-          statusPanel: (props: CountStatusBarComponentType<any, any>) => <CountStatusBarComponent context={undefined} {...props} />,
+          statusPanel: (props: CountStatusBarComponentType<any, any>) => (
+            <CountStatusBarComponent context={undefined} {...props} />
+          ),
         },
-        { statusPanel: 'agTotalAndFilteredRowCountComponent' },
+        { statusPanel: "agTotalAndFilteredRowCountComponent" },
         {
-          statusPanel: 'agAggregationComponent',
-        }
+          statusPanel: "agAggregationComponent",
+        },
       ],
     };
   }, []);
 
-
-  const onModelUpdated = (params: any) => {
-  };
+  const onModelUpdated = (params: any) => {};
 
   const onGridReady = (params: any) => {
     setGridApi(params.api);
@@ -147,31 +155,83 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   };
 
   const onCellClicked = (params: any) => {
-    if (params.column.getColDef().chartDataType === 'category') {
+    if (params.column.getColDef().chartDataType === "category") {
       return;
     }
-    console.log("HIHIHI")
     const cellRange = {
       rowStartIndex: params.rowIndex,
       rowEndIndex: params.rowIndex,
       columnStart: params.column,
-      columnEnd: params.column
+      columnEnd: params.column,
     };
 
     const chartRangeParams = {
       cellRange: cellRange,
-      chartType: 'line'
+      chartType: "line",
     };
 
     params.api.createRangeChart(chartRangeParams);
   };
 
+  // Dark Mode
+  useEffect(() => {
+    // Check if the user has set their browser to dark mode
+    const userPrefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    // Set the state variable based on the user's preference
+    setDarkMode(userPrefersDark);
+
+    if (userPrefersDark) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, []);
+
+  // Buttons
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    if (!darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  };
+
+  const resetTable = () => {
+    if (gridApi) {
+      gridApi.refreshCells();
+      gridApi.expandAll(false);
+      gridApi.setRowGroupColumns([]);
+      gridApi.setSortModel([]);
+    }
+  };
 
   return (
-    <div >
-      <div style={{ height: "100%", boxSizing: "border-box", }}>
-        <div style={gridStyle} className="ag-theme-alpine">
+    <div style={{ height: "100%", boxSizing: "border-box" }}>
+      <div
+        style={{
+          position: "relative",
+          height: "100%",
+          boxSizing: "border-box",
+          display: "flex",
+        }}
+      >
+        <div style={{ zIndex: 1 }}>
+          <button className="menu-button" onClick={toggleDarkMode}>
+            Toggle Dark Mode
+          </button>
+          <button className="menu-button" onClick={resetTable}>
+            Reset Table
+          </button>
+        </div>
 
+        <div
+          style={gridStyle}
+          className={darkMode ? "ag-theme-alpine-dark" : "ag-theme-alpine"}
+        >
           <AgGridReact
             rowModelType="serverSide"
             serverSideDatasource={datasource}
