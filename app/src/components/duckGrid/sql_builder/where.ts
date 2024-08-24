@@ -8,6 +8,7 @@ interface FilterItem {
   filter: string;
   filterType: string;
   type: string;
+  conditions: FilterItem[];
 }
 
 const buildWhere = async (
@@ -31,7 +32,7 @@ const buildWhere = async (
     }
   };
 
-  const createNumberFilterSql = (key: string, item: FilterItem) => {
+  const createSingleNumberFilterSql = (key: string, item: FilterItem) => {
     switch (item.type) {
       case "equals":
         return `${key} = ${item.filter}`;
@@ -49,6 +50,19 @@ const buildWhere = async (
         return `${key} BETWEEN ${item.filter}`;
       default:
         console.log("Unknown number filter type: ", item.type);
+    }
+  };
+
+  const createNumberFilterSql = (key: string, item: FilterItem) => {
+    if (item.type !== undefined) {
+      return createSingleNumberFilterSql(key, item);
+    }
+    if (item.conditions) {
+      const conditions = item.conditions;
+      const filterSqls = conditions.map((condition) => {
+        return createSingleNumberFilterSql(key, condition);
+      });
+      return filterSqls.join(" AND ");
     }
   };
 
