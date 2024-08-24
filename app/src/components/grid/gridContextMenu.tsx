@@ -1,58 +1,89 @@
-import { GridApi } from 'ag-grid-community';
-import { ContextMenuItem } from './gridTypes';
+import { GridApi } from "ag-grid-community";
+import { ContextMenuItem } from "./gridTypes";
 
 // region: Filters
-export const onFilterEqual = (gridApi: GridApi, params: any): ContextMenuItem => {
+export const onFilterEqual = (
+  gridApi: GridApi,
+  params: any,
+): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
-    "name": "Filter equal",
+    name: "Filter equal",
     action: () => {
-
       let filterModel = gridApi.getFilterModel();
-      filterModel = filterModel === undefined ? {} : filterModel
+      filterModel = filterModel === undefined ? {} : filterModel;
 
       const selectedValue = params.value;
       let filterColumn = params.column.getColId();
 
       // Additional logic so that use can filter on the group columns.
       if (filterColumn === "ag-Grid-AutoColumn") {
-        filterColumn = gridApi.getRowGroupColumns()[params.node.level]
-          .getColDef()
-          .field
+        filterColumn = gridApi
+          .getRowGroupColumns()
+          [params.node.level].getColDef().field;
       }
-      filterModel[filterColumn] = {
-        type: "equals",
-        filter: selectedValue
+      if (typeof selectedValue === "number") {
+        const lowerBound = Math.round(selectedValue);
+        const upperBound = lowerBound + 1;
+        filterModel[filterColumn] = {
+          filterType: "number",
+          operator: "AND",
+          conditions: [
+            {
+              type: "greaterThanOrEqual",
+              filter: lowerBound,
+            },
+            {
+              type: "lessThan",
+              filter: upperBound,
+            },
+          ],
+        };
+      } else {
+        filterModel[filterColumn] = {
+          type: "equals",
+          filter: selectedValue,
+        };
       }
+
       gridApi.setFilterModel(filterModel);
       gridApi.onFilterChanged();
-    }
-  }
-  return menuItem
+    },
+  };
+  return menuItem;
 };
 
-export const onFilterReset = (gridApi: GridApi, params: any): ContextMenuItem => {
+export const onFilterReset = (
+  gridApi: GridApi,
+  params: any,
+): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
-    "name": "Clear all filters",
+    name: "Clear all filters",
     action: () => {
       gridApi.setFilterModel(null);
       gridApi.onFilterChanged();
-    }
-  }
-  return menuItem
+    },
+  };
+  return menuItem;
 };
 
 // region: RowGroup
-export const onRowGroupCollapseAll = (gridApi: GridApi, params: any): ContextMenuItem => {
+export const onRowGroupCollapseAll = (
+  gridApi: GridApi,
+  params: any,
+): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
     name: "Collapse all",
     action: () => {
       gridApi?.collapseAll();
-    }
-  }
-  return menuItem
-}
+    },
+  };
+  return menuItem;
+};
 
-export const onRowGroupExpandOneLevel = (gridApi: GridApi, params: any): ContextMenuItem => {
+export const onRowGroupExpandOneLevel = (
+  gridApi: GridApi,
+  params: any,
+): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
     name: "Expand one level",
     action: () => {
@@ -62,20 +93,22 @@ export const onRowGroupExpandOneLevel = (gridApi: GridApi, params: any): Context
         } else {
           node.setExpanded(false);
         }
-      })
-    }
-  }
-  return menuItem
-}
+      });
+    },
+  };
+  return menuItem;
+};
 // endregion
 
-
 // region: chargin
-export const onChartSelectedCells = (gridApi: GridApi, params: any): ContextMenuItem => {
+export const onChartSelectedCells = (
+  gridApi: GridApi,
+  params: any,
+): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
     name: "Chart selected cells",
     action: () => {
-      if (params.column.getColDef().chartDataType === 'category') {
+      if (params.column.getColDef().chartDataType === "category") {
         return;
       }
       const cellRange = gridApi.getCellRanges();
@@ -85,15 +118,15 @@ export const onChartSelectedCells = (gridApi: GridApi, params: any): ContextMenu
       //   columnStart: params.column,
       //   columnEnd: params.column
       // };
-      console.log("hihihi", cellRange)
+      console.log("hihihi", cellRange);
 
       const chartRangeParams = {
         cellRange: cellRange && cellRange[0], // Add null check
-        chartType: 'line'
+        chartType: "line",
       };
 
       params.api.createRangeChart(chartRangeParams);
-    }
-  }
+    },
+  };
   return menuItem;
-}// endregion
+}; // endregion

@@ -1,6 +1,6 @@
-import { ColumnDataType, ColumnDef } from './gridTypes';
+import { ColumnDataType, ColumnDef } from "./gridTypes";
 import { Column, RowClassParams } from "ag-grid-enterprise";
-import './style.css';
+import "./style.css";
 
 export const getColumnDefs = (columnDataType: ColumnDataType): ColumnDef[] => {
   const columnDefs: ColumnDef[] = [];
@@ -10,23 +10,26 @@ export const getColumnDefs = (columnDataType: ColumnDataType): ColumnDef[] => {
       field: key,
       enableRowGroup: true,
       enableValue: true,
-      ...(columnDataType[key] === "DOUBLE" || columnDataType[key] === "INTEGER" || columnDataType[key] === "FLOAT" ? { aggFunc: "sum" } : {}),
+      ...(columnDataType[key] === "DOUBLE" ||
+      columnDataType[key] === "INTEGER" ||
+      columnDataType[key] === "FLOAT"
+        ? { aggFunc: "sum" }
+        : {}),
       filter:
-        columnDataType[key] === "VARCHAR" || columnDataType[key] === "DATE" ?
-          "agTextColumnFilter" : "agNumberColumnFilter",
-
+        columnDataType[key] === "VARCHAR" || columnDataType[key] === "DATE"
+          ? "agTextColumnFilter"
+          : "agNumberColumnFilter",
     };
 
     if (["INTEGER", "DOUBLE", "FLAOT"].includes(columnDataType[key])) {
       columnDef.valueFormatter = (params) => {
         return new Intl.NumberFormat().format(params.value);
       };
-
     }
     columnDefs.push(columnDef);
   }
   return columnDefs;
-}
+};
 
 export const getLayeredColumnDefs = (columnDataType: ColumnDataType) => {
   const columnDefs = getColumnDefs(columnDataType);
@@ -34,9 +37,11 @@ export const getLayeredColumnDefs = (columnDataType: ColumnDataType) => {
   let i = 0;
 
   for (const columnDef of columnDefs) {
-    const keys = columnDef.field.split('_');
+    const keys = columnDef.field.split("_");
+    columnDef.headerClass = "cell-basic";
 
     if (keys.length === 1) {
+      columnDef.headerClass = "cell-basic";
       layeredColumnDefs.push(columnDef);
       continue;
     }
@@ -44,20 +49,28 @@ export const getLayeredColumnDefs = (columnDataType: ColumnDataType) => {
     // For keys > 1
     const initialColumnDef = columnDef;
     initialColumnDef.headerName = keys[keys.length - 1];
-    const nestedColumnDef: ColumnDef = keys.slice(0, keys.length - 1).reduceRight((nestedColumn: any, key: string) => {
-      i++;
-      return {
-        headerName: key,
-        children: [nestedColumn],
-        headerClass: i % 4 === 0 ? "cell-red" : i % 4 === 1 ? "cell-green" : i % 4 === 2 ? "cell-blue" : "cell-orange"
-      };
-    }, initialColumnDef);
+    const nestedColumnDef: ColumnDef = keys
+      .slice(0, keys.length - 1)
+      .reduceRight((nestedColumn: any, key: string) => {
+        i++;
+        return {
+          headerName: key,
+          children: [nestedColumn],
+          headerClass:
+            i % 4 === 0
+              ? "cell-red"
+              : i % 4 === 1
+                ? "cell-green"
+                : i % 4 === 2
+                  ? "cell-blue"
+                  : "cell-orange",
+        };
+      }, initialColumnDef);
     layeredColumnDefs.push(nestedColumnDef);
   }
 
   return layeredColumnDefs;
-
-}
+};
 
 export const getGroupedColumnDefs = (columnDataType: ColumnDataType) => {
   const groupedColumnDefs: ColumnDef[] = [];
@@ -81,8 +94,8 @@ export const getGroupedColumnDefs = (columnDataType: ColumnDataType) => {
       }
 
       const currentDef = columnDef;
-      const keys1 = columnDefs[j - 1].field.split('_');
-      const keys2 = columnDefs[j].field.split('_');
+      const keys1 = columnDefs[j - 1].field.split("_");
+      const keys2 = columnDefs[j].field.split("_");
 
       let matchingIndex = -1; // Initialize to -1 to indicate no match found
       for (let k = 0; k < Math.min(keys1.length, keys2.length); k++) {
@@ -97,7 +110,7 @@ export const getGroupedColumnDefs = (columnDataType: ColumnDataType) => {
         groupedColumnDefs.push(currentDef);
         i = j - 1;
         break;
-      };
+      }
 
       let child1: any = currentDef;
       let child2: any = layeredColumnDefs[j];
@@ -108,37 +121,30 @@ export const getGroupedColumnDefs = (columnDataType: ColumnDataType) => {
           if (k === matchingIndex) {
             parent = child1;
             if (Array.isArray(parent)) {
-              parent = parent[parent.length - 1]
+              parent = parent[parent.length - 1];
             }
           }
 
           if (Array.isArray(child1)) {
-            child1 = child1[child1.length - 1].children
+            child1 = child1[child1.length - 1].children;
+          } else {
+            child1 = child1.children;
           }
-          else {
-            child1 = child1.children
-          };
           // child1 = child1.children
           // console.log("check child1", child1, Array.isArray(child1))
 
           if (Array.isArray(child2)) {
-            child2 = child2[child2.length - 1].children
+            child2 = child2[child2.length - 1].children;
+          } else {
+            child2 = child2.children;
           }
-          else {
-            child2 = child2.children
-          };
           // child2 = child2.children
         }
         const combinedChildren = [...child1, child2[0]];
         parent.children = combinedChildren;
       }
     }
-
   }
 
-
-
   return groupedColumnDefs;
-
-
-}
+};

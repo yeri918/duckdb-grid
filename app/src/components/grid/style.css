@@ -19,21 +19,28 @@
 }
 
 .cell-green {
-  background-color: palegreen !important;
+  /* background-color: palegreen !important; */
+  background-color: #bfe3d6 !important;
 }
 
 .cell-red {
-  background-color: palevioletred !important;
+  /* background-color: palevioletred !important; */
+  background-color: #d5dff5 !important;
 }
 
 .cell-blue {
-  background-color: paleturquoise !important;
+  /* background-color: paleturquoise !important; */
+  background-color: #bce1e8 !important;
 }
 
 .cell-orange {
-  background-color: bisque !important;
+  /* background-color: bisque !important; */
+  background-color: #e8daf5 !important;
 }
 
+.cell-basic {
+  background-color: none !important;
+}
 .dark-mode .cell-wrap-text {
   color: #fff !important;
 }
