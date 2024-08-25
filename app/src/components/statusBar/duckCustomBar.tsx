@@ -24,15 +24,7 @@ const CustomCountBar = (props: CustomStatusPanelProps) => {
   };
 
   useEffect(() => {
-    const rowCount = fetchData();
-    rowCount.then((data) => {
-      setCount(data);
-    });
-    // setCount(rowCount);
-  }, []);
-
-  useEffect(() => {
-    const handleFilterChanged = () => {
+    const handleModelUpdated = () => {
       fetchData().then((data) => {
         setCount(data);
       });
@@ -40,9 +32,9 @@ const CustomCountBar = (props: CustomStatusPanelProps) => {
 
     // List of all events
     // https://www.ag-grid.com/javascript-data-grid/grid-events/
-    props.api.addEventListener("rowDataUpdated", handleFilterChanged);
+    props.api.addEventListener("modelUpdated", handleModelUpdated);
     return () => {
-      props.api.removeEventListener("rowDataUpdated", handleFilterChanged);
+      props.api.removeEventListener("modelUpdated", handleModelUpdated);
     };
   }, []);
 
@@ -107,6 +99,7 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
     };
 
     const handleFilterChanged = () => {
+      // To be added more functions below if needed
       fetchFilterModel();
     };
 
