@@ -55,7 +55,7 @@ const CustomCountBar = (props: CustomStatusPanelProps) => {
 };
 
 export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
-  const [filterMsg, setFilterMsg] = useState<string>("");
+  const [filterArray, setFilterArray] = useState<string[]>([]);
 
   const parseFilterModel = (filterModel: FilterModel) => {
     let filterArray: string[] = [];
@@ -98,11 +98,10 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
     const fetchFilterModel = async () => {
       const filterModel = props.api.getFilterModel();
       if (filterModel === null || Object.keys(filterModel).length === 0) {
-        setFilterMsg("");
+        setFilterArray([]);
       } else {
-        const filterMsg = parseFilterModel(filterModel).join(" AND ");
-        console.log("check filtermsg", filterMsg);
-        setFilterMsg(filterMsg);
+        const parsedFilterModel = parseFilterModel(filterModel);
+        setFilterArray(parsedFilterModel);
       }
       console.log("FilterCheck", props.api.getFilterModel());
     };
@@ -117,12 +116,17 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
     };
   }, []);
 
-  return filterMsg === "" ? (
+  return filterArray.length === 0 ? (
     <div></div>
   ) : (
     <div className="ag-status-name-value">
       <span className="component">Filters: &nbsp;</span>
-      <span className="ag-status-name-value-value">{filterMsg}</span>
+      {filterArray.map((filter, index) => (
+        <React.Fragment key={index}>
+          <span className="ag-status-name-value-value">{filter}</span>
+          {index !== filterArray.length - 1 && <br />}
+        </React.Fragment>
+      ))}
     </div>
   );
 };
