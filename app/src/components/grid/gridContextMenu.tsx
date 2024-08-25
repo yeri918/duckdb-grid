@@ -112,14 +112,6 @@ export const onChartSelectedCells = (
         return;
       }
       const cellRange = gridApi.getCellRanges();
-      // const selectedData = selectedNodes.map(node => node.data);
-      //   rowStartIndex: selectedNodes[0].rowIndex,
-      //   rowEndIndex: selectedNodes[selectedNodes.length - 1].rowIndex,
-      //   columnStart: params.column,
-      //   columnEnd: params.column
-      // };
-      console.log("hihihi", cellRange);
-
       const chartRangeParams = {
         cellRange: cellRange && cellRange[0], // Add null check
         chartType: "line",
