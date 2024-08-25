@@ -14,7 +14,7 @@ export interface RowData {
 }
 
 export interface ColumnDataType {
-  [key: string]: DataType
+  [key: string]: DataType;
 }
 
 export interface ColumnDef extends ColDef {
@@ -34,4 +34,20 @@ export interface ContextMenuItem {
 export interface CountStatusBarComponentType<T, P> {
   api: T;
   params: P;
+}
+
+export interface SingleFilterModel {
+  filter: string;
+  filterType: string;
+  type: string;
+}
+
+export interface MultiFilterModel {
+  filterType: string;
+  operator: string;
+  conditions: SingleFilterModel[];
+}
+
+export interface FilterModel {
+  [key: string]: SingleFilterModel | MultiFilterModel;
 }
