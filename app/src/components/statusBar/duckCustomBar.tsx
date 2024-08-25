@@ -57,10 +57,6 @@ const CustomCountBar = (props: CustomStatusPanelProps) => {
 export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
   const [filterMsg, setFilterMsg] = useState<string>("");
 
-  const fetchData = async () => {
-    console.log("FilterCheck", props.api.getFilterModel());
-  };
-
   const parseFilterModel = (filterModel: FilterModel) => {
     let filterArray: string[] = [];
     Object.keys(filterModel).forEach((key) => {
@@ -99,7 +95,7 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchFilterModel = async () => {
       const filterModel = props.api.getFilterModel();
       if (filterModel === null || Object.keys(filterModel).length === 0) {
         setFilterMsg("");
@@ -112,7 +108,7 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
     };
 
     const handleFilterChanged = () => {
-      fetchData();
+      fetchFilterModel();
     };
 
     props.api.addEventListener("filterChanged", handleFilterChanged);
