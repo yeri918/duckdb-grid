@@ -25,7 +25,9 @@ import "./style.css";
 
 // duckGrid Folder
 import duckGridDataSource from "../duckGrid/duckGridDS";
-import CountStatusBarComponent from "../statusBar/duckCustomBar";
+import CustomCountBar, {
+  CustomFilterModelBar,
+} from "../statusBar/duckCustomBar";
 
 // table Folder
 import db from "../table/duckDB";
@@ -106,6 +108,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         ],
       },
       onFilterEqual(gridApi, params), // This is so commonly used, so we get itout.
+      onFilterReset(gridApi, params),
       "separator",
       {
         name: "Groups",
@@ -114,6 +117,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           onRowGroupExpandOneLevel(gridApi, params),
         ],
       },
+      onRowGroupCollapseAll(gridApi, params),
+      onRowGroupExpandOneLevel(gridApi, params),
       "separator",
       onChartSelectedCells(gridApi, params),
       "separator",
@@ -129,8 +134,14 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       statusPanels: [
         {
           statusPanel: (props: CountStatusBarComponentType<any, any>) => (
-            <CountStatusBarComponent context={undefined} {...props} />
+            <CustomCountBar context={undefined} {...props} />
           ),
+        },
+        {
+          statusPanel: (props: CountStatusBarComponentType<any, any>) => (
+            <CustomFilterModelBar context={undefined} {...props} />
+          ),
+          align: "center",
         },
         { statusPanel: "agTotalAndFilteredRowCountComponent" },
         {

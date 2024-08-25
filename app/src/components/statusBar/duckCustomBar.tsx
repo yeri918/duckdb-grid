@@ -1,10 +1,15 @@
-import { CustomStatusPanelProps } from '@ag-grid-community/react';
+import { CustomStatusPanelProps } from "@ag-grid-community/react";
 import db from "../table/duckDB";
-import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
-import React, { useEffect, useState } from 'react';
+import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
+import React, { useEffect, useState } from "react";
+import {
+  FilterModel,
+  SingleFilterModel,
+  MultiFilterModel,
+} from "../grid/gridTypes";
 // import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
-export default (props: CustomStatusPanelProps) => {
+const CustomCountBar = (props: CustomStatusPanelProps) => {
   const [count, setCount] = useState<number>(0); // Note not to use bigint
 
   const fetchData = async () => {
@@ -19,11 +24,26 @@ export default (props: CustomStatusPanelProps) => {
   };
 
   useEffect(() => {
-    const rowCount = fetchData()
+    const rowCount = fetchData();
     rowCount.then((data) => {
       setCount(data);
-    })
+    });
     // setCount(rowCount);
+  }, []);
+
+  useEffect(() => {
+    const handleFilterChanged = () => {
+      fetchData().then((data) => {
+        setCount(data);
+      });
+    };
+
+    // List of all events
+    // https://www.ag-grid.com/javascript-data-grid/grid-events/
+    props.api.addEventListener("rowDataUpdated", handleFilterChanged);
+    return () => {
+      props.api.removeEventListener("rowDataUpdated", handleFilterChanged);
+    };
   }, []);
 
   return (
@@ -33,3 +53,82 @@ export default (props: CustomStatusPanelProps) => {
     </div>
   );
 };
+
+export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
+  const [filterMsg, setFilterMsg] = useState<string>("");
+
+  const fetchData = async () => {
+    console.log("FilterCheck", props.api.getFilterModel());
+  };
+
+  const parseFilterModel = (filterModel: FilterModel) => {
+    let filterArray: string[] = [];
+    Object.keys(filterModel).forEach((key) => {
+      const filterItem = filterModel[key];
+      if ("type" in filterItem) {
+        // Thats a singleMultiModel
+        if (filterItem.type === "equals") {
+          filterArray.push(`${key} = ${filterItem.filter}`);
+        } else if (filterItem.type === "greaterThanOrEqual") {
+          filterArray.push(`${key} >= ${filterItem.filter}`);
+        } else if (filterItem.type === "lessThan") {
+          filterArray.push(`${key} < ${filterItem.filter}`);
+        } else {
+          filterArray.push(`${key} = ${filterItem.filter}`);
+        }
+      } else {
+        // Thats a multiFilterModel
+        let multiFilter = filterItem as MultiFilterModel;
+        let multiFilterArray: string[] = [];
+        multiFilter.conditions.forEach((condition) => {
+          if (condition.type === "equals") {
+            multiFilterArray.push(`${key} = ${condition.filter}`);
+          } else if (condition.type === "greaterThanOrEqual") {
+            multiFilterArray.push(`${key} >= ${condition.filter}`);
+          } else if (condition.type === "lessThan") {
+            multiFilterArray.push(`${key} < ${condition.filter}`);
+          } else {
+            multiFilterArray.push(`${key} = ${condition.filter}`);
+          }
+        });
+        console.log("check", multiFilterArray);
+        filterArray.push(multiFilterArray.join(` ${multiFilter.operator} `));
+      }
+    });
+    return filterArray;
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const filterModel = props.api.getFilterModel();
+      if (filterModel === null || Object.keys(filterModel).length === 0) {
+        setFilterMsg("");
+      } else {
+        const filterMsg = parseFilterModel(filterModel).join(" AND ");
+        console.log("check filtermsg", filterMsg);
+        setFilterMsg(filterMsg);
+      }
+      console.log("FilterCheck", props.api.getFilterModel());
+    };
+
+    const handleFilterChanged = () => {
+      fetchData();
+    };
+
+    props.api.addEventListener("filterChanged", handleFilterChanged);
+    return () => {
+      props.api.removeEventListener("filterChanged", handleFilterChanged);
+    };
+  }, []);
+
+  return filterMsg === "" ? (
+    <div></div>
+  ) : (
+    <div className="ag-status-name-value">
+      <span className="component">Filters: &nbsp;</span>
+      <span className="ag-status-name-value-value">{filterMsg}</span>
+    </div>
+  );
+};
+
+export default CustomCountBar;
