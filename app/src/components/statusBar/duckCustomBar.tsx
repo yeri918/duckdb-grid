@@ -49,38 +49,76 @@ const CustomCountBar = (props: CustomStatusPanelProps) => {
 export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
   const [filterArray, setFilterArray] = useState<string[]>([]);
 
+  const parseEqualItem = (
+    key: string,
+    filterItem: SingleFilterModel | MultiFilterModel,
+    filterArray: string[],
+  ) => {
+    if ("type" in filterItem) {
+      // Thats a singleMultiModel
+      if (filterItem.type === "equals") {
+        filterArray.push(`${key} = ${filterItem.filter}`);
+      } else if (filterItem.type === "greaterThanOrEqual") {
+        filterArray.push(`${key} >= ${filterItem.filter}`);
+      } else if (filterItem.type === "lessThan") {
+        filterArray.push(`${key} < ${filterItem.filter}`);
+      } else {
+        filterArray.push(`${key} = ${filterItem.filter}`);
+      }
+    } else {
+      // Thats a multiFilterModel
+      let multiFilter = filterItem as MultiFilterModel;
+      let multiFilterArray: string[] = [];
+      multiFilter.conditions.forEach((condition) => {
+        if (condition.type === "equals") {
+          multiFilterArray.push(`${key} = ${condition.filter}`);
+        } else if (condition.type === "greaterThanOrEqual") {
+          multiFilterArray.push(`${key} >= ${condition.filter}`);
+        } else if (condition.type === "lessThan") {
+          multiFilterArray.push(`${key} < ${condition.filter}`);
+        } else {
+          multiFilterArray.push(`${key} = ${condition.filter}`);
+        }
+      });
+      console.log("check", multiFilterArray);
+      filterArray.push(multiFilterArray.join(` ${multiFilter.operator} `));
+    }
+  };
+
+  const parseSetItem = (
+    key: string,
+    filterItem: SingleFilterModel | MultiFilterModel,
+    filterArray: string[],
+  ) => {
+    if ("values" in filterItem) {
+      if (filterItem.values) {
+        if (filterItem.values.length === 1) {
+          filterArray.push(`${key} = ${filterItem.values[0]}`);
+        } else if (filterItem.values.length > 1) {
+          filterArray.push(`${key} IN ${filterItem.values.join(", ")}`);
+        }
+      }
+    }
+  };
+
   const parseFilterModel = (filterModel: FilterModel) => {
     let filterArray: string[] = [];
     Object.keys(filterModel).forEach((key) => {
       const filterItem = filterModel[key];
-      if ("type" in filterItem) {
-        // Thats a singleMultiModel
-        if (filterItem.type === "equals") {
-          filterArray.push(`${key} = ${filterItem.filter}`);
-        } else if (filterItem.type === "greaterThanOrEqual") {
-          filterArray.push(`${key} >= ${filterItem.filter}`);
-        } else if (filterItem.type === "lessThan") {
-          filterArray.push(`${key} < ${filterItem.filter}`);
-        } else {
-          filterArray.push(`${key} = ${filterItem.filter}`);
+      if ("filterType" in filterItem) {
+        switch (filterItem.filterType) {
+          case "number":
+            parseEqualItem(key, filterItem, filterArray);
+            break;
+          case "multi":
+            if (filterItem.filterModels !== undefined) {
+              filterItem.filterModels.forEach((filterModel) => {
+                if (filterModel !== null) {
+                  parseSetItem(key, filterModel, filterArray);
+                }
+              });
+            }
         }
-      } else {
-        // Thats a multiFilterModel
-        let multiFilter = filterItem as MultiFilterModel;
-        let multiFilterArray: string[] = [];
-        multiFilter.conditions.forEach((condition) => {
-          if (condition.type === "equals") {
-            multiFilterArray.push(`${key} = ${condition.filter}`);
-          } else if (condition.type === "greaterThanOrEqual") {
-            multiFilterArray.push(`${key} >= ${condition.filter}`);
-          } else if (condition.type === "lessThan") {
-            multiFilterArray.push(`${key} < ${condition.filter}`);
-          } else {
-            multiFilterArray.push(`${key} = ${condition.filter}`);
-          }
-        });
-        console.log("check", multiFilterArray);
-        filterArray.push(multiFilterArray.join(` ${multiFilter.operator} `));
       }
     });
     return filterArray;
@@ -89,6 +127,8 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
   useEffect(() => {
     const fetchFilterModel = async () => {
       const filterModel = props.api.getFilterModel();
+
+      console.log("status Bar", filterModel);
       if (filterModel === null || Object.keys(filterModel).length === 0) {
         setFilterArray([]);
       } else {
