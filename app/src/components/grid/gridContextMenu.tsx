@@ -1,4 +1,4 @@
-import { GridApi } from "ag-grid-community";
+import { GridApi, Column } from "ag-grid-community";
 import { ContextMenuItem } from "./gridTypes";
 
 // region: Filters
@@ -10,7 +10,9 @@ export const onFilterEqual = (
     name: "Filter equal",
     action: () => {
       let filterModel = gridApi.getFilterModel();
+
       filterModel = filterModel === undefined ? {} : filterModel;
+      console.log("filter Model", filterModel);
 
       const selectedValue = params.value;
       let filterColumn = params.column.getColId();
@@ -21,28 +23,52 @@ export const onFilterEqual = (
           .getRowGroupColumns()
           [params.node.level].getColDef().field;
       }
-      if (typeof selectedValue === "number") {
-        const lowerBound = Math.round(selectedValue);
-        const upperBound = lowerBound + 1;
-        filterModel[filterColumn] = {
-          filterType: "number",
-          operator: "AND",
-          conditions: [
-            {
-              type: "greaterThanOrEqual",
-              filter: lowerBound,
-            },
-            {
-              type: "lessThan",
-              filter: upperBound,
-            },
-          ],
-        };
-      } else {
-        filterModel[filterColumn] = {
-          type: "equals",
-          filter: selectedValue,
-        };
+
+      // Check the FilterType and create the filter model accordingly.
+      const column: Column | null = gridApi.getColumn(filterColumn);
+      console.log("columnFilter", column);
+      if (column) {
+        if ("colDef" in column) {
+          const colDef = column.colDef as Column;
+          if ("filter" in colDef) {
+            // Switch based on Ag-Grid Filter Type
+            switch (colDef.filter) {
+              // agMultiColumnFilter
+              case "agNumberColumnFilter":
+                const lowerBound = Math.round(selectedValue);
+                const upperBound = lowerBound + 1;
+                filterModel[filterColumn] = {
+                  filterType: "number",
+                  operator: "AND",
+                  conditions: [
+                    {
+                      type: "greaterThanOrEqual",
+                      filter: lowerBound,
+                    },
+                    {
+                      type: "lessThan",
+                      filter: upperBound,
+                    },
+                  ],
+                };
+                console.log("agNumberColumnFilter", filterModel);
+                break;
+              case "agMultiColumnFilter":
+                filterModel[filterColumn] = {
+                  filterType: "multi",
+                  filterModels: [
+                    null, // This is same pattern as the ag-Grid filter model.
+                    {
+                      filterType: "set",
+                      values: [selectedValue],
+                    },
+                  ],
+                };
+                console.log("agMultiColumnFilter", filterModel);
+                break;
+            }
+          }
+        }
       }
 
       gridApi.setFilterModel(filterModel);

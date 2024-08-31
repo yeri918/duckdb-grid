@@ -22,13 +22,13 @@ const buildWhere = async (
   const filterModel = params.request?.filterModel;
   const whereParts: string[] = [];
 
-  //
+  // *****************************************************************
   // Main Function that creates SQL corresponding to ag-grid.
   // 1. TextFilter
   // 2. NumberFilter
   // 3. SetValue Filter
   // 4. MultiFilter ()
-  //
+  // *****************************************************************
   const createFilterSql = (
     key: string,
     item: FilterItem,

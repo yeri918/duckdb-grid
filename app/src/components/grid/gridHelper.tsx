@@ -54,6 +54,9 @@ export const getColumnDefs = (
                 {
                   filter: "agTextColumnFilter",
                   display: "subMenu",
+                  filterParams: {
+                    filterOptions: ["notContains", "contains"],
+                  },
                 },
                 {
                   filter: "agSetColumnFilter",
