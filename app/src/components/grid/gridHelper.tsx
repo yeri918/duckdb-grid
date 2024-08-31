@@ -1,8 +1,36 @@
 import { ColumnDataType, ColumnDef } from "./gridTypes";
-import { Column, RowClassParams } from "ag-grid-enterprise";
+import { Column, RowClassParams, SetFilter } from "ag-grid-enterprise";
 import "./style.css";
+import db from "../table/duckDB";
+import {
+  ColDef,
+  StatusPanelDef,
+  GridApi,
+  ISetFilterParams,
+  SetFilterValuesFuncParams,
+} from "@ag-grid-community/core";
 
-export const getColumnDefs = (columnDataType: ColumnDataType): ColumnDef[] => {
+export const getColumnDefs = (
+  columnDataType: ColumnDataType,
+  gridApi: GridApi,
+): ColumnDef[] => {
+  const getColumnSetValues = async (column: string) => {
+    const connection = await db.connect();
+    const arrowResult = await connection.query(`
+        SELECT distinct ${column} as col 
+          FROM bankdata
+          order by col
+    `);
+
+    const result = arrowResult
+      .toArray()
+      .map((row) => row.toJSON())
+      .map((value) => value.col);
+    await connection.close();
+    console.log("result", result);
+    return result;
+  };
+
   const columnDefs: ColumnDef[] = [];
   for (const key in columnDataType) {
     let columnDef: ColumnDef = {
@@ -17,8 +45,31 @@ export const getColumnDefs = (columnDataType: ColumnDataType): ColumnDef[] => {
         : {}),
       filter:
         columnDataType[key] === "VARCHAR" || columnDataType[key] === "DATE"
-          ? "agTextColumnFilter"
+          ? "agMultiColumnFilter"
           : "agNumberColumnFilter",
+      filterParams:
+        columnDataType[key] === "VARCHAR" || columnDataType[key] === "DATE"
+          ? {
+              filters: [
+                {
+                  filter: "agTextColumnFilter",
+                  display: "subMenu",
+                },
+                {
+                  filter: "agSetColumnFilter",
+                  filterParams: {
+                    values: (params: SetFilterValuesFuncParams) => {
+                      setTimeout(() => {
+                        getColumnSetValues(key).then((values) => {
+                          params.success(values);
+                        });
+                      }, 3000);
+                    },
+                  },
+                },
+              ],
+            }
+          : undefined,
     };
 
     if (["INTEGER", "DOUBLE", "FLAOT"].includes(columnDataType[key])) {
@@ -31,8 +82,11 @@ export const getColumnDefs = (columnDataType: ColumnDataType): ColumnDef[] => {
   return columnDefs;
 };
 
-export const getLayeredColumnDefs = (columnDataType: ColumnDataType) => {
-  const columnDefs = getColumnDefs(columnDataType);
+export const getLayeredColumnDefs = (
+  columnDataType: ColumnDataType,
+  gridApi: GridApi,
+) => {
+  const columnDefs = getColumnDefs(columnDataType, gridApi);
   const layeredColumnDefs: ColumnDef[] = [];
   let i = 0;
 
@@ -60,10 +114,10 @@ export const getLayeredColumnDefs = (columnDataType: ColumnDataType) => {
             i % 4 === 0
               ? "cell-red"
               : i % 4 === 1
-                ? "cell-green"
-                : i % 4 === 2
-                  ? "cell-blue"
-                  : "cell-orange",
+              ? "cell-green"
+              : i % 4 === 2
+              ? "cell-blue"
+              : "cell-orange",
         };
       }, initialColumnDef);
     layeredColumnDefs.push(nestedColumnDef);
@@ -72,10 +126,13 @@ export const getLayeredColumnDefs = (columnDataType: ColumnDataType) => {
   return layeredColumnDefs;
 };
 
-export const getGroupedColumnDefs = (columnDataType: ColumnDataType) => {
+export const getGroupedColumnDefs = (
+  columnDataType: ColumnDataType,
+  gridApi: GridApi,
+) => {
   const groupedColumnDefs: ColumnDef[] = [];
-  const layeredColumnDefs = getLayeredColumnDefs(columnDataType);
-  const columnDefs = getColumnDefs(columnDataType);
+  const layeredColumnDefs = getLayeredColumnDefs(columnDataType, gridApi);
+  const columnDefs = getColumnDefs(columnDataType, gridApi);
 
   // Assuming the length is not large, we will do a triangular search.
   let k = 0;

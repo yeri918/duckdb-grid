@@ -33,7 +33,7 @@ import CustomCountBar, {
 import db from "../table/duckDB";
 
 // AgGrid imports
-import { ColDef, StatusPanelDef } from "@ag-grid-community/core";
+import { ColDef, StatusPanelDef, GridApi } from "@ag-grid-community/core";
 import "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -68,9 +68,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   useEffect(() => {
-    const columnDefs = getColumnDefs(props.columnDataType);
-    const layeredColumnDefs = getLayeredColumnDefs(props.columnDataType);
-    const groupedColumnDefs = getGroupedColumnDefs(props.columnDataType);
+    const columnDefs = getColumnDefs(props.columnDataType, gridApi);
+    const layeredColumnDefs = getLayeredColumnDefs(
+      props.columnDataType,
+      gridApi,
+    );
+    const groupedColumnDefs = getGroupedColumnDefs(
+      props.columnDataType,
+      gridApi,
+    );
     setColumnDefs(groupedColumnDefs);
   }, [props.columnDataType]);
   // endregion
