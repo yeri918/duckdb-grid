@@ -32,9 +32,9 @@ const CustomCountBar = (props: CustomStatusPanelProps) => {
 
     // List of all events
     // https://www.ag-grid.com/javascript-data-grid/grid-events/
-    props.api.addEventListener("modelUpdated", handleModelUpdated);
+    props.api.addEventListener("stateUpdated", handleModelUpdated);
     return () => {
-      props.api.removeEventListener("modelUpdated", handleModelUpdated);
+      props.api.removeEventListener("stateUpdated", handleModelUpdated);
     };
   }, []);
 
