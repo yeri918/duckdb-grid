@@ -32,9 +32,9 @@ const CustomCountBar = (props: CustomStatusPanelProps) => {
 
     // List of all events
     // https://www.ag-grid.com/javascript-data-grid/grid-events/
-    props.api.addEventListener("stateUpdated", handleModelUpdated);
+    props.api.addEventListener("firstDataRendered", handleModelUpdated);
     return () => {
-      props.api.removeEventListener("stateUpdated", handleModelUpdated);
+      props.api.removeEventListener("firstDataRendered", handleModelUpdated);
     };
   }, []);
 
@@ -62,8 +62,10 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
         filterArray.push(`${key} >= ${filterItem.filter}`);
       } else if (filterItem.type === "lessThan") {
         filterArray.push(`${key} < ${filterItem.filter}`);
-      } else {
-        filterArray.push(`${key} = ${filterItem.filter}`);
+      } else if (filterItem.type === "notContains") {
+        filterArray.push(`${key} does not contain ${filterItem.filter}`);
+      } else if (filterItem.type === "contains") {
+        filterArray.push(`${key} contains ${filterItem.filter}`);
       }
     } else {
       // Thats a multiFilterModel
@@ -113,19 +115,31 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
             if (filterItem.filterModels !== undefined) {
               filterItem.filterModels.forEach((filterModel) => {
                 if (filterModel !== null) {
-                  parseSetItem(key, filterModel, filterArray);
+                  switch (filterModel.filterType) {
+                    case "text":
+                      parseEqualItem(key, filterModel, filterArray);
+                      break;
+                    case "number": // Add case for "number" filter type
+                      parseEqualItem(key, filterModel, filterArray);
+                      break;
+                    case "set":
+                      parseSetItem(key, filterModel, filterArray);
+                      break;
+                  }
                 }
               });
             }
         }
       }
     });
+    console.log("check final", filterArray);
     return filterArray;
   };
 
   useEffect(() => {
     const fetchFilterModel = async () => {
       const filterModel = props.api.getFilterModel();
+      console.log("check hi", filterModel);
       if (filterModel === null || Object.keys(filterModel).length === 0) {
         setFilterArray([]);
       } else {
