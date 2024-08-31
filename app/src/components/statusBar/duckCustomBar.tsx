@@ -80,7 +80,6 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
           multiFilterArray.push(`${key} = ${condition.filter}`);
         }
       });
-      console.log("check", multiFilterArray);
       filterArray.push(multiFilterArray.join(` ${multiFilter.operator} `));
     }
   };
@@ -127,15 +126,12 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
   useEffect(() => {
     const fetchFilterModel = async () => {
       const filterModel = props.api.getFilterModel();
-
-      console.log("status Bar", filterModel);
       if (filterModel === null || Object.keys(filterModel).length === 0) {
         setFilterArray([]);
       } else {
         const parsedFilterModel = parseFilterModel(filterModel);
         setFilterArray(parsedFilterModel);
       }
-      console.log("FilterCheck", props.api.getFilterModel());
     };
 
     const handleFilterChanged = () => {
