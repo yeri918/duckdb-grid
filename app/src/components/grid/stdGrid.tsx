@@ -27,6 +27,7 @@ import "./style.css";
 import duckGridDataSource from "../duckGrid/duckGridDS";
 import CustomCountBar, {
   CustomFilterModelBar,
+  CustomWaterMarkBar,
 } from "../statusBar/duckCustomBar";
 
 // table Folder
@@ -149,6 +150,12 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           ),
           align: "center",
         },
+        {
+          statusPanel: (props: CountStatusBarComponentType<any, any>) => (
+            <CustomWaterMarkBar context={undefined} {...props} />
+          ),
+          align: "left",
+        },
         { statusPanel: "agTotalAndFilteredRowCountComponent" },
         {
           statusPanel: "agAggregationComponent",
@@ -169,25 +176,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     if (props.setExecutionTime) {
       props.setExecutionTime(execTime);
     }
-  };
-
-  const onCellClicked = (params: any) => {
-    if (params.column.getColDef().chartDataType === "category") {
-      return;
-    }
-    const cellRange = {
-      rowStartIndex: params.rowIndex,
-      rowEndIndex: params.rowIndex,
-      columnStart: params.column,
-      columnEnd: params.column,
-    };
-
-    const chartRangeParams = {
-      cellRange: cellRange,
-      chartType: "line",
-    };
-
-    params.api.createRangeChart(chartRangeParams);
   };
 
   // Dark Mode

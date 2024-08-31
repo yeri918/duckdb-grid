@@ -160,4 +160,12 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
   );
 };
 
+export const CustomWaterMarkBar = (props: CustomStatusPanelProps) => {
+  return (
+    <div className="ag-status-name-value">
+      <span className="component">Powered by DuckDB</span>
+    </div>
+  );
+};
+
 export default CustomCountBar;
