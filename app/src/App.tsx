@@ -26,7 +26,7 @@ function App() {
     today_daily_value: "DOUBLE",
     today_daily_transaction_count: "DOUBLE",
     row_number: "INTEGER",
-  }
+  };
 
   /* 
     README: Choose the table you want to initialize
@@ -44,7 +44,10 @@ function App() {
 
   return (
     <div className="app-container" style={{}}>
-      <div className="top-right" style={{ position: "absolute", top: "10px", right: "10px" }}>
+      <div
+        className="top-right"
+        style={{ position: "absolute", top: "10px", right: "10px" }}
+      >
         {executionTime === 0 ? (
           <div className="loading">
             <span className="dot">🟡</span>
@@ -58,7 +61,10 @@ function App() {
       <h1 className="app-title">Standard Grid</h1>
       <div className="grid-container">
         {ready ? (
-          <StdAgGrid columnDataType={userColumns} setExecutionTime={setExecutionTime} />
+          <StdAgGrid
+            columnDataType={userColumns}
+            setExecutionTime={setExecutionTime}
+          />
         ) : (
           <p>Loading...</p>
         )}
