@@ -63,9 +63,9 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
       } else if (filterItem.type === "lessThan") {
         filterArray.push(`${key} < ${filterItem.filter}`);
       } else if (filterItem.type === "notContains") {
-        filterArray.push(`${key} does not contain ${filterItem.filter}`);
+        filterArray.push(`${key} NOT LIKE %${filterItem.filter}%`);
       } else if (filterItem.type === "contains") {
-        filterArray.push(`${key} contains ${filterItem.filter}`);
+        filterArray.push(`${key} LIKE %${filterItem.filter}%`);
       }
     } else {
       // Thats a multiFilterModel
