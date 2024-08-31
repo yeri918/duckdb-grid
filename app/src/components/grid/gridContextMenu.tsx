@@ -51,7 +51,6 @@ export const onFilterEqual = (
                     },
                   ],
                 };
-                console.log("agNumberColumnFilter", filterModel);
                 break;
               case "agMultiColumnFilter":
                 filterModel[filterColumn] = {
@@ -64,7 +63,13 @@ export const onFilterEqual = (
                     },
                   ],
                 };
-                console.log("agMultiColumnFilter", filterModel);
+                break;
+              case "agTextColumnFilter":
+                filterModel[filterColumn] = {
+                  filter: selectedValue,
+                  filterType: "text",
+                  type: "equals",
+                };
                 break;
             }
           }
