@@ -262,6 +262,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             // StatusBar
             statusBar={statusBar}
             enableCharts={true}
+            // Grouping
+            suppressRowGroupHidesColumns={true}
           />
         </div>
       </div>
