@@ -40,12 +40,16 @@ export interface SingleFilterModel {
   filter: string;
   filterType: string;
   type: string;
+  filterModels?: SingleFilterModel[];
+  values?: string[];
 }
 
 export interface MultiFilterModel {
   filterType: string;
   operator: string;
   conditions: SingleFilterModel[];
+  filterModels?: SingleFilterModel[];
+  values?: string[];
 }
 
 export interface FilterModel {

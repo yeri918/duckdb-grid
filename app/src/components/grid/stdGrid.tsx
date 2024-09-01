@@ -27,13 +27,14 @@ import "./style.css";
 import duckGridDataSource from "../duckGrid/duckGridDS";
 import CustomCountBar, {
   CustomFilterModelBar,
+  CustomWaterMarkBar,
 } from "../statusBar/duckCustomBar";
 
 // table Folder
 import db from "../table/duckDB";
 
 // AgGrid imports
-import { ColDef, StatusPanelDef } from "@ag-grid-community/core";
+import { ColDef, StatusPanelDef, GridApi } from "@ag-grid-community/core";
 import "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -68,9 +69,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   useEffect(() => {
-    const columnDefs = getColumnDefs(props.columnDataType);
-    const layeredColumnDefs = getLayeredColumnDefs(props.columnDataType);
-    const groupedColumnDefs = getGroupedColumnDefs(props.columnDataType);
+    const columnDefs = getColumnDefs(props.columnDataType, gridApi);
+    const layeredColumnDefs = getLayeredColumnDefs(
+      props.columnDataType,
+      gridApi,
+    );
+    const groupedColumnDefs = getGroupedColumnDefs(
+      props.columnDataType,
+      gridApi,
+    );
     setColumnDefs(groupedColumnDefs);
   }, [props.columnDataType]);
   // endregion
@@ -143,6 +150,12 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           ),
           align: "center",
         },
+        {
+          statusPanel: (props: CountStatusBarComponentType<any, any>) => (
+            <CustomWaterMarkBar context={undefined} {...props} />
+          ),
+          align: "left",
+        },
         { statusPanel: "agTotalAndFilteredRowCountComponent" },
         {
           statusPanel: "agAggregationComponent",
@@ -163,25 +176,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     if (props.setExecutionTime) {
       props.setExecutionTime(execTime);
     }
-  };
-
-  const onCellClicked = (params: any) => {
-    if (params.column.getColDef().chartDataType === "category") {
-      return;
-    }
-    const cellRange = {
-      rowStartIndex: params.rowIndex,
-      rowEndIndex: params.rowIndex,
-      columnStart: params.column,
-      columnEnd: params.column,
-    };
-
-    const chartRangeParams = {
-      cellRange: cellRange,
-      chartType: "line",
-    };
-
-    params.api.createRangeChart(chartRangeParams);
   };
 
   // Dark Mode
@@ -268,6 +262,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             // StatusBar
             statusBar={statusBar}
             enableCharts={true}
+            // Grouping
+            suppressRowGroupHidesColumns={true}
           />
         </div>
       </div>
