@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
+import { Grid2, Button } from "@mui/material";
 
 // grid Folder
 import {
@@ -7,6 +8,7 @@ import {
   RowData,
   ColumnDef,
   CountStatusBarComponentType,
+  PrefetchedColumnValues,
 } from "./gridTypes";
 import handleKeyDown from "./gridShortcuts";
 import {
@@ -17,6 +19,7 @@ import {
   onChartSelectedCells,
 } from "./gridContextMenu";
 import {
+  getColumnSetValues,
   getColumnDefs,
   getLayeredColumnDefs,
   getGroupedColumnDefs,
@@ -48,9 +51,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [rowData, setRowData] = useState<RowData[] | null>(null);
   const [aggFunc, setAggFunc] = useState<string>("sum");
   const [gridApi, setGridApi] = useState<any>(null);
-  const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const [prefetchedColumnValues, setPrefetchedColumnValues] = useState({});
   const [darkMode, setDarkMode] = useState(false);
 
   // region: Column Defs
@@ -69,17 +72,40 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   useEffect(() => {
-    const columnDefs = getColumnDefs(props.columnDataType, gridApi);
+    const fetchValues = async () => {
+      const values: PrefetchedColumnValues = {};
+      for (const key in props.columnDataType) {
+        if (
+          props.columnDataType[key] === "VARCHAR" ||
+          props.columnDataType[key] === "DATE"
+        ) {
+          values[key] = await getColumnSetValues(key);
+        }
+      }
+      setPrefetchedColumnValues(values);
+    };
+
+    fetchValues();
+  }, [props.columnDataType]); // Fetch the values when the column data type changes
+
+  useEffect(() => {
+    const columnDefs = getColumnDefs(
+      props.columnDataType,
+      prefetchedColumnValues,
+      gridApi,
+    );
     const layeredColumnDefs = getLayeredColumnDefs(
       props.columnDataType,
+      prefetchedColumnValues,
       gridApi,
     );
     const groupedColumnDefs = getGroupedColumnDefs(
       props.columnDataType,
+      prefetchedColumnValues,
       gridApi,
     );
     setColumnDefs(groupedColumnDefs);
-  }, [props.columnDataType]);
+  }, [props.columnDataType, prefetchedColumnValues]); // Fetch the values when the column data type changes
   // endregion
 
   // region: ShortCuts
@@ -104,7 +130,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                   SELECT *`;
   const datasource = duckGridDataSource(db!, source);
 
-  // COntextMenuItems
+  // ContextMenuItems
   const getContextMenuItems = (params: any) => {
     return [
       {
@@ -215,24 +241,26 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   };
 
   return (
-    <div style={{ height: "100%", boxSizing: "border-box" }}>
-      <div
-        style={{
-          position: "relative",
-          height: "100%",
-          boxSizing: "border-box",
-          display: "flex",
-        }}
-      >
-        <div style={{ zIndex: 1 }}>
-          <button className="menu-button" onClick={toggleDarkMode}>
-            Toggle Dark Mode
-          </button>
-          <button className="menu-button" onClick={resetTable}>
-            Reset Table
-          </button>
-        </div>
-
+    <Grid2
+      container
+      direction="column"
+      style={{ height: "100%", boxSizing: "border-box" }}
+    >
+      <Grid2 sx={{ mb: 2 }}>
+        <Grid2 container justifyContent="flex-start" spacing={2}>
+          <Grid2>
+            <Button variant="contained" onClick={toggleDarkMode}>
+              Toggle Dark Mode
+            </Button>
+          </Grid2>
+          <Grid2>
+            <Button variant="contained" onClick={resetTable}>
+              Reset Table
+            </Button>
+          </Grid2>
+        </Grid2>
+      </Grid2>
+      <Grid2 style={{ flexGrow: 1 }}>
         <div
           style={gridStyle}
           className={darkMode ? "ag-theme-alpine-dark" : "ag-theme-alpine"}
@@ -266,8 +294,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             suppressRowGroupHidesColumns={true}
           />
         </div>
-      </div>
-    </div>
+      </Grid2>
+    </Grid2>
   );
 };
 

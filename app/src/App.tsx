@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./App.css";
 import StdAgGrid from "./components/grid/stdGrid";
 import { ColumnDataType } from "./components/grid/gridTypes";
@@ -15,6 +15,7 @@ import InitUserTable, {
 function App() {
   const [ready, setReady] = useState<boolean>(false);
   const [executionTime, setExecutionTime] = useState<number>(0);
+  const loadingFailedFlag = useRef<JSX.Element | null>(null);
 
   /* 
     README: Choose the table you want to initialize
@@ -32,7 +33,6 @@ function App() {
     README: Choose the table you want to initialize
   */
   // const table = InitUserTable();
-  const parquetTable = InitParquetTable("./bankdataset.parquet", userColumns);
   // const s3ParquetTable = InitS3ParquetTable();
 
   /* 
@@ -41,6 +41,13 @@ function App() {
   useEffect(() => {
     setReady(true);
   }, [userColumns]);
+
+  // Error Handling on Loading
+  const failedFlag = InitParquetTable("./bankdataset.parquet", userColumns);
+  if (failedFlag !== null) {
+    console.log("check failedFlag", failedFlag);
+    loadingFailedFlag.current = failedFlag;
+  }
 
   return (
     <div className="app-container" style={{}}>
@@ -60,6 +67,11 @@ function App() {
       </div>
       <h1 className="app-title">Standard Grid</h1>
       <div className="grid-container">
+        {loadingFailedFlag.current && (
+          <div className="overlay">
+            <div className="overlay-content">{loadingFailedFlag.current}</div>
+          </div>
+        )}
         {ready ? (
           <StdAgGrid
             columnDataType={userColumns}

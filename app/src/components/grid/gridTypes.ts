@@ -55,3 +55,7 @@ export interface MultiFilterModel {
 export interface FilterModel {
   [key: string]: SingleFilterModel | MultiFilterModel;
 }
+
+export interface PrefetchedColumnValues {
+  [key: string]: any;
+}
