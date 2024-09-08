@@ -75,7 +75,10 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     const fetchValues = async () => {
       const values: PrefetchedColumnValues = {};
       for (const key in props.columnDataType) {
-        if (props.columnDataType[key] === "VARCHAR" || props.columnDataType[key] === "DATE") {
+        if (
+          props.columnDataType[key] === "VARCHAR" ||
+          props.columnDataType[key] === "DATE"
+        ) {
           values[key] = await getColumnSetValues(key);
         }
       }
@@ -86,7 +89,11 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   }, [props.columnDataType]); // Fetch the values when the column data type changes
 
   useEffect(() => {
-    const columnDefs = getColumnDefs(props.columnDataType, prefetchedColumnValues, gridApi);
+    const columnDefs = getColumnDefs(
+      props.columnDataType,
+      prefetchedColumnValues,
+      gridApi,
+    );
     const layeredColumnDefs = getLayeredColumnDefs(
       props.columnDataType,
       prefetchedColumnValues,
@@ -183,7 +190,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     };
   }, []);
 
-  const onModelUpdated = (params: any) => { };
+  const onModelUpdated = (params: any) => {};
 
   const onGridReady = (params: any) => {
     setGridApi(params.api);
@@ -234,7 +241,11 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   };
 
   return (
-    <Grid2 container direction="column" style={{ height: "100%", boxSizing: "border-box" }}>
+    <Grid2
+      container
+      direction="column"
+      style={{ height: "100%", boxSizing: "border-box" }}
+    >
       <Grid2 sx={{ mb: 2 }}>
         <Grid2 container justifyContent="flex-start" spacing={2}>
           <Grid2>
@@ -250,7 +261,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         </Grid2>
       </Grid2>
       <Grid2 style={{ flexGrow: 1 }}>
-
         <div
           style={gridStyle}
           className={darkMode ? "ag-theme-alpine-dark" : "ag-theme-alpine"}
@@ -285,7 +295,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           />
         </div>
       </Grid2>
-    </Grid2 >
+    </Grid2>
   );
 };
 

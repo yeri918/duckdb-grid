@@ -25,15 +25,13 @@ export const getColumnSetValues = async (column: string) => {
   await connection.close();
   console.log("result", result);
   return result;
-}
-
+};
 
 export const getColumnDefs = (
   columnDataType: ColumnDataType,
   prefetchedColumnValues: PrefetchedColumnValues,
   gridApi: GridApi,
 ): ColumnDef[] => {
-
   const columnDefs: ColumnDef[] = [];
   for (const key in columnDataType) {
     let columnDef: ColumnDef = {
@@ -42,8 +40,8 @@ export const getColumnDefs = (
       enableRowGroup: true,
       enableValue: true,
       ...(columnDataType[key] === "DOUBLE" ||
-        columnDataType[key] === "INTEGER" ||
-        columnDataType[key] === "FLOAT"
+      columnDataType[key] === "INTEGER" ||
+      columnDataType[key] === "FLOAT"
         ? { aggFunc: "sum" }
         : {}),
       filter:
@@ -53,22 +51,22 @@ export const getColumnDefs = (
       filterParams:
         columnDataType[key] === "VARCHAR" || columnDataType[key] === "DATE"
           ? {
-            filters: [
-              {
-                filter: "agTextColumnFilter",
-                display: "subMenu",
-                filterParams: {
-                  filterOptions: ["contains", "notContains"],
+              filters: [
+                {
+                  filter: "agTextColumnFilter",
+                  display: "subMenu",
+                  filterParams: {
+                    filterOptions: ["contains", "notContains"],
+                  },
                 },
-              },
-              {
-                filter: "agSetColumnFilter",
-                filterParams: {
-                  values: prefetchedColumnValues[key] || [], // Empty array when no values are present.
+                {
+                  filter: "agSetColumnFilter",
+                  filterParams: {
+                    values: prefetchedColumnValues[key] || [], // Empty array when no values are present.
+                  },
                 },
-              },
-            ],
-          }
+              ],
+            }
           : undefined,
     };
 
@@ -87,7 +85,11 @@ export const getLayeredColumnDefs = (
   prefetchedColumnValues: PrefetchedColumnValues,
   gridApi: GridApi,
 ) => {
-  const columnDefs = getColumnDefs(columnDataType, prefetchedColumnValues, gridApi);
+  const columnDefs = getColumnDefs(
+    columnDataType,
+    prefetchedColumnValues,
+    gridApi,
+  );
   const layeredColumnDefs: ColumnDef[] = [];
   let i = 0;
 
@@ -115,10 +117,10 @@ export const getLayeredColumnDefs = (
             i % 4 === 0
               ? "cell-red"
               : i % 4 === 1
-                ? "cell-green"
-                : i % 4 === 2
-                  ? "cell-blue"
-                  : "cell-orange",
+              ? "cell-green"
+              : i % 4 === 2
+              ? "cell-blue"
+              : "cell-orange",
         };
       }, initialColumnDef);
     layeredColumnDefs.push(nestedColumnDef);
@@ -133,12 +135,19 @@ export const getGroupedColumnDefs = (
   gridApi: GridApi,
 ) => {
   const groupedColumnDefs: ColumnDef[] = [];
-  const layeredColumnDefs = getLayeredColumnDefs(columnDataType, prefetchedColumnValues, gridApi);
-  const columnDefs = getColumnDefs(columnDataType, prefetchedColumnValues, gridApi);
+  const layeredColumnDefs = getLayeredColumnDefs(
+    columnDataType,
+    prefetchedColumnValues,
+    gridApi,
+  );
+  const columnDefs = getColumnDefs(
+    columnDataType,
+    prefetchedColumnValues,
+    gridApi,
+  );
 
   // Assuming the length is not large, we will do a triangular search.
   for (let i = 0; i < columnDefs.length; i++) {
-
     const columnDef = layeredColumnDefs[i];
     if (i === layeredColumnDefs.length - 1) {
       groupedColumnDefs.push(columnDef);

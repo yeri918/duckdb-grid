@@ -17,7 +17,6 @@ function App() {
   const [executionTime, setExecutionTime] = useState<number>(0);
   const loadingFailedFlag = useRef<JSX.Element | null>(null);
 
-
   /* 
     README: Choose the table you want to initialize
   */
@@ -46,7 +45,7 @@ function App() {
   // Error Handling on Loading
   const failedFlag = InitParquetTable("./bankdataset.parquet", userColumns);
   if (failedFlag !== null) {
-    console.log("check failedFlag", failedFlag)
+    console.log("check failedFlag", failedFlag);
     loadingFailedFlag.current = failedFlag;
   }
 
@@ -70,9 +69,7 @@ function App() {
       <div className="grid-container">
         {loadingFailedFlag.current && (
           <div className="overlay">
-            <div className="overlay-content">
-              {loadingFailedFlag.current}
-            </div>
+            <div className="overlay-content">{loadingFailedFlag.current}</div>
           </div>
         )}
         {ready ? (
