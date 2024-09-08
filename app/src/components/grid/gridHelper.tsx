@@ -1,4 +1,4 @@
-import { ColumnDataType, ColumnDef } from "./gridTypes";
+import { ColumnDataType, ColumnDef, PrefetchedColumnValues } from "./gridTypes";
 import { Column, RowClassParams, SetFilter } from "ag-grid-enterprise";
 import "./style.css";
 import db from "../table/duckDB";
@@ -10,26 +10,29 @@ import {
   SetFilterValuesFuncParams,
 } from "@ag-grid-community/core";
 
-export const getColumnDefs = (
-  columnDataType: ColumnDataType,
-  gridApi: GridApi,
-): ColumnDef[] => {
-  const getColumnSetValues = async (column: string) => {
-    const connection = await db.connect();
-    const arrowResult = await connection.query(`
+export const getColumnSetValues = async (column: string) => {
+  const connection = await db.connect();
+  const arrowResult = await connection.query(`
         SELECT distinct ${column} as col 
           FROM bankdata
           order by col
     `);
 
-    const result = arrowResult
-      .toArray()
-      .map((row) => row.toJSON())
-      .map((value) => value.col);
-    await connection.close();
-    console.log("result", result);
-    return result;
-  };
+  const result = arrowResult
+    .toArray()
+    .map((row) => row.toJSON())
+    .map((value) => value.col);
+  await connection.close();
+  console.log("result", result);
+  return result;
+}
+
+
+export const getColumnDefs = (
+  columnDataType: ColumnDataType,
+  prefetchedColumnValues: PrefetchedColumnValues,
+  gridApi: GridApi,
+): ColumnDef[] => {
 
   const columnDefs: ColumnDef[] = [];
   for (const key in columnDataType) {
@@ -55,19 +58,13 @@ export const getColumnDefs = (
                 filter: "agTextColumnFilter",
                 display: "subMenu",
                 filterParams: {
-                  filterOptions: ["notContains", "contains"],
+                  filterOptions: ["contains", "notContains"],
                 },
               },
               {
                 filter: "agSetColumnFilter",
                 filterParams: {
-                  values: (params: SetFilterValuesFuncParams) => {
-                    setTimeout(() => {
-                      getColumnSetValues(key).then((values) => {
-                        params.success(values);
-                      });
-                    }, 3000);
-                  },
+                  values: prefetchedColumnValues[key] || [], // Empty array when no values are present.
                 },
               },
             ],
@@ -87,9 +84,10 @@ export const getColumnDefs = (
 
 export const getLayeredColumnDefs = (
   columnDataType: ColumnDataType,
+  prefetchedColumnValues: PrefetchedColumnValues,
   gridApi: GridApi,
 ) => {
-  const columnDefs = getColumnDefs(columnDataType, gridApi);
+  const columnDefs = getColumnDefs(columnDataType, prefetchedColumnValues, gridApi);
   const layeredColumnDefs: ColumnDef[] = [];
   let i = 0;
 
@@ -131,11 +129,12 @@ export const getLayeredColumnDefs = (
 
 export const getGroupedColumnDefs = (
   columnDataType: ColumnDataType,
+  prefetchedColumnValues: PrefetchedColumnValues,
   gridApi: GridApi,
 ) => {
   const groupedColumnDefs: ColumnDef[] = [];
-  const layeredColumnDefs = getLayeredColumnDefs(columnDataType, gridApi);
-  const columnDefs = getColumnDefs(columnDataType, gridApi);
+  const layeredColumnDefs = getLayeredColumnDefs(columnDataType, prefetchedColumnValues, gridApi);
+  const columnDefs = getColumnDefs(columnDataType, prefetchedColumnValues, gridApi);
 
   // Assuming the length is not large, we will do a triangular search.
   for (let i = 0; i < columnDefs.length; i++) {

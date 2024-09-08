@@ -8,6 +8,7 @@ import {
   RowData,
   ColumnDef,
   CountStatusBarComponentType,
+  PrefetchedColumnValues,
 } from "./gridTypes";
 import handleKeyDown from "./gridShortcuts";
 import {
@@ -18,6 +19,7 @@ import {
   onChartSelectedCells,
 } from "./gridContextMenu";
 import {
+  getColumnSetValues,
   getColumnDefs,
   getLayeredColumnDefs,
   getGroupedColumnDefs,
@@ -49,9 +51,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [rowData, setRowData] = useState<RowData[] | null>(null);
   const [aggFunc, setAggFunc] = useState<string>("sum");
   const [gridApi, setGridApi] = useState<any>(null);
-  const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const [prefetchedColumnValues, setPrefetchedColumnValues] = useState({});
   const [darkMode, setDarkMode] = useState(false);
 
   // region: Column Defs
@@ -70,17 +72,33 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   useEffect(() => {
-    const columnDefs = getColumnDefs(props.columnDataType, gridApi);
+    const fetchValues = async () => {
+      const values: PrefetchedColumnValues = {};
+      for (const key in props.columnDataType) {
+        if (props.columnDataType[key] === "VARCHAR" || props.columnDataType[key] === "DATE") {
+          values[key] = await getColumnSetValues(key);
+        }
+      }
+      setPrefetchedColumnValues(values);
+    };
+
+    fetchValues();
+  }, [props.columnDataType]); // Fetch the values when the column data type changes
+
+  useEffect(() => {
+    const columnDefs = getColumnDefs(props.columnDataType, prefetchedColumnValues, gridApi);
     const layeredColumnDefs = getLayeredColumnDefs(
       props.columnDataType,
+      prefetchedColumnValues,
       gridApi,
     );
     const groupedColumnDefs = getGroupedColumnDefs(
       props.columnDataType,
+      prefetchedColumnValues,
       gridApi,
     );
     setColumnDefs(groupedColumnDefs);
-  }, [props.columnDataType]);
+  }, [props.columnDataType, prefetchedColumnValues]); // Fetch the values when the column data type changes
   // endregion
 
   // region: ShortCuts
@@ -105,7 +123,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                   SELECT *`;
   const datasource = duckGridDataSource(db!, source);
 
-  // COntextMenuItems
+  // ContextMenuItems
   const getContextMenuItems = (params: any) => {
     return [
       {
