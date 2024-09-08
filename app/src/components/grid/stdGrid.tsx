@@ -55,18 +55,21 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [prefetchedColumnValues, setPrefetchedColumnValues] = useState({});
   const [darkMode, setDarkMode] = useState(false);
+  const [fitColumns, setFitColumns] = useState(false);
 
   // region: Column Defs
   const defaultColDef = useMemo(() => {
     return {
-      flex: 1,
-      minWidth: 100,
+      // flex: 1,
+      // minWidth: 100,
+      suppressSizeToFit: false,
+      resizable: true,
     };
   }, []);
 
   const autoGroupColumnDef = useMemo(() => {
     return {
-      minWidth: 200,
+      // minWidth: 200,
     };
   }, []);
 
@@ -240,6 +243,23 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     }
   };
 
+  const autoSizeColumns = () => {
+    setFitColumns(!fitColumns);
+    if (fitColumns) {
+      if (gridApi) {
+        gridApi.sizeColumnsToFit();
+      }
+    } else {
+      const allColumnIds = gridApi
+        .getColumnDefs()
+        .map((column: { colId: any }) => column.colId);
+      console.log("pjulie", allColumnIds);
+      gridApi.autoSizeColumns(allColumnIds, {
+        autoSizeMode: "fitCellContents",
+      });
+    }
+  };
+
   return (
     <Grid2
       container
@@ -256,6 +276,11 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           <Grid2>
             <Button variant="contained" onClick={resetTable}>
               Reset Table
+            </Button>
+          </Grid2>
+          <Grid2>
+            <Button variant="contained" onClick={autoSizeColumns}>
+              Autosize Columns
             </Button>
           </Grid2>
         </Grid2>
@@ -283,6 +308,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             rowHeight={25}
             headerHeight={25}
             suppressMultiSort={false}
+            colResizeDefault="shift"
             // Multiple selection
             enableRangeSelection={true}
             rowSelection="multiple"
