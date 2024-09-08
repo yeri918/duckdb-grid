@@ -70,7 +70,7 @@ export const getColumnDefs = (
           : undefined,
     };
 
-    if (["INTEGER", "DOUBLE", "FLAOT"].includes(columnDataType[key])) {
+    if (["INTEGER", "DOUBLE", "FLOAT"].includes(columnDataType[key])) {
       columnDef.valueFormatter = (params) => {
         return new Intl.NumberFormat().format(params.value);
       };
