@@ -55,7 +55,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [prefetchedColumnValues, setPrefetchedColumnValues] = useState({});
   const [darkMode, setDarkMode] = useState(false);
-  const [fitColumns, setFitColumns] = useState(false);
+  const [fitGrid, setFitGrid] = useState(false);
 
   // region: Column Defs
   const defaultColDef = useMemo(() => {
@@ -244,8 +244,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   };
 
   const autoSizeColumns = () => {
-    setFitColumns(!fitColumns);
-    if (fitColumns) {
+    if (!fitGrid) {
       if (gridApi) {
         gridApi.sizeColumnsToFit();
       }
@@ -258,6 +257,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         autoSizeMode: "fitCellContents",
       });
     }
+    setFitGrid(!fitGrid);
   };
 
   return (
