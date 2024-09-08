@@ -39,8 +39,8 @@ export const getColumnDefs = (
       enableRowGroup: true,
       enableValue: true,
       ...(columnDataType[key] === "DOUBLE" ||
-      columnDataType[key] === "INTEGER" ||
-      columnDataType[key] === "FLOAT"
+        columnDataType[key] === "INTEGER" ||
+        columnDataType[key] === "FLOAT"
         ? { aggFunc: "sum" }
         : {}),
       filter:
@@ -50,28 +50,28 @@ export const getColumnDefs = (
       filterParams:
         columnDataType[key] === "VARCHAR" || columnDataType[key] === "DATE"
           ? {
-              filters: [
-                {
-                  filter: "agTextColumnFilter",
-                  display: "subMenu",
-                  filterParams: {
-                    filterOptions: ["notContains", "contains"],
+            filters: [
+              {
+                filter: "agTextColumnFilter",
+                display: "subMenu",
+                filterParams: {
+                  filterOptions: ["notContains", "contains"],
+                },
+              },
+              {
+                filter: "agSetColumnFilter",
+                filterParams: {
+                  values: (params: SetFilterValuesFuncParams) => {
+                    setTimeout(() => {
+                      getColumnSetValues(key).then((values) => {
+                        params.success(values);
+                      });
+                    }, 3000);
                   },
                 },
-                {
-                  filter: "agSetColumnFilter",
-                  filterParams: {
-                    values: (params: SetFilterValuesFuncParams) => {
-                      setTimeout(() => {
-                        getColumnSetValues(key).then((values) => {
-                          params.success(values);
-                        });
-                      }, 3000);
-                    },
-                  },
-                },
-              ],
-            }
+              },
+            ],
+          }
           : undefined,
     };
 
@@ -117,10 +117,10 @@ export const getLayeredColumnDefs = (
             i % 4 === 0
               ? "cell-red"
               : i % 4 === 1
-              ? "cell-green"
-              : i % 4 === 2
-              ? "cell-blue"
-              : "cell-orange",
+                ? "cell-green"
+                : i % 4 === 2
+                  ? "cell-blue"
+                  : "cell-orange",
         };
       }, initialColumnDef);
     layeredColumnDefs.push(nestedColumnDef);
@@ -138,21 +138,18 @@ export const getGroupedColumnDefs = (
   const columnDefs = getColumnDefs(columnDataType, gridApi);
 
   // Assuming the length is not large, we will do a triangular search.
-  let k = 0;
   for (let i = 0; i < columnDefs.length; i++) {
+
+    const columnDef = layeredColumnDefs[i];
     if (i === layeredColumnDefs.length - 1) {
-      const columnDef = layeredColumnDefs[i];
       groupedColumnDefs.push(columnDef);
       break;
     }
+    if (columnDef.children === undefined) {
+      groupedColumnDefs.push(columnDef);
+      continue;
+    }
     for (let j = i + 1; j < columnDefs.length; j++) {
-      const columnDef = layeredColumnDefs[i];
-      // console.log('check', i, j, columnDef)
-      if (columnDef.children === undefined) {
-        groupedColumnDefs.push(columnDef);
-        break;
-      }
-
       const currentDef = columnDef;
       const keys1 = columnDefs[j - 1].field.split("_");
       const keys2 = columnDefs[j].field.split("_");
@@ -202,6 +199,13 @@ export const getGroupedColumnDefs = (
         }
         const combinedChildren = [...child1, child2[0]];
         parent.children = combinedChildren;
+
+        // If we are at the last column, we need to push the parent to the groupedColumnDefs
+        if (j === layeredColumnDefs.length - 1) {
+          groupedColumnDefs.push(currentDef);
+          i = j;
+          break;
+        }
       }
     }
   }
