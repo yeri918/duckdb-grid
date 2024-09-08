@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
+import { Grid2, Button } from "@mui/material";
 
 // grid Folder
 import {
@@ -164,7 +165,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     };
   }, []);
 
-  const onModelUpdated = (params: any) => {};
+  const onModelUpdated = (params: any) => { };
 
   const onGridReady = (params: any) => {
     setGridApi(params.api);
@@ -215,23 +216,22 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   };
 
   return (
-    <div style={{ height: "100%", boxSizing: "border-box" }}>
-      <div
-        style={{
-          position: "relative",
-          height: "100%",
-          boxSizing: "border-box",
-          display: "flex",
-        }}
-      >
-        <div style={{ zIndex: 1 }}>
-          <button className="menu-button" onClick={toggleDarkMode}>
-            Toggle Dark Mode
-          </button>
-          <button className="menu-button" onClick={resetTable}>
-            Reset Table
-          </button>
-        </div>
+    <Grid2 container direction="column" style={{ height: "100%", boxSizing: "border-box" }}>
+      <Grid2 sx={{ mb: 2 }}>
+        <Grid2 container justifyContent="flex-start" spacing={2}>
+          <Grid2>
+            <Button variant="contained" onClick={toggleDarkMode}>
+              Toggle Dark Mode
+            </Button>
+          </Grid2>
+          <Grid2>
+            <Button variant="contained" onClick={resetTable}>
+              Reset Table
+            </Button>
+          </Grid2>
+        </Grid2>
+      </Grid2>
+      <Grid2 style={{ flexGrow: 1 }}>
 
         <div
           style={gridStyle}
@@ -266,8 +266,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             suppressRowGroupHidesColumns={true}
           />
         </div>
-      </div>
-    </div>
+      </Grid2>
+    </Grid2 >
   );
 };
 
