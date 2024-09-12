@@ -146,6 +146,23 @@ export const onChartSelectedCells = (
       const chartRangeParams = {
         cellRange: cellRange && cellRange[0], // Add null check
         chartType: "line",
+        chartThemeOverrides: {
+          common: {
+            legend: {
+              enabled: true,
+              item: {
+                label: {
+                  formatter: (params: { itemId: any }) => {
+                    if (params) {
+                      return params.itemId;
+                    }
+                    return "";
+                  },
+                },
+              },
+            },
+          },
+        },
       };
 
       params.api.createRangeChart(chartRangeParams);
