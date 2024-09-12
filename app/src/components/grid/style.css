@@ -46,19 +46,23 @@
 }
 
 .dark-mode .cell-green {
-  background-color: darkgreen !important;
+  /* background-color: darkgreen !important; */
+  background-color: rgb(43, 124, 48) !important;
 }
 
 .dark-mode .cell-red {
-  background-color: darkred !important;
+  /* background-color: darkred !important; */
+  background-color: rgb(73, 122, 133) !important;
 }
 
 .dark-mode .cell-blue {
-  background-color: darkturquoise !important;
+  /* background-color: darkturquoise !important; */
+  background-color: rgb(58, 112, 187) !important;
 }
 
 .dark-mode .cell-orange {
-  background-color: darkorange !important;
+  /* background-color: darkorange !important; */
+  background-color: rgb(120, 79, 191) !important;
 }
 
 .dark-mode {
