@@ -252,7 +252,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       const allColumnIds = gridApi
         .getColumnDefs()
         .map((column: { colId: any }) => column.colId);
-      console.log("pjulie", allColumnIds);
       gridApi.autoSizeColumns(allColumnIds, {
         autoSizeMode: "fitCellContents",
       });
