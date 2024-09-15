@@ -20,6 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: ./app
 
       - name: Run deploy script
         run: npm run deploy
+        working-directory: ./app
