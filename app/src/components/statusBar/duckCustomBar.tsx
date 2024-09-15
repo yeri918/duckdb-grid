@@ -155,7 +155,11 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
 
     props.api.addEventListener("filterChanged", handleFilterChanged);
     return () => {
-      props.api.removeEventListener("filterChanged", handleFilterChanged);
+      try {
+        props.api.removeEventListener("filterChanged", handleFilterChanged);
+      } catch (e) {
+        console.log("Error removing filterChanged event listener", e);
+      }
     };
   }, []);
 

@@ -19,13 +19,15 @@
     "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
-    "@mui/material": "^6.0.2",
+    "@mui/icons-material": "^6.1.0",
+    "@mui/material": "^6.1.0",
     "ag-grid-community": "^32.0.2",
     "ag-grid-enterprise": "^32.0.2",
     "ag-grid-react": "^32.0.2",
     "papaparse": "^5.4.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-tabs": "^6.0.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

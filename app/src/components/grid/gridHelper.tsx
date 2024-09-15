@@ -23,7 +23,6 @@ export const getColumnSetValues = async (column: string) => {
     .map((row) => row.toJSON())
     .map((value) => value.col);
   await connection.close();
-  console.log("result", result);
   return result;
 };
 
