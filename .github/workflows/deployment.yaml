@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - main-dl
-      - main-jp
 
 jobs:
   deploy:
