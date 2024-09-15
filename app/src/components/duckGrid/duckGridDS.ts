@@ -62,12 +62,10 @@ const duckGridDataSource = (
   };
 
   // 'getRows' and 'destroy' are properties of IServerSideDatasource
+  // 'destroy' is being removed because it is not being used
   // Reference: https://www.ag-grid.com/javascript-data-grid/server-side-model-datasource/
   return {
     getRows: getRows,
-    destroy: () => {
-      console.log("Destroying datasource");
-    },
   };
 };
 

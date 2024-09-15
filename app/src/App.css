@@ -77,3 +77,27 @@
   padding: 20px;
   border-radius: 10px;
 }
+
+/* React-tabs */
+.react-tabs__tab-list {
+  display: flex;
+  justify-content: space-around;
+}
+
+.react-tabs__tab {
+  flex: 1;
+  text-align: center;
+}
+
+.tab-panel {
+  /* height: 400px; Adjust the height as needed */
+  overflow: auto; /* Optional: to handle overflow content */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height:80vh;
+  width: 90vw;
+  /* border: 3px solid green; */
+  background-color: #3f3f3f;
+}
+

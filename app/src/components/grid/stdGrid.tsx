@@ -156,7 +156,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       onRowGroupCollapseAll(gridApi, params),
       onRowGroupExpandOneLevel(gridApi, params),
       "separator",
-      onChartSelectedCells(gridApi, params),
+      onChartSelectedCells(gridApi, params, "line"),
+      onChartSelectedCells(gridApi, params, "groupedColumn"),
+      // onChartSelectedCells(gridApi, params),
       "separator",
       "copy",
       "export",
@@ -263,7 +265,11 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     <Grid2
       container
       direction="column"
-      style={{ height: "100%", boxSizing: "border-box" }}
+      style={{
+        height: "100%",
+        boxSizing: "border-box",
+        border: "3px border blue",
+      }}
     >
       <Grid2 sx={{ mb: 2 }}>
         <Grid2 container justifyContent="flex-start" spacing={2}>
