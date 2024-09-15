@@ -1,5 +1,6 @@
 import { GridApi, Column } from "ag-grid-community";
 import { ContextMenuItem } from "./gridTypes";
+import { ChartType } from "ag-grid-community";
 
 // region: Filters
 export const onFilterEqual = (
@@ -135,17 +136,38 @@ export const onRowGroupExpandOneLevel = (
 export const onChartSelectedCells = (
   gridApi: GridApi,
   params: any,
+  chartType: ChartType = "line", // line, groupedColumn
 ): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
-    name: "Chart selected cells",
+    name: `Chart selected cells (${chartType})`,
     action: () => {
+      // Sanity Check, return null if failed.
       if (params.column.getColDef().chartDataType === "category") {
         return;
       }
       const cellRange = gridApi.getCellRanges();
+      if (cellRange === null) {
+        return;
+      }
+
+      // Derive Start and End Row Index
+      // Note: if start row = end row, we null it to plot the whole column.
+      let rowStartIndex: number | undefined | null =
+        cellRange[0].startRow?.rowIndex;
+      let rowEndIndex: number | undefined | null =
+        cellRange[0].endRow?.rowIndex;
+      if (rowStartIndex === rowEndIndex) {
+        rowStartIndex = rowEndIndex = null;
+      }
+
+      // Charting Params
       const chartRangeParams = {
-        cellRange: cellRange && cellRange[0], // Add null check
-        chartType: "line",
+        cellRange: {
+          rowStartIndex: rowStartIndex,
+          rowEndIndex: rowEndIndex,
+          columns: cellRange[0].columns,
+        },
+        chartType: chartType,
         chartThemeOverrides: {
           common: {
             legend: {
