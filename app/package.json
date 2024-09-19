@@ -1,8 +1,8 @@
 {
   "name": "@half-way/duckdb-grid",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "description": "This project runs ag-grid with duckdb-wasm.",
-  "homepage": "https://dominic-lcw.github.io/duckdb-grid",
+  "homepage": "https://yeri918.github.io/duckdb-grid",
   "type": "module",
   "scripts": {
     "dev": "vite",
