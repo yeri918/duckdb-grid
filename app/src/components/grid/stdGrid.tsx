@@ -261,6 +261,34 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     setFitGrid(!fitGrid);
   };
 
+  const sideBar = {
+    toolPanels: [
+      {
+        id: "columns",
+        labelDefault: "Columns",
+        labelKey: "columns",
+        iconKey: "columns",
+        toolPanel: "agColumnsToolPanel",
+        toolPanelParams: {
+          suppressValues: false,
+          columnDisplayName: (col: { getColDef: () => any }) => {
+            const colDef = col.getColDef();
+            console.log("pjulie", col);
+            return colDef.headerName;
+          },
+        },
+      },
+      {
+        id: "filters",
+        labelDefault: "Filters",
+        labelKey: "filters",
+        iconKey: "filter",
+        toolPanel: "agFiltersToolPanel",
+      },
+    ],
+    defaultToolPanel: "columns",
+  };
+
   return (
     <Grid2
       container
@@ -304,7 +332,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             autoGroupColumnDef={autoGroupColumnDef}
             getContextMenuItems={getContextMenuItems}
             multiSortKey={"ctrl"}
-            sideBar={true}
+            // sideBar={true}
+            sideBar={sideBar}
             serverSidePivotResultFieldSeparator="_"
             suppressAggFuncInHeader={true}
             onModelUpdated={onModelUpdated}
