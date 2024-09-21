@@ -17,7 +17,7 @@ import InitUserTable, {
   InitParquetTable,
   InitS3ParquetTable,
 } from "./components/table/initTable";
-
+import { IoInvertMode } from "react-icons/io5";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -66,6 +66,7 @@ function CustomTabPanel(props: TabPanelProps) {
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       className={`tab-panel${value !== index ? "-hidden" : ""}`}
+      style={{ backgroundColor: "inherit" }}
       {...other}
     >
       {value === index && (
@@ -83,6 +84,7 @@ function App() {
   const loadingFailedFlag = useRef<JSX.Element | null>(null);
   const [tabData, setTabData] = useState<any[]>([]);
   const [value, setValue] = React.useState(1); // Initial state of the tabs
+  const [darkMode, setDarkMode] = useState<boolean>(true);
 
   /* 
     README: Init Steps
@@ -120,6 +122,15 @@ function App() {
   /* 
     ------------END OF USER EDITABLE AREA------------
   */
+
+  useEffect(() => {
+    const userPrefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    setDarkMode(userPrefersDark);
+  }, []);
+
   useEffect(() => {
     setReady(true);
   }, [loadingFailedFlag]);
@@ -129,16 +140,11 @@ function App() {
     const tabData = [
       {
         label: "Tab 1",
-        content: (
-          <StdAgGrid
-            columnDataType={userColumns}
-            setExecutionTime={setExecutionTime}
-          />
-        ),
+        content: <StdAgGrid columnDataType={userColumns} darkMode={darkMode} />,
       },
     ];
     setTabData(tabData);
-  }, [loadingFailedFlag]);
+  }, [loadingFailedFlag, darkMode]);
 
   // render Tabs Functions
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -156,30 +162,11 @@ function App() {
     const newIndex = tabData.length;
     const newTab = {
       label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
-      content: (
-        <StdAgGrid
-          columnDataType={userColumns}
-          setExecutionTime={setExecutionTime}
-        />
-      ),
+      content: <StdAgGrid columnDataType={userColumns} darkMode={darkMode} />,
     };
     setTabData([...tabData, newTab]);
     setValue(newIndex + 1);
   };
-
-  function renderExecutionTime() {
-    if (executionTime === 0) {
-      return (
-        <div className="loading">
-          <span className="dot">🟡</span>
-          <span className="dot">🟡</span>
-          <span className="dot">🟡</span>
-        </div>
-      );
-    } else {
-      return <div>Exec: {executionTime.toFixed(2)} ms</div>;
-    }
-  }
 
   function renderTabs() {
     return (
@@ -188,11 +175,23 @@ function App() {
         onChange={handleChange}
         aria-label="basic tabs example"
       >
-        <IconButton onClick={handleAddTab} aria-label="add tab">
-          <AddIcon />
+        <IconButton
+          onClick={handleAddTab}
+          aria-label="add tab"
+          style={{
+            height: "40px",
+            outline: "none",
+            marginTop: "5px",
+          }}
+        >
+          <AddIcon style={{ color: darkMode ? "white" : "gray" }} />
         </IconButton>
         {tabData.map((tab, index) => (
-          <Tab label={tab.label} {...a11yProps(index)} />
+          <Tab
+            style={{ outline: "none" }}
+            label={tab.label}
+            {...a11yProps(index)}
+          />
         ))}
       </Tabs>
     );
@@ -203,13 +202,17 @@ function App() {
       <CustomTabPanel
         value={value}
         index={index + 1} // Value starts at 1. 0 is the add button
-        height={"95%"}
+        height={"94%"}
         width={"95%"}
       >
         {tab.content}
       </CustomTabPanel>
     ));
   }
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -218,13 +221,28 @@ function App() {
           className="top-right"
           style={{ position: "absolute", top: "10px", right: "10px" }}
         >
-          {renderExecutionTime()}
+          <div style={{ fontSize: "25px", marginLeft: "30px", height: "40px" }}>
+            <IoInvertMode onClick={toggleDarkMode} />
+          </div>
         </div>
         <h1 className="app-title">Standard Grid</h1>
         <div>
           {ready ? (
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <Box
+              sx={{
+                borderBottom: 1,
+                borderColor: "divider",
+                border: "1px solid gray",
+                borderRadius: "10px",
+                padding: "10px",
+              }}
+            >
+              <Box
+                sx={{
+                  borderBottom: 0.5,
+                  borderColor: darkMode ? "divider" : "gray",
+                }}
+              >
                 {renderTabs()}
               </Box>
               {renderTabPanels()}

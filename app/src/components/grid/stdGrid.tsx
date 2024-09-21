@@ -44,7 +44,17 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 
 interface StdAgGridProps {
   columnDataType: ColumnDataType;
-  setExecutionTime?: React.Dispatch<React.SetStateAction<number>>;
+  darkMode?: boolean | null;
+}
+
+function arePropsEqual(
+  prevProps: StdAgGridProps,
+  nextProps: StdAgGridProps,
+): boolean {
+  return (
+    prevProps.columnDataType === nextProps.columnDataType &&
+    prevProps.darkMode === nextProps.darkMode
+  );
 }
 
 const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
@@ -54,8 +64,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [prefetchedColumnValues, setPrefetchedColumnValues] = useState({});
-  const [darkMode, setDarkMode] = useState(false);
+
+  // Detect if the user prefers dark mode
+  const prefersDarkMode =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [darkMode, setDarkMode] = useState(props.darkMode || prefersDarkMode);
+
   const [fitGrid, setFitGrid] = useState(false);
+  const [execTime, setExecTime] = useState<number>(0);
 
   // region: Column Defs
   const defaultColDef = useMemo(() => {
@@ -72,6 +89,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       // minWidth: 200,
     };
   }, []);
+
+  useEffect(() => {
+    setDarkMode(props.darkMode!);
+    if (props.darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [props.darkMode]);
 
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   useEffect(() => {
@@ -204,38 +230,10 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const onFirstDataRendered = () => {
     const endTime = performance.now();
     const execTime = endTime - startTime.current;
-    if (props.setExecutionTime) {
-      props.setExecutionTime(execTime);
-    }
+    setExecTime(execTime);
   };
-
-  // Dark Mode
-  useEffect(() => {
-    // Check if the user has set their browser to dark mode
-    const userPrefersDark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    // Set the state variable based on the user's preference
-    setDarkMode(userPrefersDark);
-
-    if (userPrefersDark) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }, []);
 
   // Buttons
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (!darkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  };
-
   const resetTable = () => {
     if (gridApi) {
       gridApi.refreshCells();
@@ -273,7 +271,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           suppressValues: false,
           columnDisplayName: (col: { getColDef: () => any }) => {
             const colDef = col.getColDef();
-            console.log("pjulie", col);
             return colDef.headerName;
           },
         },
@@ -289,6 +286,20 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     defaultToolPanel: "columns",
   };
 
+  function renderExecutionTime() {
+    if (execTime === 0) {
+      return (
+        <div className="loading">
+          <span className="dot">🟡</span>
+          <span className="dot">🟡</span>
+          <span className="dot">🟡</span>
+        </div>
+      );
+    } else {
+      return <div>Exec: {execTime.toFixed(2)} ms</div>;
+    }
+  }
+
   return (
     <Grid2
       container
@@ -296,32 +307,62 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       style={{
         height: "100%",
         boxSizing: "border-box",
-        border: "3px border blue",
       }}
     >
-      <Grid2 sx={{ mb: 2 }}>
-        <Grid2 container justifyContent="flex-start" spacing={2}>
-          <Grid2>
-            <Button variant="contained" onClick={toggleDarkMode}>
-              Toggle Dark Mode
-            </Button>
-          </Grid2>
-          <Grid2>
-            <Button variant="contained" onClick={resetTable}>
-              Reset Table
-            </Button>
-          </Grid2>
-          <Grid2>
-            <Button variant="contained" onClick={autoSizeColumns}>
-              Autosize Columns
-            </Button>
+      {/* Buttons */}
+      <Grid2 sx={{ display: "flex", height: "7%" }}>
+        <Grid2 sx={{ width: "80%" }}>
+          <Grid2 container justifyContent="flex-start" spacing={2}>
+            <Grid2>
+              <Button
+                style={{ outline: "none" }}
+                variant="contained"
+                onClick={resetTable}
+              >
+                Reset Table
+              </Button>
+            </Grid2>
+            <Grid2>
+              <Button
+                style={{ outline: "none" }}
+                variant="contained"
+                onClick={autoSizeColumns}
+              >
+                Autosize Columns
+              </Button>
+            </Grid2>
           </Grid2>
         </Grid2>
+        <Grid2
+          sx={{
+            width: "100%",
+            alignSelf: "flex-end",
+            mb: 1,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            {renderExecutionTime()}
+          </div>
+        </Grid2>
       </Grid2>
-      <Grid2 style={{ flexGrow: 1 }}>
+      <Grid2 style={{ flexGrow: 1, height: "80%" }}>
         <div
           style={gridStyle}
-          className={darkMode ? "ag-theme-alpine-dark" : "ag-theme-alpine"}
+          className={
+            darkMode === null
+              ? prefersDarkMode
+                ? "ag-theme-alpine-dark"
+                : "ag-theme-alpine"
+              : props.darkMode
+              ? "ag-theme-alpine-dark"
+              : "ag-theme-alpine"
+          }
         >
           <AgGridReact
             rowModelType="serverSide"
@@ -359,4 +400,5 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   );
 };
 
-export default StdAgGrid;
+// export default StdAgGrid;
+export default React.memo(StdAgGrid, arePropsEqual);
