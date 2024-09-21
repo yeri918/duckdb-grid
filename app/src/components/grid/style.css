@@ -65,12 +65,29 @@
   background-color: rgb(120, 79, 191) !important;
 }
 
-.dark-mode {
+/* .dark-mode {
   background-color: #333;
   color: #fff;
-}
+} */
 
 .menu-button {
   width: 200px; /* or any other value */
   margin: 2px 0;
+}
+
+/* Light mode scrollbar */
+.ag-theme-alpine ::-webkit-scrollbar {
+  width: 12px;
+}
+
+.ag-theme-alpine ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.ag-theme-alpine ::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+.ag-theme-alpine ::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
