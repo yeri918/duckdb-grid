@@ -116,10 +116,10 @@ export const getLayeredColumnDefs = (
             i % 4 === 0
               ? "cell-red"
               : i % 4 === 1
-              ? "cell-green"
-              : i % 4 === 2
-              ? "cell-blue"
-              : "cell-orange",
+                ? "cell-green"
+                : i % 4 === 2
+                  ? "cell-blue"
+                  : "cell-orange",
         };
       }, initialColumnDef);
     layeredColumnDefs.push(nestedColumnDef);
