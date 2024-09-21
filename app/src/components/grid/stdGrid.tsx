@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import { AgGridReact } from "ag-grid-react";
 import { Grid2, Button } from "@mui/material";
 
@@ -224,8 +230,49 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const onModelUpdated = (params: any) => {};
 
   const onGridReady = (params: any) => {
+    console.log("onGridReady", params);
     setGridApi(params.api);
   };
+
+  // region: Load And Save Views
+  const saveGridState = useCallback(async () => {
+    console.log("dom check");
+    if (gridApi) {
+      const columnState = gridApi.getColumnState();
+      let filterState = gridApi.getFilterModel();
+      let sortState = gridApi.getSortModel();
+
+      // Null handling
+      if (filterState === null || Object.keys(filterState).length === 0) {
+        filterState = { empty: "empty" };
+      }
+      if (sortState === undefined) {
+        sortState = [];
+      }
+
+      console.log("check state", columnState, filterState, sortState);
+      console.log(
+        "check state2",
+        `CREATE OR REPLACE TABLE saved_grid_states AS 
+                SELECT ${JSON.stringify(sortState)} AS column_state, 
+                      ${filterState} AS filter_state, 
+                      ${sortState} AS sort_state `,
+      );
+      const connection = await db.connect();
+      await connection.query(`CREATE OR REPLACE TABLE saved_grid_states AS 
+                SELECT ${columnState} AS column_state, 
+                      ${filterState} AS filter_state, 
+                      ${sortState} AS sort_state `);
+      await connection.close();
+    }
+  }, [gridApi]);
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", saveGridState);
+    return () => {
+      window.removeEventListener("beforeunload", saveGridState);
+    };
+  }, [saveGridState]);
 
   const onFirstDataRendered = () => {
     const endTime = performance.now();
@@ -329,6 +376,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 onClick={autoSizeColumns}
               >
                 Autosize Columns
+              </Button>
+            </Grid2>
+            <Grid2>
+              <Button
+                style={{ outline: "none" }}
+                variant="contained"
+                onClick={saveGridState}
+              >
+                Save View
               </Button>
             </Grid2>
           </Grid2>
