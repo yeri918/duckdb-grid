@@ -47,19 +47,19 @@ function arePropsEqual(
   prevProps: StdAgGridProps,
   nextProps: StdAgGridProps,
 ): boolean {
-  return (
-    prevProps.columnDataType === nextProps.columnDataType &&
-    prevProps.darkMode === nextProps.darkMode
-  );
+  return prevProps.darkMode === nextProps.darkMode;
 }
 
 const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
-  const [rowData, setRowData] = useState<RowData[] | null>(null);
-  const [aggFunc, setAggFunc] = useState<string>("sum");
+  const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   const [gridApi, setGridApi] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
-  const [prefetchedColumnValues, setPrefetchedColumnValues] = useState({});
+
+  useEffect(() => {
+    console.log("StdAgGrid: Mounted or Rerendered");
+  }, []);
 
   // Detect if the user prefers dark mode
   const prefersDarkMode =
@@ -69,6 +69,17 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
   const [fitGrid, setFitGrid] = useState(false);
   const [execTime, setExecTime] = useState<number>(0);
+
+  // region: Dark Mode
+  useEffect(() => {
+    setDarkMode(props.darkMode!);
+    if (props.darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [props.darkMode]);
+  // endregion
 
   // region: Column Defs
   const defaultColDef = useMemo(() => {
@@ -87,56 +98,56 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   }, []);
 
   useEffect(() => {
-    setDarkMode(props.darkMode!);
-    if (props.darkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }, [props.darkMode]);
+    const columnDataTypes: ColumnDataType = {
+      domain: "VARCHAR",
+      date: "DATE",
+      today_location: "VARCHAR",
+      today_daily_value: "DOUBLE",
+      today_daily_transaction_count: "DOUBLE",
+      row_number: "INTEGER",
+    };
 
-  const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
-  useEffect(() => {
-    const fetchValues = async () => {
+    const fetchColumnSetValues = async () => {
       const values: PrefetchedColumnValues = {};
-      for (const key in props.columnDataType) {
+      for (const key in columnDataTypes) {
         if (
-          props.columnDataType[key] === "VARCHAR" ||
-          props.columnDataType[key] === "DATE"
+          columnDataTypes[key] === "VARCHAR" ||
+          columnDataTypes[key] === "DATE"
         ) {
           values[key] = await getColumnSetValues(key);
         }
       }
-      setPrefetchedColumnValues(values);
+      return values;
     };
+    const fetchColumnDefs = async () => {
+      // const columnDefs = getColumnDefs(
+      //   props.columnDataType,
+      //   prefetchedColumnValues,
+      //   gridApi,
+      // );
+      // const layeredColumnDefs = getLayeredColumnDefs(
+      //   props.columnDataType,
+      //   prefetchedColumnValues,
+      //   gridApi,
+      // );
+      const columnSetValues = await fetchColumnSetValues();
+      const groupedColumnDefs = getGroupedColumnDefs(
+        columnDataTypes,
+        columnSetValues,
+        gridApi,
+      );
 
-    fetchValues();
-  }, [props.columnDataType]); // Fetch the values when the column data type changes
+      setColumnDefs(groupedColumnDefs);
+    };
+    fetchColumnDefs();
+    setLoading(false);
+  }, []);
 
-  useEffect(() => {
-    const columnDefs = getColumnDefs(
-      props.columnDataType,
-      prefetchedColumnValues,
-      gridApi,
-    );
-    const layeredColumnDefs = getLayeredColumnDefs(
-      props.columnDataType,
-      prefetchedColumnValues,
-      gridApi,
-    );
-    const groupedColumnDefs = getGroupedColumnDefs(
-      props.columnDataType,
-      prefetchedColumnValues,
-      gridApi,
-    );
-    setColumnDefs(groupedColumnDefs);
-  }, [props.columnDataType, prefetchedColumnValues]); // Fetch the values when the column data type changes
   // endregion
 
   // region: ShortCuts
   // dl: useState will trigger a rerender of the grid. The useStates will be invalid.
   const ctrlFDown = useRef<boolean>(false);
-  const ctrlEDown = useRef<boolean>(false);
   useEffect(() => {
     document.addEventListener("keydown", (event: KeyboardEvent) =>
       handleKeyDown(event, gridApi, ctrlFDown),
@@ -151,11 +162,13 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   }, [gridApi]);
   // endregion
 
+  // region: DataSource
   const source = `FROM bankdata
                   SELECT *`;
   const datasource = duckGridDataSource(db!, source);
+  // endregion
 
-  // ContextMenuItems
+  // region: Context Menu
   const getContextMenuItems = (params: any) => {
     return [
       {
@@ -186,7 +199,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       "export",
     ];
   };
+  // endregion
 
+  // region: Status Bar
   const statusBar = useMemo<{
     statusPanels: StatusPanelDef[];
   }>(() => {
@@ -216,10 +231,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       ],
     };
   }, []);
+  // endregion
 
-  const onModelUpdated = (params: any) => {};
+  // region: onModelUpdated / onGridReady / onFirstDataRendered
+  const onModelUpdated = (params: any) => {
+    console.log("std onModelUpdated", params);
+  };
 
   const onGridReady = (params: any) => {
+    console.log("std onGridReady");
     setGridApi(params.api);
   };
 
@@ -228,8 +248,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     const execTime = endTime - startTime.current;
     setExecTime(execTime);
   };
+  // endregion
 
-  // Buttons
+  // region: Buttons
   const resetTable = () => {
     if (gridApi) {
       gridApi.refreshCells();
@@ -281,6 +302,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     ],
     defaultToolPanel: "columns",
   };
+  // endregion
 
   function renderExecutionTime() {
     if (execTime === 0) {
@@ -305,9 +327,11 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         boxSizing: "border-box",
       }}
     >
-      {/* Buttons */}
       <Grid2 sx={{ display: "flex", height: "7%" }}>
         <Grid2 sx={{ width: "80%" }}>
+          {/* 
+          // region: Buttons 
+          */}
           <Grid2 container justifyContent="flex-start" spacing={2}>
             <Grid2>
               <Button
@@ -347,6 +371,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           </div>
         </Grid2>
       </Grid2>
+      {/* 
+      // endregion 
+      */}
       <Grid2 style={{ flexGrow: 1, height: "80%" }}>
         <div
           style={gridStyle}
@@ -374,13 +401,11 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             /*
               Place Holder
             */
-            rowData={rowData}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             autoGroupColumnDef={autoGroupColumnDef}
             getContextMenuItems={getContextMenuItems}
             multiSortKey={"ctrl"}
-            // sideBar={true}
             sideBar={sideBar}
             serverSidePivotResultFieldSeparator="_"
             suppressAggFuncInHeader={true}
@@ -391,6 +416,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             headerHeight={25}
             suppressMultiSort={false}
             colResizeDefault="shift"
+            loading={loading}
+            animateRows={true}
             // Multiple selection
             enableRangeSelection={true}
             rowSelection="multiple"
