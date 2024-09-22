@@ -13,6 +13,11 @@ export interface RowData {
   [key: string]: string | number;
 }
 
+export interface StdAgGridProps {
+  columnDataType: ColumnDataType;
+  darkMode?: boolean | null;
+}
+
 export interface ColumnDataType {
   [key: string]: DataType;
 }

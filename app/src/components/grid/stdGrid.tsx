@@ -5,6 +5,7 @@ import { Grid2, Button } from "@mui/material";
 // grid Folder
 import {
   ColumnDataType,
+  StdAgGridProps,
   RowData,
   ColumnDef,
   CountStatusBarComponentType,
@@ -41,11 +42,6 @@ import { ColDef, StatusPanelDef, GridApi } from "@ag-grid-community/core";
 import "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-
-interface StdAgGridProps {
-  columnDataType: ColumnDataType;
-  darkMode?: boolean | null;
-}
 
 function arePropsEqual(
   prevProps: StdAgGridProps,
