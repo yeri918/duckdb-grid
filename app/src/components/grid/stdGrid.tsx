@@ -360,13 +360,24 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 ? "ag-theme-alpine-dark"
                 : "ag-theme-alpine"
               : props.darkMode
-              ? "ag-theme-alpine-dark"
-              : "ag-theme-alpine"
+                ? "ag-theme-alpine-dark"
+                : "ag-theme-alpine"
           }
         >
           <AgGridReact
+            /*
+              SSRM Grid Options. Reference: see https://www.ag-grid.com/react-data-grid/server-side-model-api-reference/
+            */
             rowModelType="serverSide"
             serverSideDatasource={datasource}
+            purgeClosedRowNodes={true}
+            maxConcurrentDatasourceRequests={1}
+            blockLoadDebounceMillis={300} // This is added to prevent the loading... message from flickering, but eac
+            serverSideSortAllLevels={true}
+            serverSideOnlyRefreshFilteredGroups={true}
+            /*
+              Place Holder
+            */
             rowData={rowData}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
