@@ -14,7 +14,7 @@ export interface RowData {
 }
 
 export interface StdAgGridProps {
-  columnDataType: ColumnDataType;
+  tabName: string;
   darkMode?: boolean | null;
 }
 

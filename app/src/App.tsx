@@ -28,7 +28,6 @@ interface TabPanelProps {
 
 interface GridTable {
   table: string;
-  columns: ColumnDataType;
 }
 
 interface TableCatelog {
@@ -89,15 +88,7 @@ function App() {
   /* 
     README: Init Steps
   */
-  const userColumns: ColumnDataType = {
-    domain: "VARCHAR",
-    date: "DATE",
-    today_location: "VARCHAR",
-    today_daily_value: "DOUBLE",
-    today_daily_transaction_count: "DOUBLE",
-    row_number: "INTEGER",
-  };
-  const failedFlag = InitParquetTable("./bankdataset.parquet", userColumns);
+  const failedFlag = InitParquetTable("./bankdataset.parquet");
   if (failedFlag !== null) {
     console.log("check failedFlag", failedFlag);
     loadingFailedFlag.current = failedFlag;
@@ -108,7 +99,6 @@ function App() {
     setTableCatalog({
       user: {
         table: "bankdataset",
-        columns: userColumns,
       },
     });
   }, [loadingFailedFlag]);
@@ -140,7 +130,7 @@ function App() {
     const tabData = [
       {
         label: "Tab 1",
-        content: <StdAgGrid columnDataType={userColumns} darkMode={darkMode} />,
+        content: <StdAgGrid tabName="Tab1" darkMode={darkMode} />,
       },
     ];
     setTabData(tabData);
@@ -162,7 +152,7 @@ function App() {
     const newIndex = tabData.length;
     const newTab = {
       label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
-      content: <StdAgGrid columnDataType={userColumns} darkMode={darkMode} />,
+      content: <StdAgGrid tabName={`Tab${newIndex + 1}`} darkMode={darkMode} />,
     };
     setTabData([...tabData, newTab]);
     setValue(newIndex + 1);
