@@ -25,6 +25,7 @@ import {
   getLayeredColumnDefs,
   getGroupedColumnDefs,
 } from "./gridHelper";
+import GridLoadingOverlay from "./gridLoadingOverlay";
 import "./style.css";
 
 // duckGrid Folder
@@ -53,7 +54,6 @@ function arePropsEqual(
 const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   const [gridApi, setGridApi] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
 
@@ -66,9 +66,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     window.matchMedia &&
     window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [darkMode, setDarkMode] = useState(props.darkMode || prefersDarkMode);
-
   const [fitGrid, setFitGrid] = useState(false);
   const [execTime, setExecTime] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // region: Dark Mode
   useEffect(() => {
@@ -140,7 +140,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       setColumnDefs(groupedColumnDefs);
     };
     fetchColumnDefs();
-    setLoading(false);
   }, []);
 
   // endregion
@@ -247,6 +246,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     const endTime = performance.now();
     const execTime = endTime - startTime.current;
     setExecTime(execTime);
+    setLoading(false);
   };
   // endregion
 
@@ -303,6 +303,13 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     defaultToolPanel: "columns",
   };
   // endregion
+
+  // region: Loading Overlay
+  const loadingOverlayComponentParams = useMemo(() => {
+    return {
+      loadingMessage: "Just one moment please...",
+    };
+  }, []);
 
   function renderExecutionTime() {
     if (execTime === 0) {
@@ -427,6 +434,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             enableCharts={true}
             // Grouping
             suppressRowGroupHidesColumns={true}
+            // Loading Overlay
+            loadingOverlayComponent={GridLoadingOverlay}
+            loadingOverlayComponentParams={loadingOverlayComponentParams}
           />
         </div>
       </Grid2>
