@@ -10,22 +10,23 @@ import buildGroupBy from "./sql_builder/groupby";
 import buildWhere from "./sql_builder/where";
 import buildOrderBy from "./sql_builder/orderby";
 import buildLimit from "./sql_builder/limit";
-import { useState } from 'react';
-
+import { useState } from "react";
 
 const duckGridDataSource = (
   database: AsyncDuckDB,
   source: string,
+  tableName: string,
 ): IServerSideDatasource => {
-
-  const getRows = async (params: IServerSideGetRowsParams<any, any> & { columns: any }) => {
+  const getRows = async (
+    params: IServerSideGetRowsParams<any, any> & { columns: any },
+  ) => {
     console.log("Requesting rows", params.request);
 
-    const select = await buildSelect(database, params);
-    const groupby = await buildGroupBy(database, params);
-    const where = await buildWhere(database, params);
-    const orderBy = await buildOrderBy(database, params);
-    const limit = await buildLimit(database, params);
+    const select = await buildSelect(database, params, tableName);
+    const groupby = await buildGroupBy(database, params, tableName);
+    const where = await buildWhere(database, params, tableName);
+    const orderBy = await buildOrderBy(database, params, tableName);
+    const limit = await buildLimit(database, params, tableName);
 
     // Construct the SQL query
     const sql = `
@@ -57,7 +58,6 @@ const duckGridDataSource = (
       params.success({ rowData });
     } finally {
       await connection.close();
-
     }
   };
 

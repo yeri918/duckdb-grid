@@ -48,13 +48,18 @@ function arePropsEqual(
   prevProps: StdAgGridProps,
   nextProps: StdAgGridProps,
 ): boolean {
-  return prevProps.darkMode === nextProps.darkMode;
+  return (
+    prevProps.darkMode === nextProps.darkMode &&
+    prevProps.tabName === nextProps.tabName &&
+    prevProps.tableName === nextProps.tableName
+  );
 }
 
 const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   const [gridApi, setGridApi] = useState<any>(null);
   const startTime = useRef(performance.now());
+  const [columnDataTypes, setColumnDataTypes] = useState<ColumnDataType>({});
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
 
   useEffect(() => {
@@ -98,14 +103,34 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   }, []);
 
   useEffect(() => {
-    const columnDataTypes: ColumnDataType = {
-      domain: "VARCHAR",
-      date: "DATE",
-      today_location: "VARCHAR",
-      today_daily_value: "DOUBLE",
-      today_daily_transaction_count: "DOUBLE",
-      row_number: "INTEGER",
+    const fetchColumnDataTypes = async () => {
+      const connection = await db.connect();
+      const query = `
+        SELECT column_name, data_type
+        FROM information_schema.columns
+        WHERE table_name = '${props.tableName}';
+      `;
+      const result = await connection.query(query);
+      const columnDataTypes: ColumnDataType = {};
+      result.toArray().forEach((row: any) => {
+        columnDataTypes[row.column_name] = row.data_type;
+      });
+      setColumnDataTypes(columnDataTypes);
+      await connection.close();
     };
+
+    fetchColumnDataTypes();
+  }, [props.tableName]);
+
+  useEffect(() => {
+    // const columnDataTypes: ColumnDataType = {
+    //   domain: "VARCHAR",
+    //   date: "DATE",
+    //   today_location: "VARCHAR",
+    //   today_daily_value: "DOUBLE",
+    //   today_daily_transaction_count: "DOUBLE",
+    //   row_number: "INTEGER",
+    // };
 
     const fetchColumnSetValues = async () => {
       const values: PrefetchedColumnValues = {};
@@ -114,7 +139,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           columnDataTypes[key] === "VARCHAR" ||
           columnDataTypes[key] === "DATE"
         ) {
-          values[key] = await getColumnSetValues(key);
+          values[key] = await getColumnSetValues(key, props.tableName);
         }
       }
       return values;
@@ -140,7 +165,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       setColumnDefs(groupedColumnDefs);
     };
     fetchColumnDefs();
-  }, []);
+  }, [columnDataTypes, props.tableName]);
 
   // endregion
 
@@ -162,9 +187,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   // endregion
 
   // region: DataSource
-  const source = `FROM bankdata
+  const source = `FROM ${props.tableName}
                   SELECT *`;
-  const datasource = duckGridDataSource(db!, source);
+  const datasource = duckGridDataSource(db!, source, props.tableName);
   // endregion
 
   // region: Context Menu
@@ -207,9 +232,10 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     return {
       statusPanels: [
         {
-          statusPanel: (props: CountStatusBarComponentType<any, any>) => (
-            <CustomCountBar context={undefined} {...props} />
-          ),
+          statusPanel: (
+            props: CountStatusBarComponentType<any, any>,
+            tableName: string,
+          ) => <CustomCountBar context={undefined} {...props} />,
         },
         {
           statusPanel: (props: CountStatusBarComponentType<any, any>) => (
@@ -390,8 +416,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 ? "ag-theme-alpine-dark"
                 : "ag-theme-alpine"
               : props.darkMode
-                ? "ag-theme-alpine-dark"
-                : "ag-theme-alpine"
+              ? "ag-theme-alpine-dark"
+              : "ag-theme-alpine"
           }
         >
           <AgGridReact

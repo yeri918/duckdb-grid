@@ -1,9 +1,9 @@
-// 
+//
 // limit.ts
 // ===========
-// 
+//
 // This script defines the limit part of the sql query
-//  
+//
 //
 
 import {
@@ -15,6 +15,7 @@ import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 const buildLimit = async (
   database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
+  tableName: string,
 ) => {
   const startRow =
     params.request?.startRow !== undefined ? params.request.startRow : 0;

@@ -15,6 +15,7 @@ export interface RowData {
 
 export interface StdAgGridProps {
   tabName: string;
+  tableName: string;
   darkMode?: boolean | null;
 }
 
@@ -39,6 +40,7 @@ export interface ContextMenuItem {
 export interface CountStatusBarComponentType<T, P> {
   api: T;
   params: P;
+  tableName: string | null;
 }
 
 export interface SingleFilterModel {
