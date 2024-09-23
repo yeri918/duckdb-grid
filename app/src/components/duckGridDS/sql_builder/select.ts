@@ -8,6 +8,7 @@ import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 const buildSelect = async (
   database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
+  tableName: string,
 ) => {
   const isGrouped = params.request?.rowGroupCols.length > 0;
   const isFullyOpened =
@@ -29,7 +30,7 @@ const buildSelect = async (
     SELECT column_name 
     FROM information_schema.columns 
     WHERE 
-        table_name = 'bankdata'
+        table_name = '${tableName}'
         AND data_type IN ('INTEGER', 'BIGINT', 'SMALLINT', 'TINYINT', 'FLOAT', 'DOUBLE', 'DECIMAL');
 `;
 
@@ -50,15 +51,12 @@ const buildSelect = async (
     const valueCols = params.request?.valueCols;
     const aggDict =
       valueCols.length > 0
-        ? valueCols.reduce(
-            (acc, col) => {
-              if (col.field != null && col.aggFunc != null) {
-                acc[col.field] = col.aggFunc;
-              }
-              return acc;
-            },
-            {} as { [key: string]: string },
-          )
+        ? valueCols.reduce((acc, col) => {
+            if (col.field != null && col.aggFunc != null) {
+              acc[col.field] = col.aggFunc;
+            }
+            return acc;
+          }, {} as { [key: string]: string })
         : {};
     // By default, set the aggfunc to sum if not specified
     if (numericCols.length > 0) {

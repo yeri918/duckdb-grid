@@ -18,6 +18,8 @@ import InitUserTable, {
   InitS3ParquetTable,
 } from "./components/table/initTable";
 import { IoInvertMode } from "react-icons/io5";
+import db from "./components/table/duckDB";
+import { tableFromArrays } from "apache-arrow";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -88,7 +90,7 @@ function App() {
   /* 
     README: Init Steps
   */
-  const failedFlag = InitParquetTable("./bankdataset.parquet");
+  const failedFlag = InitParquetTable("./bankdataset.parquet", "bankdata");
   if (failedFlag !== null) {
     console.log("check failedFlag", failedFlag);
     loadingFailedFlag.current = failedFlag;
@@ -130,7 +132,9 @@ function App() {
     const tabData = [
       {
         label: "Tab 1",
-        content: <StdAgGrid tabName="Tab1" darkMode={darkMode} />,
+        content: (
+          <StdAgGrid tabName="Tab1" darkMode={darkMode} tableName="bankdata" />
+        ),
       },
     ];
     setTabData(tabData);
@@ -150,14 +154,51 @@ function App() {
     fileInputRef.current?.click();
   };
   // Add Tabs
-  const handleAddTab = () => {
-    // const handleAddTab = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // const file = event?.target.files?.[0];
-    // if (file) {
+  // const handleAddTab = () => {
+  const handleAddTab = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event?.target.files?.[0];
+    if (file) {
+      // Read the file content
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const fileContent = e.target?.result;
+        if (fileContent) {
+          const textContent = new TextDecoder().decode(
+            fileContent as ArrayBuffer,
+          );
+          // Currently only for csv file
+          const rows = textContent.split("\n").map((row) => row.split(","));
+          const columns = rows[0];
+          const data = columns.reduce((acc, col, index) => {
+            acc[col] = rows.slice(1).map((row) => row[index]);
+            return acc;
+          }, {} as Record<string, any[]>);
+
+          // Convert data to Arrow Table
+          const table = tableFromArrays(data);
+          console.log("pjulie", table);
+
+          const c = await db.connect();
+          c.insertArrowTable(table, { name: "test", create: true });
+          const results = await c.query("SELECT * FROM test");
+          console.log("pjulie", JSON.parse(JSON.stringify(results.toArray())));
+          c.query("CREATE OR REPLACE TABLE test as (SELECT * FROM test)");
+          await c.close();
+        }
+      };
+      reader.readAsArrayBuffer(file); // Read the file content as ArrayBuffer
+    }
+
     const newIndex = tabData.length;
     const newTab = {
       label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
-      content: <StdAgGrid tabName={`Tab${newIndex + 1}`} darkMode={darkMode} />,
+      content: (
+        <StdAgGrid
+          tabName={`Tab${newIndex + 1}`}
+          darkMode={darkMode}
+          tableName="test"
+        />
+      ),
     };
     setTabData([...tabData, newTab]);
     setValue(newIndex + 1);
@@ -172,8 +213,8 @@ function App() {
         aria-label="basic tabs example"
       >
         <IconButton
-          onClick={handleAddTab}
-          // onClick={onClickAddTab}
+          // onClick={handleAddTab}
+          onClick={onClickAddTab}
           aria-label="add tab"
           style={{
             height: "40px",
@@ -247,7 +288,7 @@ function App() {
                 type="file"
                 ref={fileInputRef}
                 style={{ display: "none" }}
-                accept=".xlsx,.csv,.parquet"
+                accept=".csv,.xlsx"
                 onChange={handleAddTab}
               />
             </Box>

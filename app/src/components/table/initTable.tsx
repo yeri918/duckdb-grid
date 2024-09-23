@@ -34,7 +34,7 @@ export const InitUserTable = () => {
   return null;
 };
 
-export const InitParquetTable = (filename: string) => {
+export const InitParquetTable = (filename: string, tableName: string) => {
   const [loadingStatus, setLoadingStatus] = useState("loading"); // 'loading', 'success', 'failed'
   const sleep = (ms: any) => new Promise((r) => setTimeout(r, ms)); // For testing only.
   const timeoutThreshold = 5; // In seconds
@@ -73,7 +73,7 @@ export const InitParquetTable = (filename: string) => {
       */
       const src = new URL(filename, document.baseURI).href;
       const source = `
-                            CREATE OR REPLACE VIEW bankdata AS
+                            CREATE OR REPLACE VIEW ${tableName} AS
                             FROM read_parquet('${src}')
                             SELECT ${selectQuery};
                     `;

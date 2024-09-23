@@ -10,11 +10,11 @@ import {
   SetFilterValuesFuncParams,
 } from "@ag-grid-community/core";
 
-export const getColumnSetValues = async (column: string) => {
+export const getColumnSetValues = async (column: string, tableName: string) => {
   const connection = await db.connect();
   const arrowResult = await connection.query(`
         SELECT distinct ${column} as col 
-          FROM bankdata
+          FROM ${tableName}
           order by col
     `);
 
@@ -116,10 +116,10 @@ export const getLayeredColumnDefs = (
             i % 4 === 0
               ? "cell-red"
               : i % 4 === 1
-                ? "cell-green"
-                : i % 4 === 2
-                  ? "cell-blue"
-                  : "cell-orange",
+              ? "cell-green"
+              : i % 4 === 2
+              ? "cell-blue"
+              : "cell-orange",
         };
       }, initialColumnDef);
     layeredColumnDefs.push(nestedColumnDef);
