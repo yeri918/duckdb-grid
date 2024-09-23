@@ -1,5 +1,6 @@
+// select.ts
+
 import {
-  IServerSideDatasource,
   IServerSideGetRowsParams,
 } from "ag-grid-community";
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";

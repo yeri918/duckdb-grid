@@ -1,13 +1,6 @@
-// 
 // limit.ts
-// ===========
-// 
-// This script defines the limit part of the sql query
-//  
-//
 
 import {
-  IServerSideDatasource,
   IServerSideGetRowsParams,
 } from "ag-grid-community";
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";

@@ -1,14 +1,7 @@
-// 
 // orderby.ts
-// ===========
-//
-// This script does the order by part of the sql
-// 
 
 import {
-  IServerSideDatasource,
   IServerSideGetRowsParams,
-  ResizableStructure,
 } from "ag-grid-community";
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
@@ -18,8 +11,8 @@ const buildOrderBy = async (
 ) => {
   const rowGroupCols = params.request?.rowGroupCols;
   const groupKeys = params.request?.groupKeys;
-  let sortModel = params.request?.sortModel;
-  let eligSortParts: string[] = [];
+  const sortModel = params.request?.sortModel;
+  const eligSortParts: string[] = [];
 
   // Handle empty sortModel case.
   if (typeof sortModel === "undefined" || sortModel.length === 0) {
@@ -41,7 +34,7 @@ const buildOrderBy = async (
     });
   } else {
     // Get No RowGroup Numeric Columns
-    let rowGroupColIds = rowGroupCols.map((col) => col.id);
+    const rowGroupColIds = rowGroupCols.map((col) => col.id);
     const sql = `
         DESCRIBE bankdata;
     `;
@@ -50,13 +43,13 @@ const buildOrderBy = async (
     const result = arrowResult.toArray().map((row) => row.toJSON());
 
     await connection.close();
-    const numericCols: any[] = result
+    const numericCols: string[] = result
       .filter((value) =>
         ["INTEGER", "DOUBLE", "FLOAT"].includes(value.column_type)).map(
           (value) => value.column_name)
       ;
 
-    let sortNonGroupCols = sortModel?.filter((value) =>
+    const sortNonGroupCols = sortModel?.filter((value) =>
       !rowGroupColIds.includes(value.colId) && numericCols.includes(value.colId),
     );
 
@@ -64,7 +57,7 @@ const buildOrderBy = async (
     // then we sort by the the outermost row group columns.
     // then we ignore all rowGroupColumn
     sortModel?.forEach((key) => {
-      let colId = key.colId;
+      const colId = key.colId;
       if (colId === "ag-Grid-AutoColumn") {
 
         const groupKeyLength = params.request?.groupKeys.length ?? 0;
