@@ -10,15 +10,13 @@ import buildGroupBy from "./sql_builder/groupby";
 import buildWhere from "./sql_builder/where";
 import buildOrderBy from "./sql_builder/orderby";
 import buildLimit from "./sql_builder/limit";
-import { useState } from 'react';
-
 
 const duckGridDataSource = (
   database: AsyncDuckDB,
   source: string,
 ): IServerSideDatasource => {
 
-  const getRows = async (params: IServerSideGetRowsParams<any, any> & { columns: any }) => {
+  const getRows = async (params: IServerSideGetRowsParams) => {
     console.log("Requesting rows", params.request);
 
     const select = await buildSelect(database, params);
