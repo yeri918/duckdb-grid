@@ -15,6 +15,7 @@ interface FilterItem {
 const buildWhere = async (
   database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
+  tableName: string,
 ) => {
   const rowGroupCols = params.request?.rowGroupCols;
   const groupKeys = params.request?.groupKeys;

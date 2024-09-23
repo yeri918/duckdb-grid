@@ -14,16 +14,16 @@ import buildLimit from "./sql_builder/limit";
 const duckGridDataSource = (
   database: AsyncDuckDB,
   source: string,
+  tableName: string,
 ): IServerSideDatasource => {
-
   const getRows = async (params: IServerSideGetRowsParams) => {
     console.log("Requesting rows", params.request);
 
-    const select = await buildSelect(database, params);
-    const groupby = await buildGroupBy(database, params);
-    const where = await buildWhere(database, params);
-    const orderBy = await buildOrderBy(database, params);
-    const limit = await buildLimit(database, params);
+    const select = await buildSelect(database, params, tableName);
+    const groupby = await buildGroupBy(database, params, tableName);
+    const where = await buildWhere(database, params, tableName);
+    const orderBy = await buildOrderBy(database, params, tableName);
+    const limit = await buildLimit(database, params, tableName);
 
     // Construct the SQL query
     const sql = `
@@ -55,7 +55,6 @@ const duckGridDataSource = (
       params.success({ rowData });
     } finally {
       await connection.close();
-
     }
   };
 

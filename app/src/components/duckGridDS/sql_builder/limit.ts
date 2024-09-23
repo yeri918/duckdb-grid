@@ -1,13 +1,12 @@
 // limit.ts
 
-import {
-  IServerSideGetRowsParams,
-} from "ag-grid-community";
+import { IServerSideGetRowsParams } from "ag-grid-community";
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
 const buildLimit = async (
   database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
+  tableName: string,
 ) => {
   const startRow =
     params.request?.startRow !== undefined ? params.request.startRow : 0;

@@ -1,15 +1,13 @@
 // groupby.ts
 
-import {
-  IServerSideGetRowsParams,
-} from "ag-grid-community";
+import { IServerSideGetRowsParams } from "ag-grid-community";
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
 const buildGroupBy = async (
   database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
+  tableName: string,
 ) => {
-
   const rowGroupLength = params.request?.rowGroupCols.length;
   const groupKeyLength = params.request?.groupKeys.length;
 
