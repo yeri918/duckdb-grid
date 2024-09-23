@@ -84,7 +84,7 @@ function App() {
   const [tabData, setTabData] = useState<any[]>([]);
   const [value, setValue] = React.useState(1); // Initial state of the tabs
   const [darkMode, setDarkMode] = useState<boolean>(true);
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
   /* 
     README: Init Steps
   */
@@ -146,9 +146,14 @@ function App() {
       "aria-controls": `simple-tabpanel-${index}`,
     };
   }
-
+  const onClickAddTab = () => {
+    fileInputRef.current?.click();
+  };
   // Add Tabs
   const handleAddTab = () => {
+    // const handleAddTab = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // const file = event?.target.files?.[0];
+    // if (file) {
     const newIndex = tabData.length;
     const newTab = {
       label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
@@ -156,6 +161,7 @@ function App() {
     };
     setTabData([...tabData, newTab]);
     setValue(newIndex + 1);
+    // }
   };
 
   function renderTabs() {
@@ -167,6 +173,7 @@ function App() {
       >
         <IconButton
           onClick={handleAddTab}
+          // onClick={onClickAddTab}
           aria-label="add tab"
           style={{
             height: "40px",
@@ -236,6 +243,13 @@ function App() {
                 {renderTabs()}
               </Box>
               {renderTabPanels()}
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                accept=".xlsx,.csv,.parquet"
+                onChange={handleAddTab}
+              />
             </Box>
           ) : (
             <p>Loading...</p>
