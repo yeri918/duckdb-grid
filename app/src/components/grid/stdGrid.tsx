@@ -115,23 +115,10 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       result.toArray().forEach((row: any) => {
         columnDataTypes[row.column_name] = row.data_type;
       });
-      setColumnDataTypes(columnDataTypes);
+      console.log("pjulie column data types", columnDataTypes);
       await connection.close();
+      return columnDataTypes;
     };
-
-    fetchColumnDataTypes();
-  }, [props.tableName]);
-
-  useEffect(() => {
-    // const columnDataTypes: ColumnDataType = {
-    //   domain: "VARCHAR",
-    //   date: "DATE",
-    //   today_location: "VARCHAR",
-    //   today_daily_value: "DOUBLE",
-    //   today_daily_transaction_count: "DOUBLE",
-    //   row_number: "INTEGER",
-    // };
-
     const fetchColumnSetValues = async () => {
       const values: PrefetchedColumnValues = {};
       for (const key in columnDataTypes) {
@@ -145,16 +132,10 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       return values;
     };
     const fetchColumnDefs = async () => {
-      // const columnDefs = getColumnDefs(
-      //   props.columnDataType,
-      //   prefetchedColumnValues,
       //   gridApi,
       // );
-      // const layeredColumnDefs = getLayeredColumnDefs(
-      //   props.columnDataType,
-      //   prefetchedColumnValues,
-      //   gridApi,
-      // );
+      const columnDataTypes = await fetchColumnDataTypes();
+      console.log("pjulie ", columnDataTypes);
       const columnSetValues = await fetchColumnSetValues();
       const groupedColumnDefs = getGroupedColumnDefs(
         columnDataTypes,
@@ -165,7 +146,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       setColumnDefs(groupedColumnDefs);
     };
     fetchColumnDefs();
-  }, [columnDataTypes, props.tableName]);
+  }, [props.tableName]);
 
   // endregion
 
@@ -266,6 +247,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const onGridReady = (params: any) => {
     console.log("std onGridReady");
     setGridApi(params.api);
+    console.log("pjulie column defs", columnDefs);
   };
 
   const onFirstDataRendered = () => {
@@ -416,8 +398,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 ? "ag-theme-alpine-dark"
                 : "ag-theme-alpine"
               : props.darkMode
-              ? "ag-theme-alpine-dark"
-              : "ag-theme-alpine"
+                ? "ag-theme-alpine-dark"
+                : "ag-theme-alpine"
           }
         >
           <AgGridReact
