@@ -153,14 +153,11 @@ function App() {
   const onClickAddTab = () => {
     fileInputRef.current?.click();
   };
-  // Add Tabs
-  // const handleAddTab = () => {
-  const handleAddTab = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event?.target.files?.[0];
-    if (file) {
-      // Read the file content
+
+  function loadFromFileReader(file: File) {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = async (e) => {
+      reader.onload = (e) => {
         const fileContent = e.target?.result;
         if (fileContent) {
           const textContent = new TextDecoder().decode(
@@ -169,40 +166,53 @@ function App() {
           // Currently only for csv file
           const rows = textContent.split("\n").map((row) => row.split(","));
           const columns = rows[0];
-          const data = columns.reduce((acc, col, index) => {
-            acc[col] = rows.slice(1).map((row) => row[index]);
-            return acc;
-          }, {} as Record<string, any[]>);
 
+          const data = columns.reduce(
+            (acc, col, index) => {
+              acc[col] = rows.slice(1).map((row) => row[index]);
+              return acc;
+            },
+            {} as Record<string, any[]>,
+          );
+          console.log("pjulie columns", columns, data);
           // Convert data to Arrow Table
-          const table = tableFromArrays(data);
-          console.log("pjulie", table);
-
-          const c = await db.connect();
-          c.insertArrowTable(table, { name: "test", create: true });
-          const results = await c.query("SELECT * FROM test");
-          console.log("pjulie", JSON.parse(JSON.stringify(results.toArray())));
-          c.query("CREATE OR REPLACE TABLE test as (SELECT * FROM test)");
-          await c.close();
+          resolve(data);
         }
       };
-      reader.readAsArrayBuffer(file); // Read the file content as ArrayBuffer
-    }
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  }
 
-    const newIndex = tabData.length;
-    const newTab = {
-      label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
-      content: (
-        <StdAgGrid
-          tabName={`Tab${newIndex + 1}`}
-          darkMode={darkMode}
-          tableName="test"
-        />
-      ),
-    };
-    setTabData([...tabData, newTab]);
-    setValue(newIndex + 1);
-    // }
+  const handleAddTab = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event?.target.files?.[0];
+
+    // Only action if file exists
+    if (file) {
+      loadFromFileReader(file).then(async (data) => {
+        // Convert data to Arrow Table
+        const table = tableFromArrays(data as Record<string, any[]>);
+        const c = await db.connect();
+        await c.insertArrowTable(table, { name: "test", create: true });
+        const results = await c.query("DESCRIBE test");
+        console.log("pjulie", JSON.parse(JSON.stringify(results.toArray())));
+        await c.close();
+        // Create new tab with the new table
+        const newIndex = tabData.length;
+        const newTab = {
+          label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
+          content: (
+            <StdAgGrid
+              tabName={`Tab${newIndex + 1}`}
+              darkMode={darkMode}
+              tableName="test"
+            />
+          ),
+        };
+        setTabData([...tabData, newTab]);
+        setValue(newIndex + 1);
+      });
+    }
   };
 
   function renderTabs() {
