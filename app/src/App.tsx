@@ -171,7 +171,7 @@ function App() {
             acc[col] = rows.slice(1).map((row) => row[index]);
             return acc;
           }, {} as Record<string, any[]>);
-          console.log("pjulie columns", columns, data);
+
           // Convert data to Arrow Table
           resolve(data);
         }
@@ -181,6 +181,18 @@ function App() {
     });
   }
 
+  const convertDataTypes = (data: Record<string, any[]>) => {
+    const convertedData = Object.keys(data).reduce((acc, key) => {
+      const columnData = data[key];
+      const isNumeric = columnData.every((value) => {
+        return !isNaN(parseFloat(value === undefined ? "0" : value));
+      });
+
+      acc[key] = isNumeric ? columnData.map(Number) : columnData;
+      return acc;
+    }, {} as Record<string, any[]>);
+    return convertedData;
+  };
   const handleAddTab = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target.files?.[0];
 
@@ -191,7 +203,9 @@ function App() {
         const tableName = `table${newIndex + 1}`;
 
         // Convert data to Arrow Table
-        const table = tableFromArrays(data as Record<string, any[]>);
+        const convertedData = convertDataTypes(data as Record<string, any[]>);
+        const table = tableFromArrays(convertedData);
+
         const c = await db.connect();
         await c.insertArrowTable(table, {
           name: `${tableName}`,
@@ -226,7 +240,6 @@ function App() {
         aria-label="basic tabs example"
       >
         <IconButton
-          // onClick={handleAddTab}
           onClick={onClickAddTab}
           aria-label="add tab"
           style={{

@@ -1,8 +1,6 @@
 // select.ts
 
-import {
-  IServerSideGetRowsParams,
-} from "ag-grid-community";
+import { IServerSideGetRowsParams } from "ag-grid-community";
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
 const buildSelect = async (
@@ -67,7 +65,7 @@ const buildSelect = async (
       }
     }
     const aggCols = Object.entries(aggDict).map(
-      ([col, agg]) => `${agg}(${col}) AS ${col}`,
+      ([col, agg]) => `${agg}("${col}") AS "${col}"`,
     );
 
     return `${groupByKeys}, ${aggCols.join(", ")}`;
