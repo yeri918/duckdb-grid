@@ -167,13 +167,10 @@ function App() {
           const rows = textContent.split("\n").map((row) => row.split(","));
           const columns = rows[0];
 
-          const data = columns.reduce(
-            (acc, col, index) => {
-              acc[col] = rows.slice(1).map((row) => row[index]);
-              return acc;
-            },
-            {} as Record<string, any[]>,
-          );
+          const data = columns.reduce((acc, col, index) => {
+            acc[col] = rows.slice(1).map((row) => row[index]);
+            return acc;
+          }, {} as Record<string, any[]>);
           console.log("pjulie columns", columns, data);
           // Convert data to Arrow Table
           resolve(data);
@@ -190,22 +187,28 @@ function App() {
     // Only action if file exists
     if (file) {
       loadFromFileReader(file).then(async (data) => {
+        const newIndex = tabData.length;
+        const tableName = `table${newIndex + 1}`;
+
         // Convert data to Arrow Table
         const table = tableFromArrays(data as Record<string, any[]>);
         const c = await db.connect();
-        await c.insertArrowTable(table, { name: "test", create: true });
-        const results = await c.query("DESCRIBE test");
+        await c.insertArrowTable(table, {
+          name: `${tableName}`,
+          create: true,
+        });
+        const results = await c.query(`DESCRIBE ${tableName}`);
         console.log("pjulie", JSON.parse(JSON.stringify(results.toArray())));
         await c.close();
+
         // Create new tab with the new table
-        const newIndex = tabData.length;
         const newTab = {
           label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
           content: (
             <StdAgGrid
               tabName={`Tab${newIndex + 1}`}
               darkMode={darkMode}
-              tableName="test"
+              tableName={tableName}
             />
           ),
         };
