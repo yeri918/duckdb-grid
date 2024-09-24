@@ -171,7 +171,7 @@ function App() {
             acc[col] = rows.slice(1).map((row) => row[index]);
             return acc;
           }, {} as Record<string, any[]>);
-          console.log("pjulie columns", columns, data);
+
           // Convert data to Arrow Table
           resolve(data);
         }
