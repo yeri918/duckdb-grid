@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as React from "react";
 import {
   Tabs,
@@ -12,11 +12,7 @@ import "react-tabs/style/react-tabs.css";
 import "./App.css";
 import StdAgGrid from "./components/grid/stdGrid";
 import AddIcon from "@mui/icons-material/Add";
-import { ColumnDataType } from "./components/grid/gridTypes";
-import InitUserTable, {
-  InitParquetTable,
-  InitS3ParquetTable,
-} from "./components/table/initTable";
+import { InitParquetTable } from "./components/table/initTable";
 import { IoInvertMode } from "react-icons/io5";
 import db from "./components/table/duckDB";
 import { tableFromArrays } from "apache-arrow";
@@ -26,14 +22,6 @@ interface TabPanelProps {
   value: number;
   height: string | number;
   width: string | number;
-}
-
-interface GridTable {
-  table: string;
-}
-
-interface TableCatelog {
-  [key: string]: GridTable;
 }
 
 const darkTheme = createTheme({
@@ -79,41 +67,20 @@ function CustomTabPanel(props: TabPanelProps) {
   );
 }
 
+interface gridTab {
+  label: string;
+  content: JSX.Element;
+}
+
 function App() {
-  const [ready, setReady] = useState<boolean>(false);
-  const [executionTime, setExecutionTime] = useState<number>(0);
-  const loadingFailedFlag = useRef<JSX.Element | null>(null);
-  const [tabData, setTabData] = useState<any[]>([]);
+  const [tabData, setTabData] = useState<gridTab[]>([]);
   const [value, setValue] = React.useState(1); // Initial state of the tabs
   const [darkMode, setDarkMode] = useState<boolean>(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   /* 
     README: Init Steps
   */
-  const failedFlag = InitParquetTable("./bankdataset.parquet", "bankdata");
-  if (failedFlag !== null) {
-    console.log("check failedFlag", failedFlag);
-    loadingFailedFlag.current = failedFlag;
-  }
-
-  const [tableCatalog, setTableCatalog] = useState<TableCatelog>({});
-  useEffect(() => {
-    setTableCatalog({
-      user: {
-        table: "bankdataset",
-      },
-    });
-  }, [loadingFailedFlag]);
-
-  /* 
-    README: Choose the table you want to initialize
-  */
-  // const table = InitUserTable();
-  // const s3ParquetTable = InitS3ParquetTable();
-
-  /* 
-    ------------END OF USER EDITABLE AREA------------
-  */
+  InitParquetTable("./bankdataset.parquet", "bankdata");
 
   useEffect(() => {
     const userPrefersDark =
@@ -123,11 +90,7 @@ function App() {
     setDarkMode(userPrefersDark);
   }, []);
 
-  useEffect(() => {
-    setReady(true);
-  }, [loadingFailedFlag]);
-
-  // Init with two tabs
+  // Tabs init
   useEffect(() => {
     const tabData = [
       {
@@ -138,7 +101,17 @@ function App() {
       },
     ];
     setTabData(tabData);
-  }, [loadingFailedFlag, darkMode]);
+  }, []);
+
+  // Dark Mode
+  useEffect(() => {
+    setTabData((prevTabData) =>
+      prevTabData.map((tab) => ({
+        ...tab,
+        content: React.cloneElement(tab.content, { darkMode }),
+      })),
+    );
+  }, [darkMode]);
 
   // render Tabs Functions
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -167,10 +140,14 @@ function App() {
           const rows = textContent.split("\n").map((row) => row.split(","));
           const columns = rows[0];
 
-          const data = columns.reduce((acc, col, index) => {
-            acc[col] = rows.slice(1).map((row) => row[index]);
-            return acc;
-          }, {} as Record<string, any[]>);
+          const data = columns.reduce(
+            (acc, col, index) => {
+              acc[col] = rows.slice(1).map((row) => row[index]);
+              return acc;
+            },
+            // eslint-disable-next-line
+            {} as Record<string, any[]>,
+          );
 
           // Convert data to Arrow Table
           resolve(data);
@@ -181,16 +158,21 @@ function App() {
     });
   }
 
+  // eslint-disable-next-line
   const convertDataTypes = (data: Record<string, any[]>) => {
-    const convertedData = Object.keys(data).reduce((acc, key) => {
-      const columnData = data[key];
-      const isNumeric = columnData.every((value) => {
-        return !isNaN(parseFloat(value === undefined ? "0" : value));
-      });
+    const convertedData = Object.keys(data).reduce(
+      (acc, key) => {
+        const columnData = data[key];
+        const isNumeric = columnData.every((value) => {
+          return !isNaN(parseFloat(value === undefined ? "0" : value));
+        });
 
-      acc[key] = isNumeric ? columnData.map(Number) : columnData;
-      return acc;
-    }, {} as Record<string, any[]>);
+        acc[key] = isNumeric ? columnData.map(Number) : columnData;
+        return acc;
+      },
+      // eslint-disable-next-line
+      {} as Record<string, any[]>,
+    );
     return convertedData;
   };
   const handleAddTab = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -203,6 +185,7 @@ function App() {
         const tableName = `table${newIndex + 1}`;
 
         // Convert data to Arrow Table
+        // eslint-disable-next-line
         const convertedData = convertDataTypes(data as Record<string, any[]>);
         const table = tableFromArrays(convertedData);
 
@@ -252,6 +235,7 @@ function App() {
         </IconButton>
         {tabData.map((tab, index) => (
           <Tab
+            key={index}
             style={{ outline: "none" }}
             label={tab.label}
             {...a11yProps(index)}
@@ -264,6 +248,7 @@ function App() {
   function renderTabPanels() {
     return tabData.map((tab, index) => (
       <CustomTabPanel
+        key={index}
         value={value}
         index={index + 1} // Value starts at 1. 0 is the add button
         height={"94%"}
@@ -291,36 +276,32 @@ function App() {
         </div>
         <h1 className="app-title">Standard Grid</h1>
         <div>
-          {ready ? (
+          <Box
+            sx={{
+              borderBottom: 1,
+              borderColor: "divider",
+              border: "1px solid gray",
+              borderRadius: "10px",
+              padding: "10px",
+            }}
+          >
             <Box
               sx={{
-                borderBottom: 1,
-                borderColor: "divider",
-                border: "1px solid gray",
-                borderRadius: "10px",
-                padding: "10px",
+                borderBottom: 0.5,
+                borderColor: darkMode ? "divider" : "gray",
               }}
             >
-              <Box
-                sx={{
-                  borderBottom: 0.5,
-                  borderColor: darkMode ? "divider" : "gray",
-                }}
-              >
-                {renderTabs()}
-              </Box>
-              {renderTabPanels()}
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                accept=".csv,.xlsx"
-                onChange={handleAddTab}
-              />
+              {renderTabs()}
             </Box>
-          ) : (
-            <p>Loading...</p>
-          )}
+            {renderTabPanels()}
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              accept=".csv,.xlsx"
+              onChange={handleAddTab}
+            />
+          </Box>
         </div>
       </div>
     </ThemeProvider>
