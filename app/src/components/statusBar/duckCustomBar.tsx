@@ -1,6 +1,5 @@
 import { CustomStatusPanelProps } from "@ag-grid-community/react";
 import db from "../table/duckDB";
-import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 import React, { useEffect, useState } from "react";
 import {
   FilterModel,
@@ -9,23 +8,28 @@ import {
 } from "../grid/gridTypes";
 // import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
-const CustomCountBar = (props: CustomStatusPanelProps) => {
+interface CountBarProps extends CustomStatusPanelProps {
+  tableName: string | null;
+}
+
+const CustomCountBar = (props: CountBarProps) => {
   const [count, setCount] = useState<number>(0); // Note not to use bigint
 
-  const fetchData = async () => {
+  const fetchData = async (tableName: string | null) => {
     const connection = await db.connect();
     const arrowResult = await connection.query(`
-        SELECT count(*) as c FROM bankdata
+        SELECT count(*) as c FROM ${tableName};
     `);
 
     const result = arrowResult.toArray().map((row) => row.toJSON());
     await connection.close();
+    // console.log("leudom check data");
     return Number(result[0].c);
   };
 
   useEffect(() => {
     const handleModelUpdated = () => {
-      fetchData().then((data) => {
+      fetchData(props.tableName).then((data) => {
         setCount(data);
       });
     };
@@ -71,8 +75,8 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
       }
     } else {
       // Thats a multiFilterModel
-      let multiFilter = filterItem as MultiFilterModel;
-      let multiFilterArray: string[] = [];
+      const multiFilter = filterItem as MultiFilterModel;
+      const multiFilterArray: string[] = [];
       multiFilter.conditions.forEach((condition) => {
         if (condition.type === "equals") {
           multiFilterArray.push(`${key} = ${condition.filter}`);
@@ -105,7 +109,7 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
   };
 
   const parseFilterModel = (filterModel: FilterModel) => {
-    let filterArray: string[] = [];
+    const filterArray: string[] = [];
     Object.keys(filterModel).forEach((key) => {
       const filterItem = filterModel[key];
       if ("filterType" in filterItem) {
@@ -180,7 +184,7 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
   );
 };
 
-export const CustomWaterMarkBar = (props: CustomStatusPanelProps) => {
+export const CustomWaterMarkBar = () => {
   return (
     <div className="ag-status-name-value">
       <span className="component">Powered by DuckDB</span>

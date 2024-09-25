@@ -214,9 +214,18 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       statusPanels: [
         {
           statusPanel: (
-            props: CountStatusBarComponentType<any, any>,
+            customProps: CountStatusBarComponentType<any, any>,
             tableName: string,
-          ) => <CustomCountBar context={undefined} {...props} />,
+          ) => (
+            console.log("pjulie check", props.tableName),
+            (
+              <CustomCountBar
+                context={undefined}
+                {...customProps}
+                tableName={props.tableName}
+              />
+            )
+          ),
         },
         {
           statusPanel: (props: CountStatusBarComponentType<any, any>) => (
@@ -226,7 +235,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         },
         {
           statusPanel: (props: CountStatusBarComponentType<any, any>) => (
-            <CustomWaterMarkBar context={undefined} {...props} />
+            <CustomWaterMarkBar />
           ),
           align: "left",
         },
@@ -236,7 +245,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         },
       ],
     };
-  }, []);
+  }, [props.tableName]);
   // endregion
 
   // region: onModelUpdated / onGridReady / onFirstDataRendered
