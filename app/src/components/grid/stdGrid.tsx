@@ -115,11 +115,10 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       result.toArray().forEach((row: any) => {
         columnDataTypes[row.column_name] = row.data_type;
       });
-      console.log("pjulie column data types", columnDataTypes);
       await connection.close();
       return columnDataTypes;
     };
-    const fetchColumnSetValues = async () => {
+    const fetchColumnSetValues = async (columnDataTypes: ColumnDataType) => {
       const values: PrefetchedColumnValues = {};
       for (const key in columnDataTypes) {
         if (
@@ -135,8 +134,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       //   gridApi,
       // );
       const columnDataTypes = await fetchColumnDataTypes();
-      console.log("pjulie ", columnDataTypes);
-      const columnSetValues = await fetchColumnSetValues();
+      const columnSetValues = await fetchColumnSetValues(columnDataTypes);
       const groupedColumnDefs = getGroupedColumnDefs(
         columnDataTypes,
         columnSetValues,
@@ -146,7 +144,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       setColumnDefs(groupedColumnDefs);
     };
     fetchColumnDefs();
-  }, [props.tableName]);
+  }, []);
 
   // endregion
 
@@ -324,7 +322,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   // region: Loading Overlay
   const loadingOverlayComponentParams = useMemo(() => {
     return {
-      loadingMessage: "Just one moment please...",
+      loadingMessage: "Loading... We are almost there. ✨",
     };
   }, []);
 
