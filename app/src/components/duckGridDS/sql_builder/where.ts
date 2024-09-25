@@ -69,7 +69,7 @@ const buildWhere = async (
         const setValueSql = item.values.map((value) => {
           return `'${value}'`; // Add backticks to each value
         });
-        return `${key} IN (${setValueSql.join(",")})`;
+        return `"${key}" IN (${setValueSql.join(",")})`;
       } else {
         return `1 != 1`; // Make the grid empty when no set is chosen.
       }
@@ -82,20 +82,20 @@ const buildWhere = async (
   ): string => {
     switch (item.type) {
       case "equals":
-        return `${key} = ${item.filter}`;
-      case "notEqual":
-        return `${key} != ${item.filter}`;
-      case "greaterThan":
-        return `${key} > ${item.filter}`;
-      case "greaterThanOrEqual":
-        return `${key} >= ${item.filter}`;
-      case "lessThan":
-        return `${key} < ${item.filter}`;
-      case "lessThanOrEqual":
-        return `${key} <= ${item.filter}`;
-      case "inRange":
-        return `${key} BETWEEN ${item.filter}`;
-      default:
+        return `"${key}" = ${item.filter}`;
+            case "notEqual":
+        return `"${key}" != ${item.filter}`;
+            case "greaterThan":
+        return `"${key}" > ${item.filter}`;
+            case "greaterThanOrEqual":
+        return `"${key}" >= ${item.filter}`;
+            case "lessThan":
+        return `"${key}" < ${item.filter}`;
+            case "lessThanOrEqual":
+        return `"${key}" <= ${item.filter}`;
+            case "inRange":
+        return `"${key}" BETWEEN ${item.filter}`;
+            default:
         console.log("Unknown number filter type: ", item.type);
         return "";
     }
@@ -123,17 +123,17 @@ const buildWhere = async (
   ): string | undefined => {
     switch (item.type) {
       case "equals":
-        return `${key} = '${item.filter}'`;
+        return `"${key}" = '${item.filter}'`;
       case "notEqual":
-        return `${key} != '${item.filter}'`;
+        return `"${key}" != '${item.filter}'`;
       case "contains":
-        return `${key} LIKE '%${item.filter}%'`;
+        return `"${key}" LIKE '%${item.filter}%'`;
       case "notContains":
-        return `${key} NOT LIKE '%${item.filter}%'`;
+        return `"${key}" NOT LIKE '%${item.filter}%'`;
       case "startsWith":
-        return `${key} LIKE '${item.filter}%'`;
+        return `"${key}" LIKE '${item.filter}%'`;
       case "endsWith":
-        return `${key} LIKE '%${item.filter}'`;
+        return `"${key}" LIKE '%${item.filter}'`;
       default:
         console.log("Unknown text filter type: ", item.type);
     }
@@ -142,7 +142,7 @@ const buildWhere = async (
   if (groupKeys?.length > 0) {
     groupKeys.forEach((key, index) => {
       const colName = rowGroupCols[index].id;
-      whereParts.push(`${colName} = '${key}'`);
+      whereParts.push(`"${colName}" = '${key}'`);
     });
   }
 

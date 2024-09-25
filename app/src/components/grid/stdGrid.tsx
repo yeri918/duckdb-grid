@@ -115,11 +115,10 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       result.toArray().forEach((row: any) => {
         columnDataTypes[row.column_name] = row.data_type;
       });
-      console.log("pjulie column data types", columnDataTypes);
       await connection.close();
       return columnDataTypes;
     };
-    const fetchColumnSetValues = async () => {
+    const fetchColumnSetValues = async (columnDataTypes: ColumnDataType) => {
       const values: PrefetchedColumnValues = {};
       for (const key in columnDataTypes) {
         if (
@@ -135,8 +134,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       //   gridApi,
       // );
       const columnDataTypes = await fetchColumnDataTypes();
-      console.log("pjulie ", columnDataTypes);
-      const columnSetValues = await fetchColumnSetValues();
+      const columnSetValues = await fetchColumnSetValues(columnDataTypes);
       const groupedColumnDefs = getGroupedColumnDefs(
         columnDataTypes,
         columnSetValues,
@@ -146,7 +144,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       setColumnDefs(groupedColumnDefs);
     };
     fetchColumnDefs();
-  }, [props.tableName]);
+  }, []);
 
   // endregion
 
@@ -214,9 +212,18 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       statusPanels: [
         {
           statusPanel: (
-            props: CountStatusBarComponentType<any, any>,
+            customProps: CountStatusBarComponentType<any, any>,
             tableName: string,
-          ) => <CustomCountBar context={undefined} {...props} />,
+          ) => (
+            console.log("pjulie check", props.tableName),
+            (
+              <CustomCountBar
+                context={undefined}
+                {...customProps}
+                tableName={props.tableName}
+              />
+            )
+          ),
         },
         {
           statusPanel: (props: CountStatusBarComponentType<any, any>) => (
@@ -226,7 +233,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         },
         {
           statusPanel: (props: CountStatusBarComponentType<any, any>) => (
-            <CustomWaterMarkBar context={undefined} {...props} />
+            <CustomWaterMarkBar />
           ),
           align: "left",
         },
@@ -236,7 +243,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         },
       ],
     };
-  }, []);
+  }, [props.tableName]);
   // endregion
 
   // region: onModelUpdated / onGridReady / onFirstDataRendered
@@ -315,7 +322,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   // region: Loading Overlay
   const loadingOverlayComponentParams = useMemo(() => {
     return {
-      loadingMessage: "Just one moment please...",
+      loadingMessage: "Loading... We are almost there. ✨",
     };
   }, []);
 
