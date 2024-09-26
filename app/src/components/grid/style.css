@@ -96,6 +96,7 @@
   justify-content: center;
 }
 
+/* Adding borders around the cells */
 .ag-theme-alpine .ag-ltr .ag-cell {
   border-right: 0.5px solid rgb(156, 156, 156);
 }

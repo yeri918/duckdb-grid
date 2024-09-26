@@ -429,7 +429,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             multiSortKey={"ctrl"}
             sideBar={sideBar}
             serverSidePivotResultFieldSeparator="_"
-            suppressAggFuncInHeader={true}
+            suppressAggFuncInHeader={false} // whether to show aggFunc in header when grouping
             onModelUpdated={onModelUpdated}
             onGridReady={onGridReady}
             onFirstDataRendered={onFirstDataRendered}

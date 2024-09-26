@@ -163,11 +163,12 @@ function App() {
     const convertedData = Object.keys(data).reduce(
       (acc, key) => {
         const columnData = data[key];
-        const isNumeric = columnData.every((value) => {
-          return !isNaN(parseFloat(value === undefined ? "0" : value));
+        // stop checking if at least one value is non-numeric with some()
+        const isNonNumeric = columnData.some((value) => {
+          const stringValue = value === undefined ? "0" : value;
+          return isNaN(parseFloat(stringValue)) || !isFinite(stringValue);
         });
-
-        acc[key] = isNumeric ? columnData.map(Number) : columnData;
+        acc[key] = !isNonNumeric ? columnData.map(Number) : columnData;
         return acc;
       },
       // eslint-disable-next-line
