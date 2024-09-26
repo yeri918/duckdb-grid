@@ -38,6 +38,7 @@ export const getColumnDefs = (
       field: key,
       enableRowGroup: true,
       enableValue: true,
+      headerClass: "ag-header-cell-label",
       ...(columnDataType[key] === "DOUBLE" ||
       columnDataType[key] === "INTEGER" ||
       columnDataType[key] === "FLOAT"
@@ -73,6 +74,7 @@ export const getColumnDefs = (
       columnDef.valueFormatter = (params) => {
         return new Intl.NumberFormat().format(params.value);
       };
+      columnDef.cellStyle = { textAlign: "right" };
     }
     columnDefs.push(columnDef);
   }
@@ -112,14 +114,15 @@ export const getLayeredColumnDefs = (
         return {
           headerName: key,
           children: [nestedColumn],
-          headerClass:
-            i % 4 === 0
-              ? "cell-red"
-              : i % 4 === 1
-                ? "cell-green"
-                : i % 4 === 2
-                  ? "cell-blue"
-                  : "cell-orange",
+          headerClass: "ag-header-cell-label",
+          // headerClass:
+          //   i % 4 === 0
+          //     ? "cell-red"
+          //     : i % 4 === 1
+          //     ? "cell-green"
+          //     : i % 4 === 2
+          //     ? "cell-blue"
+          //     : "cell-orange",
         };
       }, initialColumnDef);
     layeredColumnDefs.push(nestedColumnDef);

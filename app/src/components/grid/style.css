@@ -91,3 +91,15 @@
 .ag-theme-alpine ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.ag-header-cell-label {
+  justify-content: center;
+}
+
+.ag-theme-alpine .ag-ltr .ag-cell {
+  border-right: 0.5px solid rgb(156, 156, 156);
+}
+
+.ag-theme-alpine-dark .ag-ltr .ag-cell {
+  border-right: 0.5px solid rgb(116, 116, 116);
+}

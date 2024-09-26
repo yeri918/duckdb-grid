@@ -254,7 +254,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const onGridReady = (params: any) => {
     console.log("std onGridReady");
     setGridApi(params.api);
-    console.log("pjulie column defs", columnDefs);
   };
 
   const onFirstDataRendered = () => {
@@ -405,8 +404,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 ? "ag-theme-alpine-dark"
                 : "ag-theme-alpine"
               : props.darkMode
-                ? "ag-theme-alpine-dark"
-                : "ag-theme-alpine"
+              ? "ag-theme-alpine-dark"
+              : "ag-theme-alpine"
           }
         >
           <AgGridReact
