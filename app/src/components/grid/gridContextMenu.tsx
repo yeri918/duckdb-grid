@@ -1,5 +1,5 @@
 import { GridApi, Column } from "ag-grid-community";
-import { ContextMenuItem } from "./gridTypes";
+import { ContextMenuItem } from "./gridInterface";
 import { ChartType } from "ag-grid-community";
 
 // region: Filters

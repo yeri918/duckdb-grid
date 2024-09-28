@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import db from "./duckDB";
-import { ColumnDataType } from "../grid/gridTypes";
+import { ColumnDataType } from "../grid/gridInterface";
 
 /**
  * This function initializes the table.

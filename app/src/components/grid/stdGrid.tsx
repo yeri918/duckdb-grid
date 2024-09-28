@@ -10,7 +10,7 @@ import {
   ColumnDef,
   CountStatusBarComponentType,
   PrefetchedColumnValues,
-} from "./gridTypes";
+} from "./gridInterface";
 import handleKeyDown from "./gridShortcuts";
 import {
   onFilterEqual,
