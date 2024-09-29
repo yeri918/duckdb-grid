@@ -5,7 +5,7 @@ import {
   FilterModel,
   SingleFilterModel,
   MultiFilterModel,
-} from "../grid/gridTypes";
+} from "../grid/gridInterface";
 // import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
 interface CountBarProps extends CustomStatusPanelProps {

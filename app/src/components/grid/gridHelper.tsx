@@ -1,4 +1,8 @@
-import { ColumnDataType, ColumnDef, PrefetchedColumnValues } from "./gridTypes";
+import {
+  ColumnDataType,
+  ColumnDef,
+  PrefetchedColumnValues,
+} from "./gridInterface";
 import { Column, RowClassParams, SetFilter } from "ag-grid-enterprise";
 import "./style.css";
 import db from "../table/duckDB";
