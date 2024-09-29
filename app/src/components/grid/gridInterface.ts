@@ -62,7 +62,8 @@ export interface MultiFilterModel {
   values?: string[];
 }
 
-export interface FilterModel {  [key: string]: SingleFilterModel | MultiFilterModel;
+export interface FilterModel {
+  [key: string]: SingleFilterModel | MultiFilterModel;
 }
 
 export interface PrefetchedColumnValues {
@@ -72,54 +73,57 @@ export interface PrefetchedColumnValues {
 
 // region: Grid States
 interface GridPreDestroyedEvent<TData = any, TContext = any> {
-  // Current state of the grid 
+  // Current state of the grid
   state: GridState;
-  // The grid api. 
+  // The grid api.
   api: GridApi<TData>;
-  // Application context as set on `gridOptions.context`. 
+  // Application context as set on `gridOptions.context`.
   context: TContext;
-  // Event identifier 
-  type: 'gridPreDestroyed';
+  // Event identifier
+  type: "gridPreDestroyed";
 }
 
 export interface GridState {
-  // Grid version number 
+  // Grid version number
   version?: string;
-  // Includes aggregation functions (column state) 
+  // Includes aggregation functions (column state)
   aggregation?: AggregationState;
-  // Includes opened groups 
+  // Includes opened groups
   columnGroup?: ColumnGroupState;
-  // Includes column ordering (column state) 
+  // Includes column ordering (column state)
   columnOrder?: ColumnOrderState;
-  // Includes left/right pinned columns (column state) 
+  // Includes left/right pinned columns (column state)
   columnPinning?: ColumnPinningState;
-  // Includes column width/flex (column state) 
+  // Includes column width/flex (column state)
   columnSizing?: ColumnSizingState;
-  // Includes hidden columns (column state) 
+  // Includes hidden columns (column state)
   columnVisibility?: ColumnVisibilityState;
-  // Includes Column Filters and Advanced Filter 
+  // Includes Column Filters and Advanced Filter
   filter?: FilterState;
-  // Includes currently focused cell. Works for Client-Side Row Model only 
+  // Includes currently focused cell. Works for Client-Side Row Model only
   focusedCell?: FocusedCellState;
-  // Includes current page 
+  // Includes current page
   pagination?: PaginationState;
-  // Includes current pivot mode and pivot columns (column state) 
+  // Includes current pivot mode and pivot columns (column state)
   pivot?: PivotState;
-  // Includes currently selected cell ranges 
+  // Includes currently selected cell ranges
   cellSelection?: CellSelectionState;
-  // Includes current row group columns (column state) 
+  // Includes current row group columns (column state)
   rowGroup?: RowGroupState;
-  // Includes currently expanded group rows 
+  // Includes currently expanded group rows
   rowGroupExpansion?: RowGroupExpansionState;
   // Includes currently selected rows.
   // For Server-Side Row Model, will be `ServerSideRowSelectionState | ServerSideRowGroupSelectionState`,
   // for other row models, will be an array of row IDs
-  rowSelection?: string[]  |  ServerSideRowSelectionState  |  ServerSideRowGroupSelectionState;
-  // Includes current scroll position. Works for Client-Side Row Model only 
+  rowSelection?:
+    | string[]
+    | ServerSideRowSelectionState
+    | ServerSideRowGroupSelectionState;
+  // Includes current scroll position. Works for Client-Side Row Model only
   scroll?: ScrollState;
-  // Includes current Side Bar positioning and opened tool panel 
+  // Includes current Side Bar positioning and opened tool panel
   sideBar?: SideBarState;
-  // Includes current sort columns and direction (column state) 
+  // Includes current sort columns and direction (column state)
   sort?: SortState;
   // When providing a partial `initialState` with some but not all column state properties, set this to `true`.
   // Not required if passing the whole state object retrieved from the grid.
@@ -132,7 +136,7 @@ interface AggregationState {
 
 interface AggregationColumnState {
   colId: string;
-  // Only named aggregation functions can be used in state 
+  // Only named aggregation functions can be used in state
   aggFunc: string;
 }
 
@@ -141,7 +145,7 @@ interface ColumnGroupState {
 }
 
 interface ColumnOrderState {
-  // All colIds in order 
+  // All colIds in order
   orderedColIds: string[];
 }
 
@@ -169,130 +173,119 @@ interface FilterState {
   advancedFilterModel?: AdvancedFilterModel;
 }
 
-type AdvancedFilterModel = 
-      JoinAdvancedFilterModel 
-    | ColumnAdvancedFilterModel
-
+type AdvancedFilterModel = JoinAdvancedFilterModel | ColumnAdvancedFilterModel;
 
 interface JoinAdvancedFilterModel {
-  filterType: 'join';
-  // How the conditions are joined together 
-  type: 'AND'  |  'OR';
-  // The filter conditions that are joined by the `type` 
+  filterType: "join";
+  // How the conditions are joined together
+  type: "AND" | "OR";
+  // The filter conditions that are joined by the `type`
   conditions: AdvancedFilterModel[];
 }
 
-type ColumnAdvancedFilterModel = 
-      TextAdvancedFilterModel 
-    | NumberAdvancedFilterModel 
-    | BooleanAdvancedFilterModel 
-    | DateAdvancedFilterModel 
-    | DateStringAdvancedFilterModel 
-    | ObjectAdvancedFilterModel
-
+type ColumnAdvancedFilterModel =
+  | TextAdvancedFilterModel
+  | NumberAdvancedFilterModel
+  | BooleanAdvancedFilterModel
+  | DateAdvancedFilterModel
+  | DateStringAdvancedFilterModel
+  | ObjectAdvancedFilterModel;
 
 interface TextAdvancedFilterModel {
-  filterType: 'text';
-  // The ID of the column being filtered. 
+  filterType: "text";
+  // The ID of the column being filtered.
   colId: string;
-  // The filter option that is being applied. 
+  // The filter option that is being applied.
   type: TextAdvancedFilterModelType;
-  // The value to filter on. This is the same value as displayed in the input. 
+  // The value to filter on. This is the same value as displayed in the input.
   filter?: string;
 }
 
-type TextAdvancedFilterModelType = 
-      'equals' 
-    | 'notEqual' 
-    | 'contains' 
-    | 'notContains' 
-    | 'startsWith' 
-    | 'endsWith' 
-    | 'blank' 
-    | 'notBlank'
-
+type TextAdvancedFilterModelType =
+  | "equals"
+  | "notEqual"
+  | "contains"
+  | "notContains"
+  | "startsWith"
+  | "endsWith"
+  | "blank"
+  | "notBlank";
 
 interface NumberAdvancedFilterModel {
-  filterType: 'number';
-  // The ID of the column being filtered. 
+  filterType: "number";
+  // The ID of the column being filtered.
   colId: string;
-  // The filter option that is being applied. 
+  // The filter option that is being applied.
   type: ScalarAdvancedFilterModelType;
-  // The value to filter on. 
+  // The value to filter on.
   filter?: number;
 }
 
-type ScalarAdvancedFilterModelType = 
-      'equals' 
-    | 'notEqual' 
-    | 'lessThan' 
-    | 'lessThanOrEqual' 
-    | 'greaterThan' 
-    | 'greaterThanOrEqual' 
-    | 'blank' 
-    | 'notBlank'
-
+type ScalarAdvancedFilterModelType =
+  | "equals"
+  | "notEqual"
+  | "lessThan"
+  | "lessThanOrEqual"
+  | "greaterThan"
+  | "greaterThanOrEqual"
+  | "blank"
+  | "notBlank";
 
 interface BooleanAdvancedFilterModel {
-  filterType: 'boolean';
-  // The ID of the column being filtered. 
+  filterType: "boolean";
+  // The ID of the column being filtered.
   colId: string;
-  // The filter option that is being applied. 
+  // The filter option that is being applied.
   type: BooleanAdvancedFilterModelType;
 }
 
-type BooleanAdvancedFilterModelType = 'true' | 'false'
+type BooleanAdvancedFilterModelType = "true" | "false";
 
 interface DateAdvancedFilterModel {
-  filterType: 'date';
-  // The ID of the column being filtered. 
+  filterType: "date";
+  // The ID of the column being filtered.
   colId: string;
-  // The filter option that is being applied. 
+  // The filter option that is being applied.
   type: ScalarAdvancedFilterModelType;
-  // The value to filter on. This is in format `YYYY-MM-DD`. 
+  // The value to filter on. This is in format `YYYY-MM-DD`.
   filter?: string;
 }
 
 interface DateStringAdvancedFilterModel {
-  filterType: 'dateString';
-  // The ID of the column being filtered. 
+  filterType: "dateString";
+  // The ID of the column being filtered.
   colId: string;
-  // The filter option that is being applied. 
+  // The filter option that is being applied.
   type: ScalarAdvancedFilterModelType;
-  // The value to filter on. This is in format `YYYY-MM-DD`. 
+  // The value to filter on. This is in format `YYYY-MM-DD`.
   filter?: string;
 }
 
 interface ObjectAdvancedFilterModel {
-  filterType: 'object';
-  // The ID of the column being filtered. 
+  filterType: "object";
+  // The ID of the column being filtered.
   colId: string;
-  // The filter option that is being applied. 
+  // The filter option that is being applied.
   type: TextAdvancedFilterModelType;
-  // The value to filter on. This is the same value as displayed in the input. 
+  // The value to filter on. This is the same value as displayed in the input.
   filter?: string;
 }
 
 interface FocusedCellState {
   colId: string;
   // A positive number from 0 to n, where n is the last row the grid is rendering
-  // or -1 if you want to navigate to the grid header 
+  // or -1 if you want to navigate to the grid header
   rowIndex: number;
-  // Either 'top', 'bottom' or null/undefined (for not pinned) 
+  // Either 'top', 'bottom' or null/undefined (for not pinned)
   rowPinned: RowPinnedType;
 }
 
-type RowPinnedType = 
-      'top' 
-    | 'bottom' 
-    | null 
-    | undefined
-
+type RowPinnedType = "top" | "bottom" | null | undefined;
 
 interface PaginationState {
-  // Current page 
+  // Current page
   page?: number;
-  // Current page size. Only use when the pageSizeSelector dropdown is visible 
+  // Current page size. Only use when the pageSizeSelector dropdown is visible
   pageSize?: number;
 }
 
@@ -308,31 +301,31 @@ interface CellSelectionState {
 interface CellSelectionCellState {
   id?: string;
   type?: CellRangeType;
-  // The start row of the range 
+  // The start row of the range
   startRow?: RowPosition;
-  // The end row of the range 
+  // The end row of the range
   endRow?: RowPosition;
-  // The columns in the range 
+  // The columns in the range
   colIds: string[];
-  // The start column for the range 
+  // The start column for the range
   startColId: string;
 }
 
 enum CellRangeType {
   VALUE,
-  DIMENSION
+  DIMENSION,
 }
 
 interface RowPosition {
   // A positive number from 0 to n, where n is the last row the grid is rendering
-  // or -1 if you want to navigate to the grid header 
+  // or -1 if you want to navigate to the grid header
   rowIndex: number;
-  // Either 'top', 'bottom' or null/undefined (for not pinned) 
+  // Either 'top', 'bottom' or null/undefined (for not pinned)
   rowPinned: RowPinnedType;
 }
 
 interface RowGroupState {
-  // Grouped columns in order 
+  // Grouped columns in order
   groupColIds: string[];
 }
 
@@ -341,9 +334,9 @@ interface RowGroupExpansionState {
 }
 
 interface ServerSideRowSelectionState {
-  // Whether the majority of rows are selected or not 
+  // Whether the majority of rows are selected or not
   selectAll: boolean;
-  // All rows that have the opposite selection state to `selectAll` 
+  // All rows that have the opposite selection state to `selectAll`
   toggledNodes: string[];
 }
 
@@ -359,24 +352,24 @@ interface ScrollState {
 }
 
 interface SideBarState {
-  // Is side bar visible 
+  // Is side bar visible
   visible: boolean;
-  position: 'left'  |  'right';
-  // Open tool panel, or null if closed 
-  openToolPanel: string  |  null;
-  // State for each tool panel 
-  toolPanels: { [id: string]: any; };
+  position: "left" | "right";
+  // Open tool panel, or null if closed
+  openToolPanel: string | null;
+  // State for each tool panel
+  toolPanels: { [id: string]: any };
 }
 
 interface SortState {
-  // Sorted columns and directions in order 
+  // Sorted columns and directions in order
   sortModel: SortModelItem[];
 }
 
 interface SortModelItem {
-  // Column Id to apply the sort to. 
+  // Column Id to apply the sort to.
   colId: string;
-  // Sort direction 
-  sort: 'asc'  |  'desc';
+  // Sort direction
+  sort: "asc" | "desc";
 }
 // endregion

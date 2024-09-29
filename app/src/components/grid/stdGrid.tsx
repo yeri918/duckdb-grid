@@ -79,7 +79,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [gridApi, setGridApi] = useState<any>(null);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
-  const [currentState, setCurrentState] = useState<GridState>();
 
   useEffect(() => {
     console.log("StdAgGrid: Mounted or Rerendered");
@@ -281,13 +280,13 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
       // States
       initStateTable(); // Create table if not exists.
-      applySavedState(props.tableName, gridApi);
+      applySavedState(gridApi, props.tableName, "false");
     },
     [gridApi],
   );
 
   const onGridPreDestroyed = useCallback((params: GridPreDestroyedEvent) => {
-    saveState(params, props.tableName);
+    saveState(gridApi, props.tableName, "false");
   }, []);
 
   // region: Buttons
@@ -402,9 +401,20 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
               <Button
                 style={{ outline: "none" }}
                 variant="contained"
-                onClick={() => applySavedState(props.tableName, gridApi)}
+                onClick={() => saveState(gridApi, props.tableName, "manual")}
               >
-                Apply Saved State
+                M+
+              </Button>
+            </Grid2>
+            <Grid2>
+              <Button
+                style={{ outline: "none" }}
+                variant="contained"
+                onClick={() =>
+                  applySavedState(gridApi, props.tableName, "manual")
+                }
+              >
+                MR
               </Button>
             </Grid2>
           </Grid2>
@@ -439,8 +449,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 ? "ag-theme-alpine-dark"
                 : "ag-theme-alpine"
               : props.darkMode
-              ? "ag-theme-alpine-dark"
-              : "ag-theme-alpine"
+                ? "ag-theme-alpine-dark"
+                : "ag-theme-alpine"
           }
         >
           <AgGridReact
