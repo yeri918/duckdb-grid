@@ -135,6 +135,10 @@ function App() {
     const file = event?.target.files?.[0];
     const newIndex = tabData.length;
     const tableName = `table${newIndex + 1}`;
+
+    // Reset the input value to allow getting the same file
+    event.target.value = '';    
+    
     // Only action if file exists
     if (file && file.name.endsWith(".csv")) {
       loadCSVFile(file).then(async (data) => {
