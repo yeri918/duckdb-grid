@@ -272,7 +272,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   };
 
   const onFirstDataRendered = useCallback(
-    (params: any) => {
+    async (params: any) => {
       const endTime = performance.now();
       const execTime = endTime - startTime.current;
       setExecTime(execTime);
@@ -280,7 +280,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
       // States
       initStateTable(); // Create table if not exists.
-      applySavedState(gridApi, props.tableName, "auto");
+      await applySavedState(gridApi, props.tableName, "auto");
     },
     [gridApi],
   );

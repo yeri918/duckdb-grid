@@ -9,7 +9,7 @@ export async function initStateTable() {
   const query = `
     CREATE TABLE IF NOT EXISTS grid_states_test (
       table_name VARCHAR,
-      userSaved VARCHAR DEFAULT 'false',  -- Added for Memory Store (MS) and Memory Recall (MV)
+      userSaved VARCHAR,  -- Added for Memory Store (MS) and Memory Recall (MV)
       state VARCHAR,
       columnState VARCHAR,
       PRIMARY KEY (table_name, userSaved)
@@ -25,7 +25,7 @@ export function fetchPreviousState(tableName: string) {
       const query = `
         SELECT table_name, state, columnState FROM grid_states_test
         WHERE table_name = '${tableName}'
-          AND userSaved = 'false';
+          AND userSaved = 'auto';
       `;
       const arrowResult = await connection.query(query);
       const result = arrowResult.toArray().map((row) => row.toJSON());
@@ -94,27 +94,13 @@ export async function applySavedState(
       gridApi.setFilterModel(gridState.filter.filterModel);
     }
 
-    // await new Promise<void>((resolve) => {
-    //   gridApi.forEachNode((node) => {
-    //     if (node.group) {
-    //       console.log("leudom node", node.key);
-    //       node.setExpanded(true);
-    //     }
-    //   });
-    //   resolve();
-    // });
-
-    // Set Row Group Expansion
-    // if (
-    //   gridState.rowGroupExpansion &&
-    //   Array.isArray(gridState.rowGroupExpansion)
-    // ) {
-    //   gridApi.forEachNode((node) => {
-    //     if (gridState.rowGroupExpansion.includes(node.key)) {
-    //       node.setExpanded(true);
-    //     }
-    //   });
-    // }
+    // Open groups
+    const openGroups = gridState.rowGroupExpansion.expandedRowGroupIds;
+    gridApi.forEachNode((node) => {
+      if (openGroups.includes(node.id)) {
+        node.setExpanded(true);
+      }
+    });
   }
 }
 
