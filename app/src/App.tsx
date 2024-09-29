@@ -12,6 +12,7 @@ import "react-tabs/style/react-tabs.css";
 import "./App.css";
 import StdAgGrid from "./components/grid/stdGrid";
 import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 import { InitParquetTable } from "./components/table/initTable";
 import { IoInvertMode } from "react-icons/io5";
 import db from "./components/table/duckDB";
@@ -76,6 +77,7 @@ interface gridTab {
 function App() {
   const [tabData, setTabData] = useState<gridTab[]>([]);
   const [value, setValue] = React.useState(1); // Initial state of the tabs
+  const [monoValue, setMonoValue] = React.useState(1);
   const [darkMode, setDarkMode] = useState<boolean>(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   /* 
@@ -95,7 +97,7 @@ function App() {
   useEffect(() => {
     const tabData = [
       {
-        label: "Tab 1",
+        label: "0 - Sample",
         content: (
           <StdAgGrid tabName="Tab1" darkMode={darkMode} tableName="bankdata" />
         ),
@@ -151,7 +153,7 @@ function App() {
 
         // Create new tab with the new table
         const newTab = {
-          label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
+          label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
           content: (
             <StdAgGrid
               tabName={`Tab${newIndex + 1}`}
@@ -162,6 +164,7 @@ function App() {
         };
         setTabData([...tabData, newTab]);
         setValue(newIndex + 1);
+        setMonoValue((prev) => prev + 1);
       });
     } else if (file && file.name.endsWith(".xlsx")) {
       loadXLSXFile(file).then(async (data) => {
@@ -192,6 +195,18 @@ function App() {
     }
   };
 
+  const handleCloseTab = async (index: number) => {
+    setTabData((prevTabData) => prevTabData.filter((_, i) => i !== index)); // filter out the index
+    if (value >= index) {
+      setValue((prevValue) => (prevValue === 0 ? 0 : prevValue - 1));
+    }
+    const c = await db.connect();
+    const results = await c.query(`
+      DROP TABLE table${index + 1};
+      `);
+    await c.close();
+  };
+
   function renderTabs() {
     return (
       <Tabs
@@ -214,7 +229,20 @@ function App() {
           <Tab
             key={index}
             style={{ outline: "none" }}
-            label={tab.label}
+            label={
+              <div>
+                {tab.label}
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCloseTab(index);
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </div>
+            }
             {...a11yProps(index)}
           />
         ))}
@@ -225,9 +253,9 @@ function App() {
   function renderTabPanels() {
     return tabData.map((tab, index) => (
       <CustomTabPanel
-        key={index}
-        value={value}
-        index={index + 1} // Value starts at 1. 0 is the add button
+        key={index} // The id to be identified
+        value={value} // The current tab selected
+        index={index + 1} // The position of the tab in the array
         height={"94%"}
         width={"95%"}
       >
