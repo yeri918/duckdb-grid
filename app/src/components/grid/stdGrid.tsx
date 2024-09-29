@@ -280,13 +280,14 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
       // States
       initStateTable(); // Create table if not exists.
-      applySavedState(gridApi, props.tableName, "false");
+      applySavedState(gridApi, props.tableName, "auto");
     },
     [gridApi],
   );
 
   const onGridPreDestroyed = useCallback((params: GridPreDestroyedEvent) => {
-    saveState(gridApi, props.tableName, "false");
+    saveState(params.api, props.tableName, "auto");
+    console.log("leudom gridState saved", params.api);
   }, []);
 
   // region: Buttons
