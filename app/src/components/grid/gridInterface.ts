@@ -82,7 +82,7 @@ interface GridPreDestroyedEvent<TData = any, TContext = any> {
   type: 'gridPreDestroyed';
 }
 
-interface GridState {
+export interface GridState {
   // Grid version number 
   version?: string;
   // Includes aggregation functions (column state) 

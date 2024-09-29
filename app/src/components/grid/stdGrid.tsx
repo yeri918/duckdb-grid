@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import { AgGridReact } from "ag-grid-react";
 import { Grid2, Button } from "@mui/material";
 
@@ -10,6 +16,7 @@ import {
   ColumnDef,
   CountStatusBarComponentType,
   PrefetchedColumnValues,
+  GridState,
 } from "./gridInterface";
 import handleKeyDown from "./gridShortcuts";
 import {
@@ -25,6 +32,11 @@ import {
   getLayeredColumnDefs,
   getGroupedColumnDefs,
 } from "./gridHelper";
+import initStateTable, {
+  fetchPreviousState,
+  saveState,
+  applySavedState,
+} from "./gridStates";
 import GridLoadingOverlay from "./gridLoadingOverlay";
 import "./style.css";
 
@@ -39,10 +51,17 @@ import CustomCountBar, {
 import db from "../table/duckDB";
 
 // AgGrid imports
-import { ColDef, StatusPanelDef, GridApi } from "@ag-grid-community/core";
+import {
+  ColDef,
+  StatusPanelDef,
+  GridApi,
+  StateUpdatedEvent,
+} from "@ag-grid-community/core";
+import { GridPreDestroyedEvent } from "ag-grid-community";
 import "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import { PartyMode } from "@mui/icons-material";
 
 function arePropsEqual(
   prevProps: StdAgGridProps,
@@ -59,8 +78,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   const [gridApi, setGridApi] = useState<any>(null);
   const startTime = useRef(performance.now());
-  const [columnDataTypes, setColumnDataTypes] = useState<ColumnDataType>({});
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const [currentState, setCurrentState] = useState<GridState>();
 
   useEffect(() => {
     console.log("StdAgGrid: Mounted or Rerendered");
@@ -247,22 +266,29 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   // endregion
 
   // region: onModelUpdated / onGridReady / onFirstDataRendered
-  const onModelUpdated = (params: any) => {
-    console.log("std onModelUpdated", params);
-  };
+  const onModelUpdated = (params: any) => {};
 
   const onGridReady = (params: any) => {
-    console.log("std onGridReady");
     setGridApi(params.api);
   };
 
-  const onFirstDataRendered = () => {
-    const endTime = performance.now();
-    const execTime = endTime - startTime.current;
-    setExecTime(execTime);
-    setLoading(false);
-  };
-  // endregion
+  const onFirstDataRendered = useCallback(
+    (params: any) => {
+      const endTime = performance.now();
+      const execTime = endTime - startTime.current;
+      setExecTime(execTime);
+      setLoading(false);
+
+      // States
+      initStateTable(); // Create table if not exists.
+      applySavedState(props.tableName, gridApi);
+    },
+    [gridApi],
+  );
+
+  const onGridPreDestroyed = useCallback((params: GridPreDestroyedEvent) => {
+    saveState(params, props.tableName);
+  }, []);
 
   // region: Buttons
   const resetTable = () => {
@@ -349,7 +375,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       }}
     >
       <Grid2 sx={{ display: "flex", height: "7%" }}>
-        <Grid2 sx={{ width: "80%" }}>
+        <Grid2 sx={{ width: "100%" }}>
           {/* 
           // region: Buttons 
           */}
@@ -370,6 +396,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 onClick={autoSizeColumns}
               >
                 Autosize Columns
+              </Button>
+            </Grid2>
+            <Grid2>
+              <Button
+                style={{ outline: "none" }}
+                variant="contained"
+                onClick={() => applySavedState(props.tableName, gridApi)}
+              >
+                Apply Saved State
               </Button>
             </Grid2>
           </Grid2>
@@ -433,6 +468,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             onModelUpdated={onModelUpdated}
             onGridReady={onGridReady}
             onFirstDataRendered={onFirstDataRendered}
+            onGridPreDestroyed={onGridPreDestroyed}
             rowHeight={25}
             headerHeight={25}
             suppressMultiSort={false}
