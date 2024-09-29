@@ -16,6 +16,7 @@ import { InitParquetTable } from "./components/table/initTable";
 import { IoInvertMode } from "react-icons/io5";
 import db from "./components/table/duckDB";
 import { tableFromArrays } from "apache-arrow";
+import { convertDataTypes, loadCSVFile, loadXLSXFile } from "./lib/fileUtil";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -127,64 +128,14 @@ function App() {
     fileInputRef.current?.click();
   };
 
-  function loadFromFileReader(file: File) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const fileContent = e.target?.result;
-        if (fileContent) {
-          const textContent = new TextDecoder().decode(
-            fileContent as ArrayBuffer,
-          );
-          // Currently only for csv file
-          const rows = textContent.split("\n").map((row) => row.split(","));
-          const columns = rows[0];
-
-          const data = columns.reduce(
-            (acc, col, index) => {
-              acc[col] = rows.slice(1).map((row) => row[index]);
-              return acc;
-            },
-            // eslint-disable-next-line
-            {} as Record<string, any[]>,
-          );
-
-          // Convert data to Arrow Table
-          resolve(data);
-        }
-      };
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-    });
-  }
-
   // eslint-disable-next-line
-  const convertDataTypes = (data: Record<string, any[]>) => {
-    const convertedData = Object.keys(data).reduce(
-      (acc, key) => {
-        const columnData = data[key];
-        // stop checking if at least one value is non-numeric with some()
-        const isNonNumeric = columnData.some((value) => {
-          const stringValue = value === undefined ? "0" : value;
-          return isNaN(parseFloat(stringValue)) || !isFinite(stringValue);
-        });
-        acc[key] = !isNonNumeric ? columnData.map(Number) : columnData;
-        return acc;
-      },
-      // eslint-disable-next-line
-      {} as Record<string, any[]>,
-    );
-    return convertedData;
-  };
   const handleAddTab = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event?.target.files?.[0];
-
+    const newIndex = tabData.length;
+    const tableName = `table${newIndex + 1}`;
     // Only action if file exists
-    if (file) {
-      loadFromFileReader(file).then(async (data) => {
-        const newIndex = tabData.length;
-        const tableName = `table${newIndex + 1}`;
-
+    if (file && file.name.endsWith(".csv")) {
+      loadCSVFile(file).then(async (data) => {
         // Convert data to Arrow Table
         // eslint-disable-next-line
         const convertedData = convertDataTypes(data as Record<string, any[]>);
@@ -196,7 +147,32 @@ function App() {
           create: true,
         });
         const results = await c.query(`DESCRIBE ${tableName}`);
-        console.log("pjulie", JSON.parse(JSON.stringify(results.toArray())));
+        await c.close();
+
+        // Create new tab with the new table
+        const newTab = {
+          label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
+          content: (
+            <StdAgGrid
+              tabName={`Tab${newIndex + 1}`}
+              darkMode={darkMode}
+              tableName={tableName}
+            />
+          ),
+        };
+        setTabData([...tabData, newTab]);
+        setValue(newIndex + 1);
+      });
+    } else if (file && file.name.endsWith(".xlsx")) {
+      loadXLSXFile(file).then(async (data) => {
+        const table = tableFromArrays(data as Record<string, any[]>);
+
+        const c = await db.connect();
+        await c.insertArrowTable(table, {
+          name: `${tableName}`,
+          create: true,
+        });
+        const results = await c.query(`DESCRIBE ${tableName}`);
         await c.close();
 
         // Create new tab with the new table
