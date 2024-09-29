@@ -180,7 +180,7 @@ function App() {
 
         // Create new tab with the new table
         const newTab = {
-          label: `Tab ${newIndex + 1}`, // Tab starts at 1, 0 is the plus button
+          label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
           content: (
             <StdAgGrid
               tabName={`Tab${newIndex + 1}`}
@@ -191,6 +191,7 @@ function App() {
         };
         setTabData([...tabData, newTab]);
         setValue(newIndex + 1);
+        setMonoValue((prev) => prev + 1);
       });
     }
   };
