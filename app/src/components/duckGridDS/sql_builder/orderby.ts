@@ -62,10 +62,10 @@ const buildOrderBy = async (
       if (colId === "ag-Grid-AutoColumn") {
         const groupKeyLength = params.request?.groupKeys.length ?? 0;
         const sortGroupKey = rowGroupCols[groupKeyLength]; // We get the next one.
-        eligSortParts.push(`${sortGroupKey.id} ${key.sort}`);
+        eligSortParts.push(`"${sortGroupKey.id}" ${key.sort}`);
       }
       if (sortNonGroupCols?.includes(key)) {
-        eligSortParts.push(colId + " " + key.sort);
+        eligSortParts.push(`"${colId}" ${key.sort}`);
       }
     });
   }
