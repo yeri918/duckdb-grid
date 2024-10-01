@@ -441,9 +441,21 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
               <Button
                 style={{ outline: "none" }}
                 variant="contained"
-                onClick={() =>
-                  applySavedState(gridApi, props.tableName, "manual")
-                }
+                onClick={() => {
+                  // Might need to refactor too.
+                  applySavedState(gridApi, props.tableName, "manual");
+                  fetchPreviousState(props.tableName, "manual").then(
+                    (result: any) => {
+                      console.log("leudom result", result);
+                      const gridState = JSON.parse(result[0].state);
+                      if (gridState) {
+                        setOpenGroups(
+                          gridState.rowGroupExpansion?.expandedRowGroupIds,
+                        );
+                      }
+                    },
+                  );
+                }}
               >
                 MR
               </Button>
