@@ -16,7 +16,6 @@ import {
   ColumnDef,
   CountStatusBarComponentType,
   PrefetchedColumnValues,
-  GridState,
 } from "./gridInterface";
 import handleKeyDown from "./gridShortcuts";
 import {
@@ -56,8 +55,12 @@ import {
   StatusPanelDef,
   GridApi,
   StateUpdatedEvent,
+  GridState,
 } from "@ag-grid-community/core";
-import { GridPreDestroyedEvent } from "ag-grid-community";
+import {
+  GridPreDestroyedEvent,
+  IsServerSideGroupOpenByDefaultParams,
+} from "ag-grid-community";
 import "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -79,6 +82,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [gridApi, setGridApi] = useState<any>(null);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const [openGroups, setOpenGroups] = useState<string[] | undefined>([]);
 
   useEffect(() => {
     console.log("StdAgGrid: Mounted or Rerendered");
@@ -264,7 +268,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   }, [props.tableName]);
   // endregion
 
-  // region: onModelUpdated / onGridReady / onFirstDataRendered
+  // region: onModelUpdated / onGridReady / onFirstDataRendered / isServerSideGroupOpenByDefault
   const onModelUpdated = (params: any) => {};
 
   const onGridReady = (params: any) => {
@@ -272,7 +276,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   };
 
   const onFirstDataRendered = useCallback(
-    async (params: any) => {
+    (params: any) => {
       const endTime = performance.now();
       const execTime = endTime - startTime.current;
       setExecTime(execTime);
@@ -280,7 +284,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
       // States
       initStateTable(); // Create table if not exists.
-      await applySavedState(gridApi, props.tableName, "auto");
+      applySavedState(gridApi, props.tableName, "auto"); // TODO: would need refactoring with below.
+      fetchPreviousState(props.tableName, "auto").then((result: any) => {
+        console.log("leudom result", result);
+        const gridState = JSON.parse(result[0].state);
+        if (gridState) {
+          setOpenGroups(gridState.rowGroupExpansion?.expandedRowGroupIds);
+        }
+      });
+      // setOpenGroups(["hihihi"]);
     },
     [gridApi],
   );
@@ -289,6 +301,24 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     saveState(params.api, props.tableName, "auto");
     console.log("leudom gridState saved", params.api);
   }, []);
+
+  const isServerSideGroupOpenByDefault = useCallback(
+    (params: IsServerSideGroupOpenByDefaultParams) => {
+      var route = params.rowNode.getRoute();
+      if (!route) {
+        return false;
+      }
+
+      if (params.rowNode) {
+        return params.rowNode.id
+          ? (openGroups?.includes(params.rowNode.id) ?? false) // Only return true if not undefined and is in openGroups
+          : false;
+      } else {
+        return false;
+      }
+    },
+    [openGroups],
+  );
 
   // region: Buttons
   const resetTable = () => {
@@ -411,9 +441,21 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
               <Button
                 style={{ outline: "none" }}
                 variant="contained"
-                onClick={() =>
-                  applySavedState(gridApi, props.tableName, "manual")
-                }
+                onClick={() => {
+                  // Might need to refactor too.
+                  applySavedState(gridApi, props.tableName, "manual");
+                  fetchPreviousState(props.tableName, "manual").then(
+                    (result: any) => {
+                      console.log("leudom result", result);
+                      const gridState = JSON.parse(result[0].state);
+                      if (gridState) {
+                        setOpenGroups(
+                          gridState.rowGroupExpansion?.expandedRowGroupIds,
+                        );
+                      }
+                    },
+                  );
+                }}
               >
                 MR
               </Button>
@@ -486,6 +528,9 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             colResizeDefault="shift"
             loading={loading}
             animateRows={true}
+            // Client Side Sorting
+            // https://www.ag-grid.com/javascript-data-grid/server-side-model-sorting/#client-side-sorting
+            serverSideEnableClientSideSort={true}
             // Multiple selection
             enableRangeSelection={true}
             rowSelection="multiple"
@@ -494,6 +539,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             statusBar={statusBar}
             enableCharts={true}
             // Grouping
+            // groupDefaultExpanded={2}
+            isServerSideGroupOpenByDefault={isServerSideGroupOpenByDefault}
             suppressRowGroupHidesColumns={true}
             // Loading Overlay
             loadingOverlayComponent={GridLoadingOverlay}
