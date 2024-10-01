@@ -7,6 +7,7 @@ import {
   IconButton,
   ThemeProvider,
   createTheme,
+  Tooltip,
 } from "@mui/material";
 import "react-tabs/style/react-tabs.css";
 import "./App.css";
@@ -137,8 +138,8 @@ function App() {
     const tableName = `table${newIndex + 1}`;
 
     // Reset the input value to allow getting the same file
-    event.target.value = '';    
-    
+    event.target.value = "";
+
     // Only action if file exists
     if (file && file.name.endsWith(".csv")) {
       loadCSVFile(file).then(async (data) => {
@@ -219,17 +220,19 @@ function App() {
         onChange={handleChange}
         aria-label="basic tabs example"
       >
-        <IconButton
-          onClick={onClickAddTab}
-          aria-label="add tab"
-          style={{
-            height: "40px",
-            outline: "none",
-            marginTop: "5px",
-          }}
-        >
-          <AddIcon style={{ color: darkMode ? "white" : "gray" }} />
-        </IconButton>
+        <Tooltip title="Import an Excel or CSV file" arrow>
+          <IconButton
+            onClick={onClickAddTab}
+            aria-label="add tab"
+            style={{
+              height: "40px",
+              outline: "none",
+              marginTop: "5px",
+            }}
+          >
+            <AddIcon style={{ color: darkMode ? "white" : "gray" }} />
+          </IconButton>
+        </Tooltip>
         {tabData.map((tab, index) => (
           <Tab
             key={index}
@@ -237,15 +240,23 @@ function App() {
             label={
               <div>
                 {tab.label}
-                <IconButton
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCloseTab(index);
-                  }}
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
+                <Tooltip title="Close tab" arrow>
+                  <IconButton
+                    style={{
+                      color: darkMode ? "white" : "gray",
+                      outline: "none",
+                      borderRadius: "50%",
+                      padding: "0px",
+                      marginLeft: "10px",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCloseTab(index);
+                    }}
+                  >
+                    <CloseIcon style={{ fontSize: "20px" }} />
+                  </IconButton>
+                </Tooltip>
               </div>
             }
             {...a11yProps(index)}
