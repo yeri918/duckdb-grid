@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { Grid2, Button } from "@mui/material";
+import { Grid2, Button, Tooltip } from "@mui/material";
 
 // grid Folder
 import {
@@ -237,14 +237,11 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
             customProps: CountStatusBarComponentType<any, any>,
             tableName: string,
           ) => (
-            console.log("pjulie check", props.tableName),
-            (
-              <CustomCountBar
-                context={undefined}
-                {...customProps}
-                tableName={props.tableName}
-              />
-            )
+            <CustomCountBar
+              context={undefined}
+              {...customProps}
+              tableName={props.tableName}
+            />
           ),
         },
         {
@@ -311,7 +308,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
       if (params.rowNode) {
         return params.rowNode.id
-          ? (openGroups?.includes(params.rowNode.id) ?? false) // Only return true if not undefined and is in openGroups
+          ? openGroups?.includes(params.rowNode.id) ?? false // Only return true if not undefined and is in openGroups
           : false;
       } else {
         return false;
@@ -411,54 +408,62 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           */}
           <Grid2 container justifyContent="flex-start" spacing={2}>
             <Grid2>
-              <Button
-                style={{ outline: "none" }}
-                variant="contained"
-                onClick={resetTable}
-              >
-                Reset Table
-              </Button>
+              <Tooltip title="Removes the row groups and filters.">
+                <Button
+                  style={{ outline: "none" }}
+                  variant="contained"
+                  onClick={resetTable}
+                >
+                  Reset Table
+                </Button>
+              </Tooltip>
             </Grid2>
             <Grid2>
-              <Button
-                style={{ outline: "none" }}
-                variant="contained"
-                onClick={autoSizeColumns}
-              >
-                Autosize Columns
-              </Button>
+              <Tooltip title="Autosizes the columns.">
+                <Button
+                  style={{ outline: "none" }}
+                  variant="contained"
+                  onClick={autoSizeColumns}
+                >
+                  Autosize Columns
+                </Button>
+              </Tooltip>
             </Grid2>
             <Grid2>
-              <Button
-                style={{ outline: "none" }}
-                variant="contained"
-                onClick={() => saveState(gridApi, props.tableName, "manual")}
-              >
-                M+
-              </Button>
+              <Tooltip title="Saves the current view with row groups and filters.">
+                <Button
+                  style={{ outline: "none" }}
+                  variant="contained"
+                  onClick={() => saveState(gridApi, props.tableName, "manual")}
+                >
+                  Save View
+                </Button>
+              </Tooltip>
             </Grid2>
             <Grid2>
-              <Button
-                style={{ outline: "none" }}
-                variant="contained"
-                onClick={() => {
-                  // Might need to refactor too.
-                  applySavedState(gridApi, props.tableName, "manual");
-                  fetchPreviousState(props.tableName, "manual").then(
-                    (result: any) => {
-                      console.log("leudom result", result);
-                      const gridState = JSON.parse(result[0].state);
-                      if (gridState) {
-                        setOpenGroups(
-                          gridState.rowGroupExpansion?.expandedRowGroupIds,
-                        );
-                      }
-                    },
-                  );
-                }}
-              >
-                MR
-              </Button>
+              <Tooltip title="Retrieve the saved view.">
+                <Button
+                  style={{ outline: "none" }}
+                  variant="contained"
+                  onClick={() => {
+                    // Might need to refactor too.
+                    applySavedState(gridApi, props.tableName, "manual");
+                    fetchPreviousState(props.tableName, "manual").then(
+                      (result: any) => {
+                        console.log("leudom result", result);
+                        const gridState = JSON.parse(result[0].state);
+                        if (gridState) {
+                          setOpenGroups(
+                            gridState.rowGroupExpansion?.expandedRowGroupIds,
+                          );
+                        }
+                      },
+                    );
+                  }}
+                >
+                  Retrieve View
+                </Button>
+              </Tooltip>
             </Grid2>
           </Grid2>
         </Grid2>
@@ -492,8 +497,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 ? "ag-theme-alpine-dark"
                 : "ag-theme-alpine"
               : props.darkMode
-                ? "ag-theme-alpine-dark"
-                : "ag-theme-alpine"
+              ? "ag-theme-alpine-dark"
+              : "ag-theme-alpine"
           }
         >
           <AgGridReact
