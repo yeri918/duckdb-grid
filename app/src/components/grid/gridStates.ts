@@ -1,5 +1,10 @@
 // ag-grid
-import { GridPreDestroyedEvent, GridApi } from "ag-grid-community";
+import {
+  GridPreDestroyedEvent,
+  GridApi,
+  GridState,
+  ColumnState,
+} from "ag-grid-community";
 
 // table Folder
 import db from "../table/duckDB";
@@ -19,19 +24,24 @@ export async function initStateTable() {
   await connection.close();
 }
 
-export function fetchPreviousState(tableName: string) {
-  return new Promise((resolve) => {
+export function fetchPreviousState(tableName: string, userSaved: string) {
+  return new Promise((resolve, reject) => {
     db.connect().then(async (connection) => {
-      const query = `
+      try {
+        const query = `
         SELECT table_name, state, columnState FROM grid_states_test
         WHERE table_name = '${tableName}'
-          AND userSaved = 'auto';
+          AND userSaved = '${userSaved}';
       `;
-      const arrowResult = await connection.query(query);
-      const result = arrowResult.toArray().map((row) => row.toJSON());
-      console.log("initial state table displayed", result);
-      await connection.close();
-      resolve(result[0]);
+        const arrowResult = await connection.query(query);
+        const result = arrowResult.toArray().map((row) => row.toJSON());
+        console.log("initial state table displayed", result);
+        await connection.close();
+        resolve(result);
+      } catch {
+        await connection.close();
+        reject();
+      }
     });
   });
 }
@@ -64,44 +74,25 @@ export async function applySavedState(
   tableName: string,
   userSaved: string,
 ) {
-  const connection = await db.connect();
-  const query = `
-      SELECT * FROM grid_states_test
-      WHERE table_name = '${tableName}'
-        AND userSaved = '${userSaved}';
-    `;
-  const arrowResult = await connection.query(query);
-  const result = arrowResult.toArray().map((row) => row.toJSON());
-  await connection.close();
-
-  if (result.length > 0 && gridApi !== null) {
-    const gridState = JSON.parse(result[0].state);
-    const columnState = JSON.parse(result[0].columnState);
-    // Apply column state and wait for it to be applied
-    await new Promise<void>((resolve) => {
+  fetchPreviousState(tableName, userSaved).then(async (result: any) => {
+    if (result.length > 0 && gridApi !== null) {
+      const gridState = JSON.parse(result[0].state);
+      const columnState = JSON.parse(result[0].columnState);
+      // Apply column state and wait for it to be applied
       gridApi.applyColumnState({
         state: columnState,
         applyOrder: true,
       });
-      resolve(console.log("leudom node", gridApi.getRenderedNodes()));
-    }).then();
-    console.log("leudom gridState", gridState);
-    console.log("leudom columnState", columnState);
 
-    // Set State Manually
-    // Set Filter Model
-    if (gridState.filter && gridState.filter.filterModel) {
-      gridApi.setFilterModel(gridState.filter.filterModel);
-    }
-
-    // Open groups
-    const openGroups = gridState.rowGroupExpansion.expandedRowGroupIds;
-    gridApi.forEachNode((node) => {
-      if (openGroups.includes(node.id)) {
-        node.setExpanded(true);
+      // Set State Manually
+      // Set Filter Model
+      if (gridState.filter && gridState.filter.filterModel) {
+        gridApi.setFilterModel(gridState.filter.filterModel);
       }
-    });
-  }
+
+      return gridState;
+    }
+  });
 }
 
 export default initStateTable;
