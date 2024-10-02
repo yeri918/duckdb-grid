@@ -35,6 +35,7 @@ const buildOrderBy = async (
   } else {
     // Get No RowGroup Numeric Columns
     const rowGroupColIds = rowGroupCols.map((col) => col.id);
+    let openedrowGroupColIds = rowGroupColIds.slice(groupKeys.length);
     const sql = `
         DESCRIBE ${tableName};
     `;
@@ -63,6 +64,8 @@ const buildOrderBy = async (
         const groupKeyLength = params.request?.groupKeys.length ?? 0;
         const sortGroupKey = rowGroupCols[groupKeyLength]; // We get the next one.
         eligSortParts.push(`"${sortGroupKey.id}" ${key.sort}`);
+      } else if (openedrowGroupColIds.includes(colId)) {
+        eligSortParts.push(`"${colId}" ${key.sort}`);
       }
       if (sortNonGroupCols?.includes(key)) {
         eligSortParts.push(`"${colId}" ${key.sort}`);
