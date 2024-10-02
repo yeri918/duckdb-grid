@@ -1,6 +1,16 @@
 import * as XLSX from "xlsx";
 
 /**
+ * Removes all characters from a string except for underscores, alphabets, and numbers.
+ *
+ * @param {string} input - The input string to clean.
+ * @returns {string} - The cleaned string.
+ */
+export function cleanString(input: string): string {
+  return input.replace(/[^a-zA-Z0-9_]/g, "");
+}
+
+/**
  * Converts data types in a record of arrays.
  * If all values in a column are numeric, they are converted to numbers.
  * This is necessary for csv files.
@@ -50,6 +60,7 @@ export function loadCSVFile(file: File): Promise<Record<string, any[]>> {
 
         const data = columns.reduce(
           (acc, col, index) => {
+            col = cleanString(col);
             acc[col] = rows.slice(1).map((row) => row[index]);
             return acc;
           },
@@ -87,7 +98,9 @@ export function loadXLSXFile(file: File): Promise<Record<string, any[]>> {
 
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-        const columns = jsonData[0] as string[];
+        var columns = jsonData[0] as string[];
+        columns = columns.map((col) => cleanString(col));
+
         const rows = jsonData.slice(1);
 
         const parsedData = columns.reduce(
