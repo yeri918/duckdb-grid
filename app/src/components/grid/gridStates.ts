@@ -36,6 +36,16 @@ export function fetchPreviousState(tableName: string, userSaved: string) {
         const arrowResult = await connection.query(query);
         const result = arrowResult.toArray().map((row) => row.toJSON());
         console.log("initial state table displayed", result);
+
+        // Tempo Query Execute
+        // const query2 = `
+        //   SELECT *
+        //   FROM ${tableName} limit 5;
+        // `;
+        // const arrowResult2 = await connection.query(query2);
+        // const result2 = arrowResult2.toArray().map((row) => row.toJSON());
+        // console.log("leudom temp results", result2);
+
         await connection.close();
         resolve(result);
       } catch {
