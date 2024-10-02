@@ -352,7 +352,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         iconKey: "columns",
         toolPanel: "agColumnsToolPanel",
         toolPanelParams: {
-          suppressValues: false,
+          suppressValues: true, // suppresses the values at the bottom of the sidebar
           columnDisplayName: (col: { getColDef: () => any }) => {
             const colDef = col.getColDef();
             return colDef.headerName;
@@ -414,7 +414,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                   variant="contained"
                   onClick={resetTable}
                 >
-                  Reset Table
+                  Reset
                 </Button>
               </Tooltip>
             </Grid2>
@@ -425,7 +425,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                   variant="contained"
                   onClick={autoSizeColumns}
                 >
-                  Autosize Columns
+                  Autosize
                 </Button>
               </Tooltip>
             </Grid2>
@@ -436,12 +436,12 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                   variant="contained"
                   onClick={() => saveState(gridApi, props.tableName, "manual")}
                 >
-                  Save View
+                  Save
                 </Button>
               </Tooltip>
             </Grid2>
             <Grid2>
-              <Tooltip title="Retrieve the saved view.">
+              <Tooltip title="Retrieves the saved view.">
                 <Button
                   style={{ outline: "none" }}
                   variant="contained"
