@@ -1,6 +1,4 @@
-import {
-  IServerSideGetRowsParams,
-} from "ag-grid-community";
+import { IServerSideGetRowsParams } from "ag-grid-community";
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
 interface FilterItem {
@@ -15,7 +13,7 @@ interface FilterItem {
 const buildWhere = async (
   database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
-  tableName: string,
+  tableName: string, // eslint-disable-line @typescript-eslint/no-unused-varsnpm
 ) => {
   const rowGroupCols = params.request?.rowGroupCols;
   const groupKeys = params.request?.groupKeys;
@@ -83,19 +81,19 @@ const buildWhere = async (
     switch (item.type) {
       case "equals":
         return `"${key}" = ${item.filter}`;
-            case "notEqual":
+      case "notEqual":
         return `"${key}" != ${item.filter}`;
-            case "greaterThan":
+      case "greaterThan":
         return `"${key}" > ${item.filter}`;
-            case "greaterThanOrEqual":
+      case "greaterThanOrEqual":
         return `"${key}" >= ${item.filter}`;
-            case "lessThan":
+      case "lessThan":
         return `"${key}" < ${item.filter}`;
-            case "lessThanOrEqual":
+      case "lessThanOrEqual":
         return `"${key}" <= ${item.filter}`;
-            case "inRange":
+      case "inRange":
         return `"${key}" BETWEEN ${item.filter}`;
-            default:
+      default:
         console.log("Unknown number filter type: ", item.type);
         return "";
     }

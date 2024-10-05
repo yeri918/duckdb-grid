@@ -6,7 +6,7 @@ import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 const buildGroupBy = async (
   database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
-  tableName: string,
+  tableName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
 ) => {
   const rowGroupLength = params.request?.rowGroupCols.length;
   const groupKeyLength = params.request?.groupKeys.length;

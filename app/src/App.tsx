@@ -153,7 +153,7 @@ function App() {
           name: `${tableName}`,
           create: true,
         });
-        const results = await c.query(`DESCRIBE ${tableName}`);
+        await c.query(`DESCRIBE ${tableName}`);
         await c.close();
 
         // Create new tab with the new table
@@ -173,14 +173,16 @@ function App() {
       });
     } else if (file && file.name.endsWith(".xlsx")) {
       loadXLSXFile(file).then(async (data) => {
-        const table = tableFromArrays(data as Record<string, any[]>);
+        const table = tableFromArrays(
+          data as Record<string, (string | number)[]>,
+        );
 
         const c = await db.connect();
         await c.insertArrowTable(table, {
           name: `${tableName}`,
           create: true,
         });
-        const results = await c.query(`DESCRIBE ${tableName}`);
+        await c.query(`DESCRIBE ${tableName}`);
         await c.close();
 
         // Create new tab with the new table
@@ -207,7 +209,7 @@ function App() {
       setValue((prevValue) => (prevValue === 0 ? 0 : prevValue - 1));
     }
     const c = await db.connect();
-    const results = await c.query(`
+    await c.query(`
       DROP TABLE table${index + 1};
       `);
     await c.close();
