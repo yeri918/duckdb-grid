@@ -85,7 +85,7 @@ function App() {
   /* 
     README: Init Steps
   */
-  InitParquetTable("./bankdataset.parquet", "bankdata");
+  InitParquetTable("./penguins.parquet", "penguins");
 
   useEffect(() => {
     const userPrefersDark =
@@ -101,7 +101,7 @@ function App() {
       {
         label: "0 - Sample",
         content: (
-          <StdAgGrid tabName="Tab1" darkMode={darkMode} tableName="bankdata" />
+          <StdAgGrid tabName="Tab1" darkMode={darkMode} tableName="penguins" />
         ),
       },
     ];

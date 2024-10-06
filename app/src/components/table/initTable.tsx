@@ -42,42 +42,11 @@ export const InitParquetTable = (filename: string, tableName: string) => {
   useEffect(() => {
     const initTable = async () => {
       const c = await db.connect();
-
-      // TODO: This can be done by DuckDB (?)
-      // We need this only to construct the selectQuery like below.
-      const columnDataType: ColumnDataType = {
-        domain: "VARCHAR",
-        date: "DATE",
-        today_location: "VARCHAR",
-        today_daily_value: "DOUBLE",
-        today_daily_transaction_count: "DOUBLE",
-        row_number: "INTEGER",
-      };
-      const selectQuery = Object.keys(columnDataType)
-        .map((key) => {
-          // We force all Date Column to be string.
-          if (columnDataType[key] === "DATE") {
-            return `strftime(${key}, '%Y-%m-%d')::VARCHAR as ${key}`;
-          } else {
-            return `${key}::${columnDataType[key]} as ${key}`;
-          }
-        })
-        .join(", ");
-
-      /*
-        *****************Start of User Input Area****************
-        Specify the table below.
-        We can use 
-            - CREATE TABLE for in memory view
-            - CREATE VIEW for not using meory.
-      */
       const src = new URL(filename, document.baseURI).href;
       const source = `
                             CREATE OR REPLACE VIEW ${tableName} AS
-                            FROM read_parquet('${src}')
-                            SELECT ${selectQuery};
+                            FROM read_parquet('${src}');
                     `;
-      console.log("Check", source);
       // await sleep(10000); // Can comment this line to check the Timeout.
       await c.query(source);
       await c.close();
