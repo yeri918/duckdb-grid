@@ -34,7 +34,7 @@ const AdvancedFilterBar: React.FC<AdvancedFilterBarProps> = ({
       applyFilter();
       setTimeout(() => {
         setEnter(false);
-      }, 10000); // Filtering in progress signal for 1 second
+      }, 1000); // Filtering in progress signal for 1 second
     }
   };
 
