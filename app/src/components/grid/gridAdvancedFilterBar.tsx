@@ -34,7 +34,7 @@ const AdvancedFilterBar: React.FC<AdvancedFilterBarProps> = ({
       applyFilter();
       setTimeout(() => {
         setEnter(false);
-      }, 1000); // Filtering in progress signal for 1 second
+      }, 10000); // Filtering in progress signal for 1 second
     }
   };
 
@@ -50,7 +50,7 @@ const AdvancedFilterBar: React.FC<AdvancedFilterBarProps> = ({
       <TextField
         label={
           enter
-            ? "Applying filter..."
+            ? "Applying the filter..."
             : success
             ? "Enter a WHERE SQL Expression to filter results"
             : "Failed to filter"
