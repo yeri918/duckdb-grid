@@ -1,22 +1,25 @@
 // AdvancedFilterBar.tsx
 import React from "react";
 import { Box, TextField, Button } from "@mui/material";
+import { GridApi } from "ag-grid-community";
 
 interface AdvancedFilterBarProps {
-  onFilterChange: (filter: string) => void;
+  gridApi: GridApi;
 }
 
-const AdvancedFilterBar: React.FC<AdvancedFilterBarProps> = ({
-  onFilterChange,
-}) => {
+const AdvancedFilterBar: React.FC<AdvancedFilterBarProps> = ({ gridApi }) => {
   const [filter, setFilter] = React.useState("");
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFilter(event.target.value);
+  const applyFilter = () => {
+    gridApi.setGridOption("context", { advancedFilter: filter });
+    console.log("leudom filter applied: ", filter);
+    gridApi.onFilterChanged();
   };
 
-  const applyFilter = () => {
-    onFilterChange(filter);
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      applyFilter();
+    }
   };
 
   return (
@@ -32,7 +35,8 @@ const AdvancedFilterBar: React.FC<AdvancedFilterBarProps> = ({
         label="Enter a SQL Expression to filter results."
         variant="outlined"
         value={filter}
-        onChange={handleFilterChange}
+        onChange={(sql) => setFilter(sql.target.value)}
+        onKeyDown={handleKeyDown}
         sx={{ mr: 2, width: "100%" }}
       />
       <Button variant="contained" color="primary" onClick={applyFilter}>

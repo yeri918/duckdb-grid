@@ -21,7 +21,7 @@ const duckGridDataSource = (
 
     const select = await buildSelect(database, params, tableName);
     const groupby = await buildGroupBy(database, params, tableName);
-    const where = await buildWhere(database, params, tableName);
+    let where = await buildWhere(database, params, tableName);
     const orderBy = await buildOrderBy(database, params, tableName);
     const limit = await buildLimit(database, params, tableName);
 
@@ -43,16 +43,53 @@ const duckGridDataSource = (
     `;
     console.log("sql", sql);
 
+    let advancedSql = sql;
+    if (params.context?.advancedFilter) {
+      let advancedWhere = where;
+      if (where === "") {
+        advancedWhere += ` WHERE (${params.context.advancedFilter})`;
+      } else {
+        advancedWhere += ` AND (${params.context.advancedFilter})`;
+      }
+      // Construct the SQL query
+      advancedSql = `
+        WITH SOURCE AS (${source}),
+        FILTERED AS (
+            SELECT * FROM SOURCE
+            ${advancedWhere}
+        ),
+        GROUPFILTERED AS (
+            SELECT * FROM FILTERED
+        ),
+        QUERY AS (
+            SELECT ${select} FROM GROUPFILTERED ${groupby}
+        )
+        SELECT * FROM QUERY ${orderBy}
+        ${limit};
+      `;
+    }
+    console.log("advancedSql", advancedSql);
+
     // Make a DuckDB connection
     const connection = await database.connect();
-
     // Execute the query and convert the result to an array of objects
     try {
       // Timed Function
-      const result = await connection.query(sql);
-      const promises = result.toArray();
-      const rowData = await Promise.all(promises); // Wait for all promises to resolve
-      params.success({ rowData });
+      try {
+        // Try executing the query with the advanced filter
+        console.log("Trying query with advanced filter:", advancedSql);
+        const result = await connection.query(advancedSql);
+        const promises = result.toArray();
+        const rowData = await Promise.all(promises); // Wait for all promises to resolve
+        params.success({ rowData });
+        return result;
+      } catch (error) {
+        console.warn("Query with advanced filter failed:", error);
+        const result = await connection.query(sql);
+        const promises = result.toArray();
+        const rowData = await Promise.all(promises); // Wait for all promises to resolve
+        params.success({ rowData });
+      }
     } finally {
       await connection.close();
     }

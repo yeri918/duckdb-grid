@@ -22,6 +22,7 @@ import {
   ColumnDef,
   CountStatusBarComponentType,
   PrefetchedColumnValues,
+  Context,
 } from "./gridInterface";
 import handleKeyDown from "./gridShortcuts";
 import {
@@ -73,17 +74,6 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { ArrowRight, PartyMode } from "@mui/icons-material";
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
-}));
-
 function arePropsEqual(
   prevProps: StdAgGridProps,
   nextProps: StdAgGridProps,
@@ -98,6 +88,7 @@ function arePropsEqual(
 const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   const [gridApi, setGridApi] = useState<any>(null);
+  const context = useRef<Context | undefined>(null);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [openGroups, setOpenGroups] = useState<string[] | undefined>([]);
@@ -540,11 +531,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           {isExpanded && (
             <Box sx={{ mt: 2, width: "100%" }}>
               <Grid sx={{ xs: 12, width: "100%" }}>
-                <AdvancedFilterBar
-                  onFilterChange={function (filter: string): void {
-                    throw new Error("Function not implemented.");
-                  }}
-                />
+                <AdvancedFilterBar gridApi={gridApi} />
               </Grid>
             </Box>
           )}
@@ -599,6 +586,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           /*
               Place Holder
             */
+          context={context.current}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           autoGroupColumnDef={autoGroupColumnDef}

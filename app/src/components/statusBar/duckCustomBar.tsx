@@ -145,7 +145,6 @@ export const CustomFilterModelBar = (props: CustomStatusPanelProps) => {
   useEffect(() => {
     const fetchFilterModel = async () => {
       const filterModel = props.api.getFilterModel();
-      console.log("check hi", filterModel);
       if (filterModel === null || Object.keys(filterModel).length === 0) {
         setFilterArray([]);
       } else {

@@ -25,6 +25,7 @@ interface TabPanelProps {
   value: number;
   height: string | number;
   width: string | number;
+  style?: React.CSSProperties;
 }
 
 const darkTheme = createTheme({
@@ -274,10 +275,10 @@ function App() {
         key={index} // The id to be identified
         value={value} // The current tab selected
         index={index + 1} // The position of the tab in the array
-        height={"94%"}
+        height={"90%"}
         width={"95%"}
       >
-        {tab.content}
+        <div style={{ marginTop: -20, height: "100%" }}>{tab.content}</div>
       </CustomTabPanel>
     ));
   }
