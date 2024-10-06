@@ -25,6 +25,7 @@ interface TabPanelProps {
   value: number;
   height: string | number;
   width: string | number;
+  style?: React.CSSProperties;
 }
 
 const darkTheme = createTheme({
@@ -153,7 +154,7 @@ function App() {
           name: `${tableName}`,
           create: true,
         });
-        const results = await c.query(`DESCRIBE ${tableName}`);
+        await c.query(`DESCRIBE ${tableName}`);
         await c.close();
 
         // Create new tab with the new table
@@ -173,14 +174,16 @@ function App() {
       });
     } else if (file && file.name.endsWith(".xlsx")) {
       loadXLSXFile(file).then(async (data) => {
-        const table = tableFromArrays(data as Record<string, any[]>);
+        const table = tableFromArrays(
+          data as Record<string, (string | number)[]>,
+        );
 
         const c = await db.connect();
         await c.insertArrowTable(table, {
           name: `${tableName}`,
           create: true,
         });
-        const results = await c.query(`DESCRIBE ${tableName}`);
+        await c.query(`DESCRIBE ${tableName}`);
         await c.close();
 
         // Create new tab with the new table
@@ -207,7 +210,7 @@ function App() {
       setValue((prevValue) => (prevValue === 0 ? 0 : prevValue - 1));
     }
     const c = await db.connect();
-    const results = await c.query(`
+    await c.query(`
       DROP TABLE table${index + 1};
       `);
     await c.close();
@@ -272,10 +275,10 @@ function App() {
         key={index} // The id to be identified
         value={value} // The current tab selected
         index={index + 1} // The position of the tab in the array
-        height={"94%"}
+        height={"90%"}
         width={"95%"}
       >
-        {tab.content}
+        <div style={{ marginTop: -20, height: "100%" }}>{tab.content}</div>
       </CustomTabPanel>
     ));
   }

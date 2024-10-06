@@ -69,4 +69,8 @@ export interface FilterModel {
 export interface PrefetchedColumnValues {
   [key: string]: any;
 }
+
+export interface Context {
+  advancedFilter: string;
+}
 // endregion
