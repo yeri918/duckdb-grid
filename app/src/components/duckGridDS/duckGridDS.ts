@@ -15,6 +15,7 @@ const duckGridDataSource = (
   database: AsyncDuckDB,
   source: string,
   tableName: string,
+  setAdvancedFilterFlag: React.Dispatch<React.SetStateAction<boolean>>,
 ): IServerSideDatasource => {
   const getRows = async (params: IServerSideGetRowsParams) => {
     console.log("Requesting rows", params.request);
@@ -81,6 +82,7 @@ const duckGridDataSource = (
         const result = await connection.query(advancedSql);
         const promises = result.toArray();
         const rowData = await Promise.all(promises); // Wait for all promises to resolve
+        setAdvancedFilterFlag(true);
         params.success({ rowData });
         return result;
       } catch (error) {
@@ -88,6 +90,7 @@ const duckGridDataSource = (
         const result = await connection.query(sql);
         const promises = result.toArray();
         const rowData = await Promise.all(promises); // Wait for all promises to resolve
+        setAdvancedFilterFlag(false);
         params.success({ rowData });
       }
     } finally {

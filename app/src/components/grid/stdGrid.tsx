@@ -92,6 +92,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [openGroups, setOpenGroups] = useState<string[] | undefined>([]);
+  const [advancedFilterFlag, setAdvancedFilterFlag] = useState<boolean>(true); // false specifically means advanced filter has failed
 
   useEffect(() => {
     console.log("StdAgGrid: Mounted or Rerendered");
@@ -197,7 +198,12 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   // region: DataSource
   const source = `FROM ${props.tableName}
                   SELECT *`;
-  const datasource = duckGridDataSource(db!, source, props.tableName);
+  const datasource = duckGridDataSource(
+    db!,
+    source,
+    props.tableName,
+    setAdvancedFilterFlag,
+  );
   // endregion
 
   // region: Context Menu
@@ -315,7 +321,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
       if (params.rowNode) {
         return params.rowNode.id
-          ? (openGroups?.includes(params.rowNode.id) ?? false) // Only return true if not undefined and is in openGroups
+          ? openGroups?.includes(params.rowNode.id) ?? false // Only return true if not undefined and is in openGroups
           : false;
       } else {
         return false;
@@ -531,7 +537,11 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           {isExpanded && (
             <Box sx={{ mt: 2, width: "100%" }}>
               <Grid sx={{ xs: 12, width: "100%" }}>
-                <AdvancedFilterBar gridApi={gridApi} />
+                <AdvancedFilterBar
+                  gridApi={gridApi}
+                  darkMode={props.darkMode ?? false}
+                  success={advancedFilterFlag}
+                />
               </Grid>
             </Box>
           )}
@@ -568,8 +578,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
               ? "ag-theme-alpine-dark"
               : "ag-theme-alpine"
             : props.darkMode
-              ? "ag-theme-alpine-dark"
-              : "ag-theme-alpine"
+            ? "ag-theme-alpine-dark"
+            : "ag-theme-alpine"
         }
       >
         <AgGridReact
