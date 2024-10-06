@@ -12,8 +12,9 @@ const AdvancedFilterBar: React.FC<AdvancedFilterBarProps> = ({ gridApi }) => {
 
   const applyFilter = () => {
     gridApi.setGridOption("context", { advancedFilter: filter });
-    console.log("leudom filter applied: ", filter);
-    gridApi.onFilterChanged();
+    // gridApi.onFilterChanged();
+    gridApi.refreshServerSide();
+    gridApi.refreshCells();
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {

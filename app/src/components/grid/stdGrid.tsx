@@ -499,7 +499,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                   }}
                   sx={{ width: 100, fontSize: 12 }}
                 >
-                  LOAD
+                  Load
                 </Button>
               </Tooltip>
             </Grid>
