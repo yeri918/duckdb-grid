@@ -1,5 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import * as React from "react";
+
+import db from "./duckDB";
+
+import AnnouncementHeader from "./components/header/AnnouncementHeader";
+import StdAgGrid from "./components/grid/StdGrid";
+
 import {
   Tabs,
   Tab,
@@ -9,16 +15,17 @@ import {
   createTheme,
   Tooltip,
 } from "@mui/material";
-import "react-tabs/style/react-tabs.css";
-import "./App.css";
-import StdAgGrid from "./components/grid/StdGrid";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+
 import { initParquetTable } from "./lib/example/initTable";
 import { IoInvertMode } from "react-icons/io5";
-import db from "./duckDB";
 import { tableFromArrays } from "apache-arrow";
 import { convertDataTypes, loadCSVFile, loadXLSXFile } from "./lib/fileUtil";
+
+import "react-tabs/style/react-tabs.css";
+import "./App.css";
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -290,11 +297,36 @@ function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <div className="app-container">
+        <AnnouncementHeader
+          darkMode={darkMode}
+          message={
+            <>
+              👋 Welcome!! Drag any CSV or Excel file to the grid to start.
+              <br />
+              🔗 Grid is secure and run locally in your browser. More info in{" "}
+              <a
+                href="https://github.com/yeri918/duckdb-grid"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: darkMode ? "#90caf9" : "#1976d2" }}
+              >
+                GitHub Page
+              </a>
+              .
+            </>
+          }
+        />
         <div
           className="top-right"
-          style={{ position: "absolute", top: "10px", right: "10px" }}
+          style={{ textAlign: "right", margin: "10px 0px" }}
         >
-          <div style={{ fontSize: "25px", marginLeft: "30px", height: "40px" }}>
+          <div
+            style={{
+              fontSize: "25px",
+              height: "40px",
+              display: "inline-block",
+            }}
+          >
             <IoInvertMode onClick={toggleDarkMode} />
           </div>
         </div>

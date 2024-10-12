@@ -1,0 +1,23 @@
+.announcement-header {
+  width: 100%;
+  padding: 10px 20px;
+  text-align: center;
+  position: relative;
+  border-bottom: 1px solid;
+}
+
+.announcement-header.light {
+  background-color: #f84f1b;
+  color: #000;
+  border-color: #ddd;
+}
+
+.announcement-header.dark {
+  background-color: #1857a4;
+  color: #fff;
+  border-color: #444;
+}
+
+.close-button {
+  position: absolute;
+}
