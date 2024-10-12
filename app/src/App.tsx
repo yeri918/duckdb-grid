@@ -11,12 +11,12 @@ import {
 } from "@mui/material";
 import "react-tabs/style/react-tabs.css";
 import "./App.css";
-import StdAgGrid from "./components/grid/stdGrid";
+import StdAgGrid from "./components/grid/StdGrid";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import { InitParquetTable } from "./components/table/initTable";
+import { InitParquetTable } from "./lib/example/initTable";
 import { IoInvertMode } from "react-icons/io5";
-import db from "./components/table/duckDB";
+import db from "./duckDB";
 import { tableFromArrays } from "apache-arrow";
 import { convertDataTypes, loadCSVFile, loadXLSXFile } from "./lib/fileUtil";
 interface TabPanelProps {

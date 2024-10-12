@@ -7,7 +7,7 @@ import {
 } from "ag-grid-community";
 
 // table Folder
-import db from "../table/duckDB";
+import db from "../../../duckDB";
 
 export async function initStateTable() {
   const connection = await db.connect();

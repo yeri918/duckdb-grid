@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import db from "./duckDB";
-import { ColumnDataType } from "../grid/gridInterface";
+import db from "../../duckDB";
+import { ColumnDataType } from "../../components/grid/interface/GridInterface";
 
 /**
  * This function initializes the table.
@@ -77,12 +77,10 @@ export const InitParquetTable = (filename: string, tableName: string) => {
   }, []);
 
   if (loadingStatus === "failed") {
-    return (
-      <div>Loading exceeded {timeoutThreshold} seconds. Please refresh. </div>
-    );
+    return false;
   }
 
-  return null;
+  return true;
 };
 
 export const InitS3ParquetTable = () => {

@@ -2,10 +2,10 @@ import {
   ColumnDataType,
   ColumnDef,
   PrefetchedColumnValues,
-} from "./gridInterface";
+} from "../interface/GridInterface";
 import { Column, RowClassParams, SetFilter } from "ag-grid-enterprise";
-import "./style.css";
-import db from "../table/duckDB";
+import "../style.css";
+import db from "../../../duckDB";
 import {
   ColDef,
   StatusPanelDef,
