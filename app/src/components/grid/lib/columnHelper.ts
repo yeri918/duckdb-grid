@@ -4,7 +4,7 @@ import {
   PrefetchedColumnValues,
 } from "../interface/GridInterface";
 import { Column, RowClassParams, SetFilter } from "ag-grid-enterprise";
-import "../style.css";
+import "../StdGrid.css";
 import db from "../../../duckDB";
 import {
   ColDef,

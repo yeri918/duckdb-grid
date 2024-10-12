@@ -88,6 +88,7 @@ function App() {
   const [value, setValue] = React.useState(1); // Initial state of the tabs
   const [monoValue, setMonoValue] = React.useState(1);
   const [darkMode, setDarkMode] = useState<boolean>(true);
+  const [announcementVisible, setAnnouncementVisible] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   /* 
     README: Init Steps
@@ -101,6 +102,17 @@ function App() {
 
     setDarkMode(userPrefersDark);
   }, []);
+
+  useEffect(() => {
+    const rootElement = document.getElementById("root");
+    if (rootElement) {
+      if (announcementVisible) {
+        rootElement.classList.add("announcement-visible");
+      } else {
+        rootElement.classList.remove("announcement-visible");
+      }
+    }
+  }, [announcementVisible]);
 
   // Tabs init
   useEffect(() => {
@@ -294,16 +306,25 @@ function App() {
     setDarkMode(!darkMode);
   };
 
+  const handleAnnouncementClose = () => {
+    setAnnouncementVisible(false);
+  };
+
   return (
     <ThemeProvider theme={darkTheme}>
-      <div className="app-container">
+      <div
+        className={`app-container ${
+          announcementVisible ? "announcement-visible" : ""
+        }`}
+      >
         <AnnouncementHeader
           darkMode={darkMode}
           message={
             <>
-              👋 Welcome!! Drag any CSV or Excel file to the grid to start.
+              👋 Welcome!! Add any CSV or Excel file to start.
               <br />
-              🔗 Grid is secure and run locally in your browser. More info in{" "}
+              🔗 Grid is secure and run locally in your browser only. More info
+              in{" "}
               <a
                 href="https://github.com/yeri918/duckdb-grid"
                 target="_blank"
@@ -315,10 +336,14 @@ function App() {
               .
             </>
           }
+          onClose={handleAnnouncementClose}
         />
         <div
           className="top-right"
-          style={{ textAlign: "right", margin: "10px 0px" }}
+          style={{
+            textAlign: "right",
+            margin: "0px 10px -50px auto",
+          }}
         >
           <div
             style={{
@@ -338,7 +363,9 @@ function App() {
               borderColor: "divider",
               border: "1px solid gray",
               borderRadius: "10px",
-              padding: "10px",
+              // padding: "10px",
+              margin: "0px auto 40px auto",
+              width: "90%",
             }}
           >
             <Box

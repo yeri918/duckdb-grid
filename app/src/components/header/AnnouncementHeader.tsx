@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import "./style.css";
+import "./AnnouncementHeader.css";
 
 interface AnnouncementHeaderProps {
   message: React.ReactNode;
   darkMode: boolean;
+  onClose: () => void;
 }
 
 const AnnouncementHeader: React.FC<AnnouncementHeaderProps> = ({
   message,
   darkMode,
+  onClose,
 }) => {
   const [visible, setVisible] = useState(true);
 
@@ -22,7 +24,7 @@ const AnnouncementHeader: React.FC<AnnouncementHeaderProps> = ({
       sx={{
         width: "100%",
         backgroundColor: "#f5f5f5",
-        padding: "10px 20px",
+        padding: "10px -20px",
         borderBottom: "1px solid #ddd",
         textAlign: "center",
       }}
@@ -31,12 +33,15 @@ const AnnouncementHeader: React.FC<AnnouncementHeaderProps> = ({
         {message}
         <IconButton
           className="close-button"
-          onClick={() => setVisible(false)}
+          onClick={() => {
+            onClose();
+            setVisible(false);
+          }}
           sx={{
             position: "absolute",
-            right: "10px",
+            right: "50px",
             top: "50%",
-            transform: "translateY(-50%)",
+            transform: "translateY(-50%)", // Used to center the element.
           }}
         >
           <CloseIcon />

@@ -4,6 +4,10 @@
   height: 100vh;
 }
 
+#root.announcement-visible {
+  height: 120vh; /* Increase height when announcement is visible */
+}
+
 body.dark-mode {
   background-color: #333;
   color: white;
@@ -15,14 +19,18 @@ body {
 }
 
 .app-container {
-  position: "relative";
+  position: relative;
   margin: 0 auto;
   flex-direction: column;
   justify-content: center;
-  width: 90vw;
-  height: 90vh;
-  /* border: 3px solid green; */
+  width: 100vw;
+  height: 100vh;
 }
+
+.app-container.announcement-visible {
+  height: 110vh; /* Increase height when announcement is visible */
+}
+
 
 .grid-container {
   display: grid;

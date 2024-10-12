@@ -45,7 +45,7 @@ import initStateTable, {
 } from "./lib/gridStates";
 import AdvancedFilterBar from "./AdvancedFilterBar";
 import GridLoadingOverlay from "./LoadingOverlay";
-import "./style.css";
+import "./StdGrid.css";
 
 // duckGrid Folder
 import duckGridDataSource from "./datasource/duckGridDataSource";
