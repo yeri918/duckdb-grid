@@ -48,7 +48,7 @@ import GridLoadingOverlay from "./gridLoadingOverlay";
 import "./style.css";
 
 // duckGrid Folder
-import duckGridDataSource from "../duckGridDS/duckGridDS";
+import duckGridDataSource from "../data-source/duckGridDS";
 import CustomCountBar, {
   CustomFilterModelBar,
   CustomWaterMarkBar,
