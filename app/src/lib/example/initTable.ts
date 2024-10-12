@@ -12,7 +12,7 @@ import { ColumnDataType } from "../../components/grid/interface/GridInterface";
  *  - S3:Parquet
  *
  */
-export const InitUserTable = () => {
+export const initUserTable = () => {
   useEffect(() => {
     const initTable = async () => {
       const c = await db.connect();
@@ -34,7 +34,7 @@ export const InitUserTable = () => {
   return null;
 };
 
-export const InitParquetTable = (filename: string, tableName: string) => {
+export const initParquetTable = (filename: string, tableName: string) => {
   const [loadingStatus, setLoadingStatus] = useState("loading"); // 'loading', 'success', 'failed'
   const sleep = (ms: any) => new Promise((r) => setTimeout(r, ms)); // For testing only.
   const timeoutThreshold = 5; // In seconds
@@ -83,7 +83,7 @@ export const InitParquetTable = (filename: string, tableName: string) => {
   return true;
 };
 
-export const InitS3ParquetTable = () => {
+export const initS3ParquetTable = () => {
   useEffect(() => {
     const initTable = async () => {
       const c = await db.connect();
@@ -113,4 +113,4 @@ export const InitS3ParquetTable = () => {
   return null;
 };
 
-export default InitUserTable;
+export default initUserTable;

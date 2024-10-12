@@ -14,7 +14,7 @@ import "./App.css";
 import StdAgGrid from "./components/grid/StdGrid";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import { InitParquetTable } from "./lib/example/initTable";
+import { initParquetTable } from "./lib/example/initTable";
 import { IoInvertMode } from "react-icons/io5";
 import db from "./duckDB";
 import { tableFromArrays } from "apache-arrow";
@@ -85,7 +85,7 @@ function App() {
   /* 
     README: Init Steps
   */
-  InitParquetTable("./penguins.parquet", "penguins");
+  initParquetTable("./penguins.parquet", "penguins");
 
   useEffect(() => {
     const userPrefersDark =
