@@ -1,5 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import * as React from "react";
+
+import db from "./duckDB";
+
+import AnnouncementHeader from "./components/header/AnnouncementHeader";
+import StdAgGrid from "./components/grid/StdGrid";
+
 import {
   Tabs,
   Tab,
@@ -9,16 +15,17 @@ import {
   createTheme,
   Tooltip,
 } from "@mui/material";
-import "react-tabs/style/react-tabs.css";
-import "./App.css";
-import StdAgGrid from "./components/grid/stdGrid";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import { InitParquetTable } from "./components/table/initTable";
+
+import { initParquetTable } from "./lib/example/initTable";
 import { IoInvertMode } from "react-icons/io5";
-import db from "./components/table/duckDB";
 import { tableFromArrays } from "apache-arrow";
 import { convertDataTypes, loadCSVFile, loadXLSXFile } from "./lib/fileUtil";
+
+import "react-tabs/style/react-tabs.css";
+import "./App.css";
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -81,11 +88,12 @@ function App() {
   const [value, setValue] = React.useState(1); // Initial state of the tabs
   const [monoValue, setMonoValue] = React.useState(1);
   const [darkMode, setDarkMode] = useState<boolean>(true);
+  const [announcementVisible, setAnnouncementVisible] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   /* 
     README: Init Steps
   */
-  InitParquetTable("./penguins.parquet", "penguins");
+  initParquetTable("./penguins.parquet", "penguins");
 
   useEffect(() => {
     const userPrefersDark =
@@ -94,6 +102,17 @@ function App() {
 
     setDarkMode(userPrefersDark);
   }, []);
+
+  useEffect(() => {
+    const rootElement = document.getElementById("root");
+    if (rootElement) {
+      if (announcementVisible) {
+        rootElement.classList.add("announcement-visible");
+      } else {
+        rootElement.classList.remove("announcement-visible");
+      }
+    }
+  }, [announcementVisible]);
 
   // Tabs init
   useEffect(() => {
@@ -287,14 +306,52 @@ function App() {
     setDarkMode(!darkMode);
   };
 
+  const handleAnnouncementClose = () => {
+    setAnnouncementVisible(false);
+  };
+
   return (
     <ThemeProvider theme={darkTheme}>
-      <div className="app-container">
+      <div
+        className={`app-container ${
+          announcementVisible ? "announcement-visible" : ""
+        }`}
+      >
+        <AnnouncementHeader
+          darkMode={darkMode}
+          message={
+            <>
+              👋 Welcome!! Add any CSV or Excel file to start.
+              <br />
+              🔗 Grid is secure and run locally in your browser only. More info
+              in{" "}
+              <a
+                href="https://github.com/yeri918/duckdb-grid"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: darkMode ? "#90caf9" : "#1976d2" }}
+              >
+                GitHub Page
+              </a>
+              .
+            </>
+          }
+          onClose={handleAnnouncementClose}
+        />
         <div
           className="top-right"
-          style={{ position: "absolute", top: "10px", right: "10px" }}
+          style={{
+            textAlign: "right",
+            margin: "0px 10px -50px auto",
+          }}
         >
-          <div style={{ fontSize: "25px", marginLeft: "30px", height: "40px" }}>
+          <div
+            style={{
+              fontSize: "25px",
+              height: "40px",
+              display: "inline-block",
+            }}
+          >
             <IoInvertMode onClick={toggleDarkMode} />
           </div>
         </div>
@@ -306,7 +363,9 @@ function App() {
               borderColor: "divider",
               border: "1px solid gray",
               borderRadius: "10px",
-              padding: "10px",
+              // padding: "10px",
+              margin: "0px auto 40px auto",
+              width: "90%",
             }}
           >
             <Box

@@ -23,39 +23,39 @@ import {
   CountStatusBarComponentType,
   PrefetchedColumnValues,
   Context,
-} from "./gridInterface";
-import handleKeyDown from "./gridShortcuts";
+} from "./interface/GridInterface";
+import handleKeyDown from "./lib/keyShortcuts";
 import {
   onFilterEqual,
   onFilterReset,
   onRowGroupCollapseAll,
   onRowGroupExpandOneLevel,
   onChartSelectedCells,
-} from "./gridContextMenu";
+} from "./lib/contextMenu";
 import {
   getColumnSetValues,
   getColumnDefs,
   getLayeredColumnDefs,
   getGroupedColumnDefs,
-} from "./gridHelper";
+} from "./lib/columnHelper";
 import initStateTable, {
   fetchPreviousState,
   saveState,
   applySavedState,
-} from "./gridStates";
-import AdvancedFilterBar from "./gridAdvancedFilterBar";
-import GridLoadingOverlay from "./gridLoadingOverlay";
-import "./style.css";
+} from "./lib/gridStates";
+import AdvancedFilterBar from "./AdvancedFilterBar";
+import GridLoadingOverlay from "./LoadingOverlay";
+import "./StdGrid.css";
 
 // duckGrid Folder
-import duckGridDataSource from "../duckGridDS/duckGridDS";
+import duckGridDataSource from "./datasource/duckGridDataSource";
 import CustomCountBar, {
   CustomFilterModelBar,
   CustomWaterMarkBar,
-} from "../statusBar/duckCustomBar";
+} from "./CustomStatusBar";
 
 // table Folder
-import db from "../table/duckDB";
+import db from "../../duckDB";
 
 // AgGrid imports
 import {

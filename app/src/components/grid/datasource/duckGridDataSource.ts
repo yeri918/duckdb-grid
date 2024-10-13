@@ -5,11 +5,11 @@ import {
 } from "ag-grid-community";
 
 import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
-import buildSelect from "./sql_builder/select";
-import buildGroupBy from "./sql_builder/groupby";
-import buildWhere from "./sql_builder/where";
-import buildOrderBy from "./sql_builder/orderby";
-import buildLimit from "./sql_builder/limit";
+import buildSelect from "./sql-builder/select";
+import buildGroupBy from "./sql-builder/groupby";
+import buildWhere from "./sql-builder/where";
+import buildOrderBy from "./sql-builder/orderby";
+import buildLimit from "./sql-builder/limit";
 
 const duckGridDataSource = (
   database: AsyncDuckDB,

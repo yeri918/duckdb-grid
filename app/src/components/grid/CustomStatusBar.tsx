@@ -1,11 +1,11 @@
 import { CustomStatusPanelProps } from "@ag-grid-community/react";
-import db from "../table/duckDB";
+import db from "../../duckDB";
 import React, { useEffect, useState } from "react";
 import {
   FilterModel,
   SingleFilterModel,
   MultiFilterModel,
-} from "../grid/gridInterface";
+} from "./interface/GridInterface";
 // import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
 interface CountBarProps extends CustomStatusPanelProps {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import db from "./duckDB";
-import { ColumnDataType } from "../grid/gridInterface";
+import db from "../../duckDB";
+import { ColumnDataType } from "../../components/grid/interface/GridInterface";
 
 /**
  * This function initializes the table.
@@ -12,7 +12,7 @@ import { ColumnDataType } from "../grid/gridInterface";
  *  - S3:Parquet
  *
  */
-export const InitUserTable = () => {
+export const initUserTable = () => {
   useEffect(() => {
     const initTable = async () => {
       const c = await db.connect();
@@ -34,7 +34,7 @@ export const InitUserTable = () => {
   return null;
 };
 
-export const InitParquetTable = (filename: string, tableName: string) => {
+export const initParquetTable = (filename: string, tableName: string) => {
   const [loadingStatus, setLoadingStatus] = useState("loading"); // 'loading', 'success', 'failed'
   const sleep = (ms: any) => new Promise((r) => setTimeout(r, ms)); // For testing only.
   const timeoutThreshold = 5; // In seconds
@@ -77,15 +77,13 @@ export const InitParquetTable = (filename: string, tableName: string) => {
   }, []);
 
   if (loadingStatus === "failed") {
-    return (
-      <div>Loading exceeded {timeoutThreshold} seconds. Please refresh. </div>
-    );
+    return false;
   }
 
-  return null;
+  return true;
 };
 
-export const InitS3ParquetTable = () => {
+export const initS3ParquetTable = () => {
   useEffect(() => {
     const initTable = async () => {
       const c = await db.connect();
@@ -115,4 +113,4 @@ export const InitS3ParquetTable = () => {
   return null;
 };
 
-export default InitUserTable;
+export default initUserTable;
