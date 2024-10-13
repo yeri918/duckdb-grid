@@ -321,10 +321,10 @@ function App() {
           darkMode={darkMode}
           message={
             <>
-              👋 Welcome!! Add any CSV or Excel file to start.
+              👋 Welcome! Click the + button to import any CSV or Excel files to
+              get started.
               <br />
-              🔗 Grid is secure and run locally in your browser only. More info
-              in{" "}
+              🔗 The grid is secure, running only in your browser. More info in{" "}
               <a
                 href="https://github.com/yeri918/duckdb-grid"
                 target="_blank"
