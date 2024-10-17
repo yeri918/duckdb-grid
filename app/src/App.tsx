@@ -21,7 +21,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import { initParquetTable } from "./lib/example/initTable";
 import { IoInvertMode } from "react-icons/io5";
 import { tableFromArrays } from "apache-arrow";
-import { convertDataTypes, loadCSVFile, loadXLSXFile } from "./lib/fileUtil";
+import {
+  convertDataTypes,
+  loadCSVFile,
+  loadParquet,
+  loadXLSXFile,
+} from "./lib/fileUtil";
 
 import "react-tabs/style/react-tabs.css";
 import "./App.css";
@@ -156,6 +161,7 @@ function App() {
     const file = event?.target.files?.[0];
     const newIndex = tabData.length;
     const tableName = `table${newIndex + 1}`;
+    console.log("leudom", file);
 
     // Reset the input value to allow getting the same file
     event.target.value = "";
@@ -220,6 +226,29 @@ function App() {
         setValue(newIndex + 1);
         setMonoValue((prev) => prev + 1);
       });
+    } else if (file && file.name.endsWith(".parquet")) {
+      await loadParquet(file, tableName);
+
+      const c = await db.connect();
+      await c.query(`
+          CREATE OR REPLACE TABLE ${tableName} AS
+          SELECT * FROM 'local.parquet'
+          `);
+      await c.close();
+
+      const newTab = {
+        label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
+        content: (
+          <StdAgGrid
+            tabName={`Tab${newIndex + 1}`}
+            darkMode={darkMode}
+            tableName={tableName}
+          />
+        ),
+      };
+      setTabData([...tabData, newTab]);
+      setValue(newIndex + 1);
+      setMonoValue((prev) => prev + 1);
     }
   };
 
@@ -381,7 +410,7 @@ function App() {
               type="file"
               ref={fileInputRef}
               style={{ display: "none" }}
-              accept=".csv,.xlsx"
+              accept=".csv,.xlsx,.parquet"
               onChange={handleAddTab}
             />
           </Box>
