@@ -4,7 +4,7 @@ import * as React from "react";
 import db from "./duckDB";
 
 import AnnouncementHeader from "./components/header/AnnouncementHeader";
-import StdAgGrid from "./components/grid/stdGrid";
+import StdAgGrid from "./components/grid/StdGrid";
 
 import {
   Tabs,
