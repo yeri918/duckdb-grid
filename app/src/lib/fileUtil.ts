@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import db from "../duckDB";
 
 /**
  * Removes all characters from a string except for underscores, alphabets, and numbers.
@@ -8,6 +9,10 @@ import * as XLSX from "xlsx";
  */
 export function cleanString(input: string): string {
   return input.replace(/[^a-zA-Z0-9_]/g, "");
+}
+
+export async function createTable(registeredName: string, file: File) {
+  await db.registerFileHandle(registeredName, file, 2, true);
 }
 
 /**
@@ -117,4 +122,8 @@ export function loadXLSXFile(file: File): Promise<Record<string, any[]>> {
     reader.onerror = reject;
     reader.readAsArrayBuffer(file);
   });
+}
+
+export function loadParquet(file: File, tableName: string) {
+  createTable("local.parquet", file);
 }
