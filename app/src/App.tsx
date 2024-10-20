@@ -21,12 +21,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { initParquetTable } from "./lib/example/initTable";
 import { IoInvertMode } from "react-icons/io5";
 import { tableFromArrays } from "apache-arrow";
-import {
-  convertDataTypes,
-  loadCSVFile,
-  loadParquet,
-  loadXLSXFile,
-} from "./lib/fileUtil";
+import { convertDataTypes, loadCSVFile, loadXLSXFile } from "./lib/fileUtil";
+import loadParquet from "./lib/load/parquet";
 
 import "react-tabs/style/react-tabs.css";
 import "./App.css";
@@ -181,21 +177,6 @@ function App() {
         });
         await c.query(`DESCRIBE ${tableName}`);
         await c.close();
-
-        // Create new tab with the new table
-        const newTab = {
-          label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
-          content: (
-            <StdAgGrid
-              tabName={`Tab${newIndex + 1}`}
-              darkMode={darkMode}
-              tableName={tableName}
-            />
-          ),
-        };
-        setTabData([...tabData, newTab]);
-        setValue(newIndex + 1);
-        setMonoValue((prev) => prev + 1);
       });
     } else if (file && file.name.endsWith(".xlsx")) {
       loadXLSXFile(file).then(async (data) => {
@@ -210,32 +191,11 @@ function App() {
         });
         await c.query(`DESCRIBE ${tableName}`);
         await c.close();
-
-        // Create new tab with the new table
-        const newTab = {
-          label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
-          content: (
-            <StdAgGrid
-              tabName={`Tab${newIndex + 1}`}
-              darkMode={darkMode}
-              tableName={tableName}
-            />
-          ),
-        };
-        setTabData([...tabData, newTab]);
-        setValue(newIndex + 1);
-        setMonoValue((prev) => prev + 1);
       });
     } else if (file && file.name.endsWith(".parquet")) {
       await loadParquet(file, tableName);
-
-      const c = await db.connect();
-      await c.query(`
-          CREATE OR REPLACE TABLE ${tableName} AS
-          SELECT * FROM 'local.parquet'
-          `);
-      await c.close();
-
+    }
+    if (file) {
       const newTab = {
         label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
         content: (
