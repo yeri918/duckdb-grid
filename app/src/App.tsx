@@ -20,9 +20,9 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { initParquetTable } from "./lib/example/initTable";
 import { IoInvertMode } from "react-icons/io5";
-import { tableFromArrays } from "apache-arrow";
-import { convertDataTypes, loadCSVFile, loadXLSXFile } from "./lib/fileUtil";
-import loadParquet from "./lib/load/parquet";
+
+// Reference: https://stackoverflow.com/questions/40702842/how-to-import-all-modules-from-a-directory-in-typescript
+import * as load from "./lib/load";
 
 import "react-tabs/style/react-tabs.css";
 import "./App.css";
@@ -163,39 +163,14 @@ function App() {
     event.target.value = "";
 
     // Only action if file exists
-    if (file && file.name.endsWith(".csv")) {
-      loadCSVFile(file).then(async (data) => {
-        // Convert data to Arrow Table
-        // eslint-disable-next-line
-        const convertedData = convertDataTypes(data as Record<string, any[]>);
-        const table = tableFromArrays(convertedData);
-
-        const c = await db.connect();
-        await c.insertArrowTable(table, {
-          name: `${tableName}`,
-          create: true,
-        });
-        await c.query(`DESCRIBE ${tableName}`);
-        await c.close();
-      });
-    } else if (file && file.name.endsWith(".xlsx")) {
-      loadXLSXFile(file).then(async (data) => {
-        const table = tableFromArrays(
-          data as Record<string, (string | number)[]>,
-        );
-
-        const c = await db.connect();
-        await c.insertArrowTable(table, {
-          name: `${tableName}`,
-          create: true,
-        });
-        await c.query(`DESCRIBE ${tableName}`);
-        await c.close();
-      });
-    } else if (file && file.name.endsWith(".parquet")) {
-      await loadParquet(file, tableName);
-    }
     if (file) {
+      if (file.name.endsWith(".csv")) {
+        await load.CSV(file, tableName);
+      } else if (file.name.endsWith(".xlsx")) {
+        await load.Excel(file, tableName);
+      } else if (file.name.endsWith(".parquet")) {
+        await load.Parquet(file, tableName);
+      }
       const newTab = {
         label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
         content: (

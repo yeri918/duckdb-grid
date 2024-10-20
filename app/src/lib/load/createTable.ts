@@ -9,8 +9,8 @@ export default async function registerFile(file: File, registeredName: string) {
 export async function createTable(registeredName: string, tableName: string) {
   const c = await db.connect();
   await c.query(`
-          CREATE OR REPLACE TABLE ${tableName} AS
-          SELECT * FROM '${registeredName}'
-          `);
+        CREATE OR REPLACE TABLE ${tableName} AS
+        SELECT * FROM '${registeredName}'
+        `);
   await c.close();
 }
