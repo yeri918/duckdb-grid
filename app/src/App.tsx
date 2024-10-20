@@ -19,7 +19,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 
 import { initParquetTable } from "./lib/example/initTable";
-import { IoInvertMode } from "react-icons/io5";
+import { IoInvertMode, IoLogoGithub } from "react-icons/io5";
 
 // Reference: https://stackoverflow.com/questions/40702842/how-to-import-all-modules-from-a-directory-in-typescript
 import * as load from "./lib/load";
@@ -84,7 +84,7 @@ interface gridTab {
   content: JSX.Element;
 }
 
-function App() {
+const App: React.FC = () => {
   const [tabData, setTabData] = useState<gridTab[]>([]);
   const [value, setValue] = React.useState(1); // Initial state of the tabs
   const [monoValue, setMonoValue] = React.useState(1);
@@ -306,7 +306,8 @@ function App() {
           className="top-right"
           style={{
             textAlign: "right",
-            margin: "0px 10px -50px auto",
+            margin: "0px 20px -50px auto",
+            border: "2px solid green",
           }}
         >
           <div
@@ -314,12 +315,41 @@ function App() {
               fontSize: "25px",
               height: "40px",
               display: "inline-block",
+              cursor: "pointer",
+            }}
+          >
+            <IoLogoGithub
+              onClick={() =>
+                window.open("https://github.com/yeri918/duckdb-grid", "_blank")
+              }
+            />
+          </div>
+          <div
+            style={{
+              fontSize: "25px",
+              height: "40px",
+              display: "inline-block",
+              cursor: "pointer",
+              marginLeft: "10px",
             }}
           >
             <IoInvertMode onClick={toggleDarkMode} />
           </div>
         </div>
-        <h1 className="app-title">Standard Grid</h1>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "10px 20px",
+            backgroundColor: darkMode ? "#1d1d1d" : "#f5f5f5",
+            color: darkMode ? "#ffffff" : "#000000",
+            borderBottom: darkMode ? "1px solid #333" : "1px solid #ccc",
+          }}
+        >
+          <h1 className="app-title" style={{ margin: 0 }}>
+            Grid
+          </h1>
+        </Box>
         <div>
           <Box
             sx={{
@@ -328,7 +358,7 @@ function App() {
               border: "1px solid gray",
               borderRadius: "10px",
               // padding: "10px",
-              margin: "0px auto 40px auto",
+              margin: "40px auto 40px ",
               width: "90%",
             }}
           >
@@ -353,6 +383,6 @@ function App() {
       </div>
     </ThemeProvider>
   );
-}
+};
 
 export default App;
