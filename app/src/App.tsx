@@ -19,14 +19,10 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 
 import { initParquetTable } from "./lib/example/initTable";
-import { IoInvertMode } from "react-icons/io5";
-import { tableFromArrays } from "apache-arrow";
-import {
-  convertDataTypes,
-  loadCSVFile,
-  loadParquet,
-  loadXLSXFile,
-} from "./lib/fileUtil";
+import { IoInvertMode, IoLogoGithub } from "react-icons/io5";
+
+// Reference: https://stackoverflow.com/questions/40702842/how-to-import-all-modules-from-a-directory-in-typescript
+import * as load from "./lib/load";
 
 import "react-tabs/style/react-tabs.css";
 import "./App.css";
@@ -88,7 +84,7 @@ interface gridTab {
   content: JSX.Element;
 }
 
-function App() {
+const App: React.FC = () => {
   const [tabData, setTabData] = useState<gridTab[]>([]);
   const [value, setValue] = React.useState(1); // Initial state of the tabs
   const [monoValue, setMonoValue] = React.useState(1);
@@ -167,75 +163,14 @@ function App() {
     event.target.value = "";
 
     // Only action if file exists
-    if (file && file.name.endsWith(".csv")) {
-      loadCSVFile(file).then(async (data) => {
-        // Convert data to Arrow Table
-        // eslint-disable-next-line
-        const convertedData = convertDataTypes(data as Record<string, any[]>);
-        const table = tableFromArrays(convertedData);
-
-        const c = await db.connect();
-        await c.insertArrowTable(table, {
-          name: `${tableName}`,
-          create: true,
-        });
-        await c.query(`DESCRIBE ${tableName}`);
-        await c.close();
-
-        // Create new tab with the new table
-        const newTab = {
-          label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
-          content: (
-            <StdAgGrid
-              tabName={`Tab${newIndex + 1}`}
-              darkMode={darkMode}
-              tableName={tableName}
-            />
-          ),
-        };
-        setTabData([...tabData, newTab]);
-        setValue(newIndex + 1);
-        setMonoValue((prev) => prev + 1);
-      });
-    } else if (file && file.name.endsWith(".xlsx")) {
-      loadXLSXFile(file).then(async (data) => {
-        const table = tableFromArrays(
-          data as Record<string, (string | number)[]>,
-        );
-
-        const c = await db.connect();
-        await c.insertArrowTable(table, {
-          name: `${tableName}`,
-          create: true,
-        });
-        await c.query(`DESCRIBE ${tableName}`);
-        await c.close();
-
-        // Create new tab with the new table
-        const newTab = {
-          label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
-          content: (
-            <StdAgGrid
-              tabName={`Tab${newIndex + 1}`}
-              darkMode={darkMode}
-              tableName={tableName}
-            />
-          ),
-        };
-        setTabData([...tabData, newTab]);
-        setValue(newIndex + 1);
-        setMonoValue((prev) => prev + 1);
-      });
-    } else if (file && file.name.endsWith(".parquet")) {
-      await loadParquet(file, tableName);
-
-      const c = await db.connect();
-      await c.query(`
-          CREATE OR REPLACE TABLE ${tableName} AS
-          SELECT * FROM 'local.parquet'
-          `);
-      await c.close();
-
+    if (file) {
+      if (file.name.endsWith(".csv")) {
+        await load.CSV(file, tableName);
+      } else if (file.name.endsWith(".xlsx")) {
+        await load.Excel(file, tableName);
+      } else if (file.name.endsWith(".parquet")) {
+        await load.Parquet(file, tableName);
+      }
       const newTab = {
         label: `${monoValue} - ${file.name}`, // Tab starts at 1, 0 is the plus button
         content: (
@@ -371,7 +306,8 @@ function App() {
           className="top-right"
           style={{
             textAlign: "right",
-            margin: "0px 10px -50px auto",
+            margin: "0px 20px -50px auto",
+            border: "2px solid green",
           }}
         >
           <div
@@ -379,12 +315,41 @@ function App() {
               fontSize: "25px",
               height: "40px",
               display: "inline-block",
+              cursor: "pointer",
+            }}
+          >
+            <IoLogoGithub
+              onClick={() =>
+                window.open("https://github.com/yeri918/duckdb-grid", "_blank")
+              }
+            />
+          </div>
+          <div
+            style={{
+              fontSize: "25px",
+              height: "40px",
+              display: "inline-block",
+              cursor: "pointer",
+              marginLeft: "10px",
             }}
           >
             <IoInvertMode onClick={toggleDarkMode} />
           </div>
         </div>
-        <h1 className="app-title">Standard Grid</h1>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "10px 20px",
+            backgroundColor: darkMode ? "#1d1d1d" : "#f5f5f5",
+            color: darkMode ? "#ffffff" : "#000000",
+            borderBottom: darkMode ? "1px solid #333" : "1px solid #ccc",
+          }}
+        >
+          <h1 className="app-title" style={{ margin: 0 }}>
+            Grid
+          </h1>
+        </Box>
         <div>
           <Box
             sx={{
@@ -393,7 +358,7 @@ function App() {
               border: "1px solid gray",
               borderRadius: "10px",
               // padding: "10px",
-              margin: "0px auto 40px auto",
+              margin: "40px auto 40px ",
               width: "90%",
             }}
           >
@@ -418,6 +383,6 @@ function App() {
       </div>
     </ThemeProvider>
   );
-}
+};
 
 export default App;
