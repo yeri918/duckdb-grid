@@ -8,8 +8,8 @@ Please check out https://yeri918.github.io/duckdb-grid/ or https://dinogrid-alph
 
 ## Contributors
 
-- @dominic-lcw
-- @yeri918
+- [@dominic-lcw](https://www.github.com/dominic-lcw)
+- [@yeri918](https://www.github.com/yeri918)
 
 ## Description
 
