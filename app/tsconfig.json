@@ -21,9 +21,10 @@
     "jsx": "react-jsx",
     "types": [
       "vite/client"
-    ]
+    ],
+    // "noImplicitAny": true, // Compiler will complain when typed Any.
   },
-  "include": [
+  "include": [  // which files to compile
     "src",
     "vite-env.d.ts"
   ]
