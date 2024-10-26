@@ -3,6 +3,8 @@ import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 
+// eslint.config.mjs
+const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended');
 
 export default [
   {files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"]},        // rules applies to all matching files.
@@ -11,6 +13,7 @@ export default [
   pluginJs.configs.recommended,                     // default js rules
   ...tseslint.configs.recommended,                  // default ts rules
   pluginReact.configs.flat.recommended,
+  eslintPluginPrettierRecommended,
 
   {
     rules: {
