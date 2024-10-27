@@ -15,16 +15,23 @@ export async function createTable(registeredName: string, tableName: string) {
 
   const loadedColumns = await c.query(`Describe ${tableName}`);
   const result = loadedColumns.toArray().map((row) => row.toJSON());
-  console.log("leudom describe", result);
 
   await result.forEach((column) => {
+    // https://duckdb.org/docs/sql/statements/alter_table.html#examples
     if (column.column_type === "DATE") {
       c.query(`
           -- https://duckdb.org/docs/sql/statements/alter_table.html#examples
           ALTER TABLE ${tableName} ALTER ${column.column_name} 
           SET DATA TYPE VARCHAR USING strftime(${column.column_name}, '%Y-%m-%d');
         `);
-      console.log("leudom describe alter", column);
+    } else if (
+      column.column_type === "DATETIME" ||
+      column.column_type === "TIMESTAMP"
+    ) {
+      c.query(`
+        ALTER TABLE ${tableName} ALTER ${column.column_name} 
+        SET DATA TYPE VARCHAR USING strftime(${column.column_name}, '%Y-%m-%d %H:%M:%S');
+      `);
     }
   });
 
