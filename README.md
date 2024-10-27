@@ -1,7 +1,8 @@
 # DuckDB-Grid
 
 [![Main](https://github.com/yeri918/duckdb-grid/actions/workflows/deployment.yaml/badge.svg)](https://github.com/yeri918/duckdb-grid/actions/workflows/deployment.yaml)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/y/yeri918/duckdb-grid)
+
+<!-- ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/yeri918/duckdb-grid) -->
 
 Started off for fun, and here we are!
 Please check out https://yeri918.github.io/duckdb-grid/ or https://dinogrid-alpha.netlify.app/.

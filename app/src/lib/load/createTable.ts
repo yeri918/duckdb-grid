@@ -12,5 +12,28 @@ export async function createTable(registeredName: string, tableName: string) {
         CREATE OR REPLACE TABLE ${tableName} AS
         SELECT * FROM '${registeredName}'
         `);
+
+  const loadedColumns = await c.query(`Describe ${tableName}`);
+  const result = loadedColumns.toArray().map((row) => row.toJSON());
+
+  await result.forEach((column) => {
+    // https://duckdb.org/docs/sql/statements/alter_table.html#examples
+    if (column.column_type === "DATE") {
+      c.query(`
+          -- https://duckdb.org/docs/sql/statements/alter_table.html#examples
+          ALTER TABLE ${tableName} ALTER ${column.column_name} 
+          SET DATA TYPE VARCHAR USING strftime(${column.column_name}, '%Y-%m-%d');
+        `);
+    } else if (
+      column.column_type === "DATETIME" ||
+      column.column_type === "TIMESTAMP"
+    ) {
+      c.query(`
+        ALTER TABLE ${tableName} ALTER ${column.column_name} 
+        SET DATA TYPE VARCHAR USING strftime(${column.column_name}, '%Y-%m-%d %H:%M:%S');
+      `);
+    }
+  });
+
   await c.close();
 }
