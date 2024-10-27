@@ -1,7 +1,7 @@
 // src/App.tsx
 import React, { useEffect, useRef } from "react";
 import "xterm/css/xterm.css";
-import "./shell.css";
+import "./Shell.css";
 
 import * as shell from "@duckdb/duckdb-wasm-shell";
 import shell_wasm from "@duckdb/duckdb-wasm-shell/dist/shell_bg.wasm?url";
