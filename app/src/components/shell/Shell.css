@@ -1,0 +1,16 @@
+.container {
+  position: fixed; /* Position the container at the top right */
+  top: 200px;
+  right: 50px;
+  width: 600px; /* Define the width of the pop-up */
+  height: 600px; /* Define the height of the pop-up */
+  overflow: hidden; /* Hide any overflowing content */
+  z-index: 9999; /* Ensure the container is above all other elements */
+  background-color: #333; /* Background color */
+  border: 1px solid #ccc; /* Optional border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow */
+  padding: 16px; /* Optional padding */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}

@@ -17,7 +17,8 @@
   "dependencies": {
     "@ag-grid-community/core": "^32.1.0",
     "@ag-grid-community/react": "^32.1.0",
-    "@duckdb/duckdb-wasm": "^1.28.1-dev106.0",
+    "@duckdb/duckdb-wasm": "^1.29.0",
+    "@duckdb/duckdb-wasm-shell": "^1.28.1-dev106.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.0",
@@ -51,6 +52,7 @@
     "globals": "^15.11.0",
     "prettier": "^3.3.3",
     "typescript-eslint": "^8.11.0",
-    "vite": "^5.3.4"
+    "vite": "^5.3.4",
+    "vite-plugin-wasm": "^3.3.0"
   }
 }
