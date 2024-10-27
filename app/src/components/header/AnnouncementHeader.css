@@ -7,13 +7,13 @@
 }
 
 .announcement-header.light {
-  background-color: #56bfe0;
+  background-color: #aebcdb;
   color: #000;
   border-color: #ddd;
 }
 
 .announcement-header.dark {
-  background-color: #1857a4;
+  background-color: #6c7da1;
   color: #fff;
   border-color: #444;
 }

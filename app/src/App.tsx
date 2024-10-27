@@ -208,7 +208,7 @@ const App: React.FC = () => {
         onChange={handleChange}
         aria-label="basic tabs example"
       >
-        <Tooltip title="Import an Excel or CSV file" arrow>
+        <Tooltip title="Import an Excel, CSV, or Parquet file" arrow>
           <IconButton
             onClick={onClickAddTab}
             aria-label="add tab"
@@ -263,7 +263,7 @@ const App: React.FC = () => {
         height={"90%"}
         width={"95%"}
       >
-        <div style={{ marginTop: -20, height: "100%" }}>{tab.content}</div>
+        <div style={{ marginTop: -20, height: "95%" }}>{tab.content}</div>
       </CustomTabPanel>
     ));
   }
@@ -291,7 +291,7 @@ const App: React.FC = () => {
           darkMode={darkMode}
           message={
             <>
-              👋 Welcome! Click the + button to import any CSV or Excel files to
+              👋 Welcome! Click the + button to import any CSV, Excel, or Parquet files to
               get started.
               <br />
               🔗 The grid is secure, running only in your browser. More info in{" "}
@@ -299,7 +299,7 @@ const App: React.FC = () => {
                 href="https://github.com/yeri918/duckdb-grid"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: darkMode ? "#90caf9" : "#1976d2" }}
+                style={{ color: darkMode ? "#90caf9" : "#1976d2" }}                
               >
                 GitHub Page
               </a>
@@ -325,12 +325,14 @@ const App: React.FC = () => {
               height: "40px",
               display: "inline-block",
               cursor: "pointer",
+              marginTop: '5px'
             }}
           >
             <IoLogoGithub
               onClick={() =>
                 window.open("https://github.com/yeri918/duckdb-grid", "_blank")
               }
+              color="white"
             />
           </div>
           <div
@@ -340,6 +342,7 @@ const App: React.FC = () => {
               display: "inline-block",
               cursor: "pointer",
               marginLeft: "10px",
+              marginTop: '5px'
             }}
           >
             <IoTerminalOutline onClick={toggleShellVisibility} />
@@ -360,15 +363,14 @@ const App: React.FC = () => {
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            margin: "12px auto",
-            padding: "10px 30px",
-            backgroundColor: darkMode ? "#1d1d1d" : "#f5f5f5",
-            color: darkMode ? "#ffffff" : "#000000",
-            borderBottom: darkMode ? "1px solid #333" : "1px solid #ccc",
+            padding: "10px 20px",
+            backgroundColor: "#1d1d1d",
+            color: '#ffffff',
+            borderBottom: "1px solid #fff",            
           }}
         >
-          <h1 className="app-title" style={{ margin: 0 }}>
-            Grid
+          <h1 className="app-title" style={{ margin: 0, fontSize: '38px', padding: '5px' }}>
+            DuckGrid
           </h1>
           <div
             style={{
@@ -393,8 +395,7 @@ const App: React.FC = () => {
               borderColor: "divider",
               border: "1px solid gray",
               borderRadius: "10px",
-              // padding: "10px",
-              margin: "40px auto 40px ",
+              margin: "30px auto",
               width: "90%",
             }}
           >
