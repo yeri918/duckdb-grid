@@ -7,11 +7,6 @@ import pluginReact from "eslint-plugin-react";
 export default [
   {files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"]},
   {languageOptions: { globals: globals.browser }},
-  {plugins: {
-    js: pluginJs,
-    ts: tseslint,
-    react: pluginReact,
-  }},
   {settings: {
     react: {
       version: "detect", // Automatically detect the React version
