@@ -5,6 +5,7 @@ import db from "./duckDB";
 
 import AnnouncementHeader from "./components/header/AnnouncementHeader";
 import StdAgGrid from "./components/grid/StdGrid";
+import Shell from "./components/shell/Shell";
 
 import {
   Tabs,
@@ -19,7 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 
 import { initParquetTable } from "./lib/example/initTable";
-import { IoInvertMode, IoLogoGithub } from "react-icons/io5";
+import { IoInvertMode, IoLogoGithub, IoTerminalOutline } from "react-icons/io5";
 
 // Reference: https://stackoverflow.com/questions/40702842/how-to-import-all-modules-from-a-directory-in-typescript
 import * as load from "./lib/load";
@@ -90,6 +91,7 @@ const App: React.FC = () => {
   const [monoValue, setMonoValue] = React.useState(1);
   const [darkMode, setDarkMode] = useState<boolean>(true);
   const [announcementVisible, setAnnouncementVisible] = useState(true);
+  const [isShellVisible, setIsShellVisible] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   /* 
     README: Init Steps
@@ -274,6 +276,10 @@ const App: React.FC = () => {
     setAnnouncementVisible(false);
   };
 
+  const toggleShellVisibility = () => {
+    setIsShellVisible(!isShellVisible);
+  };
+
   return (
     <ThemeProvider theme={darkTheme}>
       <div
@@ -306,8 +312,11 @@ const App: React.FC = () => {
           className="top-right"
           style={{
             textAlign: "right",
-            margin: "0px 20px -50px auto",
-            border: "2px solid green",
+            margin: "0px 20px -20px 100px",
+            position: "sticky",
+            top: 0,
+            backgroundColor: "transparent",
+            zIndex: 1000,
           }}
         >
           <div
@@ -333,6 +342,17 @@ const App: React.FC = () => {
               marginLeft: "10px",
             }}
           >
+            <IoTerminalOutline onClick={toggleShellVisibility} />
+          </div>
+          <div
+            style={{
+              fontSize: "25px",
+              height: "40px",
+              display: "inline-block",
+              cursor: "pointer",
+              marginLeft: "10px",
+            }}
+          >
             <IoInvertMode onClick={toggleDarkMode} />
           </div>
         </div>
@@ -340,7 +360,8 @@ const App: React.FC = () => {
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            padding: "10px 20px",
+            margin: "12px auto",
+            padding: "10px 30px",
             backgroundColor: darkMode ? "#1d1d1d" : "#f5f5f5",
             color: darkMode ? "#ffffff" : "#000000",
             borderBottom: darkMode ? "1px solid #333" : "1px solid #ccc",
@@ -349,6 +370,21 @@ const App: React.FC = () => {
           <h1 className="app-title" style={{ margin: 0 }}>
             Grid
           </h1>
+          <div
+            style={{
+              fontSize: "25px",
+              height: "40px",
+              display: "inline-block",
+              cursor: "pointer",
+              marginLeft: "10px",
+            }}
+          >
+            {isShellVisible && (
+              <div>
+                <Shell />
+              </div>
+            )}
+          </div>
         </Box>
         <div>
           <Box
