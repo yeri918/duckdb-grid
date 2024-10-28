@@ -8,9 +8,7 @@ import React, {
 import { AgGridReact } from "ag-grid-react";
 import { Button, Tooltip } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -18,7 +16,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   ColumnDataType,
   StdAgGridProps,
-  RowData,
   ColumnDef,
   CountStatusBarComponentType,
   PrefetchedColumnValues,
@@ -32,12 +29,7 @@ import {
   onRowGroupExpandOneLevel,
   onChartSelectedCells,
 } from "./lib/contextMenu";
-import {
-  getColumnSetValues,
-  getColumnDefs,
-  getLayeredColumnDefs,
-  getGroupedColumnDefs,
-} from "./lib/columnHelper";
+import { getColumnSetValues, getGroupedColumnDefs } from "./lib/columnHelper";
 import initStateTable, {
   fetchPreviousState,
   saveState,
@@ -58,21 +50,15 @@ import CustomCountBar, {
 import db from "../../duckDB";
 
 // AgGrid imports
+import { StatusPanelDef } from "@ag-grid-community/core";
 import {
-  ColDef,
-  StatusPanelDef,
   GridApi,
-  StateUpdatedEvent,
-  GridState,
-} from "@ag-grid-community/core";
-import {
   GridPreDestroyedEvent,
   IsServerSideGroupOpenByDefaultParams,
 } from "ag-grid-community";
 import "ag-grid-enterprise";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { ArrowRight, PartyMode } from "@mui/icons-material";
 
 function arePropsEqual(
   prevProps: StdAgGridProps,
@@ -87,7 +73,7 @@ function arePropsEqual(
 
 const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
-  const [gridApi, setGridApi] = useState<any>(null);
+  const [gridApi, setGridApi] = useState<GridApi | null>(null);
   const context = useRef<Context | undefined>(null);
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
@@ -321,7 +307,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
       if (params.rowNode) {
         return params.rowNode.id
-          ? openGroups?.includes(params.rowNode.id) ?? false // Only return true if not undefined and is in openGroups
+          ? (openGroups?.includes(params.rowNode.id) ?? false) // Only return true if not undefined and is in openGroups
           : false;
       } else {
         return false;
@@ -578,8 +564,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
               ? "ag-theme-alpine-dark"
               : "ag-theme-alpine"
             : props.darkMode
-            ? "ag-theme-alpine-dark"
-            : "ag-theme-alpine"
+              ? "ag-theme-alpine-dark"
+              : "ag-theme-alpine"
         }
       >
         <AgGridReact
