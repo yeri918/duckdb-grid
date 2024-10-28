@@ -29,7 +29,7 @@ const AnnouncementHeader: React.FC<AnnouncementHeaderProps> = ({
         textAlign: "center",
       }}
     >
-      <Typography variant="h6" component="div" sx={{ whiteSpace: "pre-line" }}>
+      <Typography variant="subtitle1" component="div" sx={{ whiteSpace: "pre-line" }}>
         {message}
         <IconButton
           className="close-button"
