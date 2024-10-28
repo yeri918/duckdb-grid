@@ -3,16 +3,9 @@ import {
   ColumnDef,
   PrefetchedColumnValues,
 } from "../interface/GridInterface";
-import { Column, RowClassParams, SetFilter } from "ag-grid-enterprise";
 import "../StdGrid.css";
 import db from "../../../duckDB";
-import {
-  ColDef,
-  StatusPanelDef,
-  GridApi,
-  ISetFilterParams,
-  SetFilterValuesFuncParams,
-} from "@ag-grid-community/core";
+import { GridApi } from "@ag-grid-community/core";
 
 export const getColumnSetValues = async (column: string, tableName: string) => {
   const connection = await db.connect();
@@ -33,11 +26,12 @@ export const getColumnSetValues = async (column: string, tableName: string) => {
 export const getColumnDefs = (
   columnDataType: ColumnDataType,
   prefetchedColumnValues: PrefetchedColumnValues,
-  gridApi: GridApi,
+  /* eslint-disable-next-line */
+  gridApi: GridApi | null,
 ): ColumnDef[] => {
   const columnDefs: ColumnDef[] = [];
   for (const key in columnDataType) {
-    let columnDef: ColumnDef = {
+    const columnDef: ColumnDef = {
       headerName: key,
       field: key,
       enableRowGroup: true,
@@ -88,7 +82,7 @@ export const getColumnDefs = (
 export const getLayeredColumnDefs = (
   columnDataType: ColumnDataType,
   prefetchedColumnValues: PrefetchedColumnValues,
-  gridApi: GridApi,
+  gridApi: GridApi | null,
 ) => {
   const columnDefs = getColumnDefs(
     columnDataType,
@@ -96,7 +90,6 @@ export const getLayeredColumnDefs = (
     gridApi,
   );
   const layeredColumnDefs: ColumnDef[] = [];
-  let i = 0;
 
   for (const columnDef of columnDefs) {
     const keys = columnDef.field.split("_");
@@ -111,22 +104,14 @@ export const getLayeredColumnDefs = (
     // For keys > 1
     const initialColumnDef = columnDef;
     initialColumnDef.headerName = keys[keys.length - 1];
-    const nestedColumnDef: ColumnDef = keys
+    const nestedColumnDef = keys
       .slice(0, keys.length - 1)
-      .reduceRight((nestedColumn: any, key: string) => {
-        i++;
+      .reduceRight((nestedColumn, key) => {
         return {
+          ...nestedColumn,
           headerName: key,
           children: [nestedColumn],
           headerClass: "ag-header-cell-label",
-          // headerClass:
-          //   i % 4 === 0
-          //     ? "cell-red"
-          //     : i % 4 === 1
-          //     ? "cell-green"
-          //     : i % 4 === 2
-          //     ? "cell-blue"
-          //     : "cell-orange",
         };
       }, initialColumnDef);
     layeredColumnDefs.push(nestedColumnDef);
@@ -138,7 +123,7 @@ export const getLayeredColumnDefs = (
 export const getGroupedColumnDefs = (
   columnDataType: ColumnDataType,
   prefetchedColumnValues: PrefetchedColumnValues,
-  gridApi: GridApi,
+  gridApi: GridApi | null,
 ) => {
   const groupedColumnDefs: ColumnDef[] = [];
   const layeredColumnDefs = getLayeredColumnDefs(
@@ -183,9 +168,9 @@ export const getGroupedColumnDefs = (
         break;
       }
 
-      let child1: any = currentDef;
-      let child2: any = layeredColumnDefs[j];
-      let parent: any = currentDef;
+      let child1 = currentDef;
+      let child2 = layeredColumnDefs[j];
+      let parent = currentDef;
       if (matchingIndex >= 0) {
         // Construct the two children first.
         for (let k = 0; k < matchingIndex + 1; k++) {
@@ -195,22 +180,14 @@ export const getGroupedColumnDefs = (
               parent = parent[parent.length - 1];
             }
           }
-
-          if (Array.isArray(child1)) {
-            child1 = child1[child1.length - 1].children;
-          } else {
-            child1 = child1.children;
-          }
-          // child1 = child1.children
-          // console.log("check child1", child1, Array.isArray(child1))
-
-          if (Array.isArray(child2)) {
-            child2 = child2[child2.length - 1].children;
-          } else {
-            child2 = child2.children;
-          }
-          // child2 = child2.children
+          child1 = Array.isArray(child1)
+            ? child1[child1.length - 1].children
+            : child1?.children;
+          child2 = Array.isArray(child2)
+            ? child2[child2.length - 1].children
+            : child2?.children;
         }
+        // @ts-expect-error: We are sure that child1 is an array
         const combinedChildren = [...child1, child2[0]];
         parent.children = combinedChildren;
 

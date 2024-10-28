@@ -1,7 +1,7 @@
-import { CustomStatusPanelProps } from '@ag-grid-community/react';
-import React, { useEffect, useState } from 'react';
+import { CustomStatusPanelProps } from "@ag-grid-community/react";
+import React, { useEffect, useState } from "react";
 
-export default (props: CustomStatusPanelProps) => {
+const StatusBar = (props: CustomStatusPanelProps) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -15,3 +15,6 @@ export default (props: CustomStatusPanelProps) => {
     </div>
   );
 };
+
+StatusBar.displayName = "StatusBar";
+export default StatusBar;

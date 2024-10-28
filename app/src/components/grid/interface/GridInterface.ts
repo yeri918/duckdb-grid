@@ -1,4 +1,4 @@
-import { Column, RowClassParams, ColDef, GridApi } from "ag-grid-enterprise";
+import { ColDef } from "ag-grid-enterprise";
 
 // region: Data Types
 /* 
@@ -32,7 +32,7 @@ export interface ColumnDef extends ColDef {
   enableRowGroup: boolean;
   enableValue: boolean;
   filter: string;
-  children?: ColumnDef[] | ColumnDef | null;
+  children?: (ColumnDef | undefined)[] | ColumnDef | undefined;
 }
 
 export interface ContextMenuItem {
@@ -67,7 +67,7 @@ export interface FilterModel {
 }
 
 export interface PrefetchedColumnValues {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface Context {

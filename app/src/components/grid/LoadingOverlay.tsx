@@ -1,7 +1,7 @@
 import type { CustomLoadingOverlayProps } from "@ag-grid-community/react";
 import React from "react";
 
-export default (
+const LoadingOverlay = (
   props: CustomLoadingOverlayProps & { loadingMessage: string },
 ) => {
   return (
@@ -23,3 +23,6 @@ export default (
     </div>
   );
 };
+
+LoadingOverlay.displayName = "LoadingOverlay";
+export default LoadingOverlay;
