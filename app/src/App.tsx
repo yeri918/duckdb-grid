@@ -291,15 +291,15 @@ const App: React.FC = () => {
           darkMode={darkMode}
           message={
             <>
-              👋 Welcome! Click the + button to import any CSV, Excel, or Parquet files to
-              get started.
+              👋 Welcome! Click the + button to import any CSV, Excel, or
+              Parquet files to get started.
               <br />
               🔗 The grid is secure, running only in your browser. More info in{" "}
               <a
                 href="https://github.com/yeri918/duckdb-grid"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: darkMode ? "#90caf9" : "#1976d2" }}                
+                style={{ color: darkMode ? "#90caf9" : "#1976d2" }}
               >
                 GitHub Page
               </a>
@@ -308,70 +308,76 @@ const App: React.FC = () => {
           }
           onClose={handleAnnouncementClose}
         />
-        <div
-          className="top-right"
-          style={{
-            textAlign: "right",
-            margin: "0px 20px -20px 100px",
-            position: "sticky",
-            top: 0,
-            backgroundColor: "transparent",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              fontSize: "25px",
-              height: "40px",
-              display: "inline-block",
-              cursor: "pointer",
-              marginTop: '5px'
-            }}
-          >
-            <IoLogoGithub
-              onClick={() =>
-                window.open("https://github.com/yeri918/duckdb-grid", "_blank")
-              }
-              color="white"
-            />
-          </div>
-          <div
-            style={{
-              fontSize: "25px",
-              height: "40px",
-              display: "inline-block",
-              cursor: "pointer",
-              marginLeft: "10px",
-              marginTop: '5px'
-            }}
-          >
-            <IoTerminalOutline onClick={toggleShellVisibility} />
-          </div>
-          <div
-            style={{
-              fontSize: "25px",
-              height: "40px",
-              display: "inline-block",
-              cursor: "pointer",
-              marginLeft: "10px",
-            }}
-          >
-            <IoInvertMode onClick={toggleDarkMode} />
-          </div>
-        </div>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             padding: "10px 20px",
             backgroundColor: "#1d1d1d",
-            color: '#ffffff',
-            borderBottom: "1px solid #fff",            
+            color: "#ffffff",
+            borderBottom: "1px solid #fff",
+            position: "sticky",
+            zIndex: 1000,
+            top: 0,
           }}
         >
-          <h1 className="app-title" style={{ margin: 0, fontSize: '38px', padding: '5px' }}>
+          <h1
+            className="app-title"
+            style={{ margin: 0, fontSize: "38px", padding: "5px" }}
+          >
             DuckGrid
           </h1>
+          <div
+            style={{
+              display: "inline-block",
+              flex: 1,
+              textAlign: "right",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "25px",
+                height: "40px",
+                display: "inline-block",
+                cursor: "pointer",
+                marginTop: "5px",
+              }}
+            >
+              <IoLogoGithub
+                onClick={() =>
+                  window.open(
+                    "https://github.com/yeri918/duckdb-grid",
+                    "_blank",
+                  )
+                }
+                color="white"
+              />
+            </div>
+            <div
+              style={{
+                fontSize: "25px",
+                height: "40px",
+                display: "inline-block",
+                cursor: "pointer",
+                marginLeft: "10px",
+                marginTop: "5px",
+              }}
+            >
+              <IoTerminalOutline onClick={toggleShellVisibility} />
+            </div>
+            <div
+              style={{
+                fontSize: "25px",
+                height: "40px",
+                display: "inline-block",
+                cursor: "pointer",
+                marginLeft: "10px",
+              }}
+            >
+              <IoInvertMode onClick={toggleDarkMode} />
+            </div>
+          </div>
+
           <div
             style={{
               fontSize: "25px",
