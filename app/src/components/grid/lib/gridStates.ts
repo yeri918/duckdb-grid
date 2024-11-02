@@ -1,41 +1,45 @@
 // ag-grid
-import {
-  GridPreDestroyedEvent,
-  GridApi,
-  GridState,
-  ColumnState,
-} from "ag-grid-community";
-
-// table Folder
+import { GridApi } from "@ag-grid-community/core";
 import db from "../../../duckDB";
+
+interface stateResult {
+  tableName: string;
+  userSaved: string;
+  state: string;
+  columnState: string;
+}
 
 export async function initStateTable() {
   const connection = await db.connect();
   const query = `
     CREATE TABLE IF NOT EXISTS grid_states_test (
-      table_name VARCHAR,
-      userSaved VARCHAR,  -- Added for Memory Store (MS) and Memory Recall (MV)
+      tableName VARCHAR,
+      userSaved VARCHAR,  
       state VARCHAR,
       columnState VARCHAR,
-      PRIMARY KEY (table_name, userSaved)
+      PRIMARY KEY (tableName, userSaved)
     );
   `;
   await connection.query(query);
   await connection.close();
 }
 
-export function fetchPreviousState(tableName: string, userSaved: string) {
+export function fetchPreviousState(
+  tableName: string,
+  userSaved: string,
+): Promise<stateResult[]> {
   return new Promise((resolve, reject) => {
     db.connect().then(async (connection) => {
       try {
         const query = `
-        SELECT table_name, state, columnState FROM grid_states_test
-        WHERE table_name = '${tableName}'
+        SELECT tableName, state, columnState FROM grid_states_test
+        WHERE tableName = '${tableName}'
           AND userSaved = '${userSaved}';
       `;
         const arrowResult = await connection.query(query);
-        const result = arrowResult.toArray().map((row) => row.toJSON());
-        console.log("initial state table displayed", result);
+        const result = arrowResult
+          .toArray()
+          .map((row) => row.toJSON()) as stateResult[];
 
         // Tempo Query Execute
         // const query2 = `
@@ -70,11 +74,10 @@ export function saveState(
       const query = `
       INSERT INTO grid_states_test
       VALUES ('${tableName}', '${userSaved}', '${stateString}', '${columnStateString}')
-      ON CONFLICT (table_name, userSaved) DO UPDATE SET state = EXCLUDED.state, columnState = EXCLUDED.columnState;
+      ON CONFLICT (tableName, userSaved) DO UPDATE SET state = EXCLUDED.state, columnState = EXCLUDED.columnState;
     `;
       await connection.query(query);
       await connection.close();
-      console.log("leudom inserted successfully");
     });
   }
 }
@@ -84,7 +87,7 @@ export async function applySavedState(
   tableName: string,
   userSaved: string,
 ) {
-  fetchPreviousState(tableName, userSaved).then(async (result: any) => {
+  fetchPreviousState(tableName, userSaved).then(async (result) => {
     if (result.length > 0 && gridApi !== null) {
       const gridState = JSON.parse(result[0].state);
       const columnState = JSON.parse(result[0].columnState);
