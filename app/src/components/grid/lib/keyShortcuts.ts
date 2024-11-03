@@ -1,99 +1,53 @@
 import { GridApi } from "ag-grid-enterprise";
-import React, { useRef } from "react"
+import React from "react";
 
-const handleKeyDown = (event: KeyboardEvent, gridApi: GridApi,
-  ctrlFDown: React.MutableRefObject<boolean>) => {
+/**
+ * Handles keyboard shortcuts for the grid component.
+ *
+ * Supported shortcuts:
+ * - `Ctrl + F + Ctrl + C`: Clears the filter model and triggers the filter changed event if the `ctrlFDown` flag is active.
+ *
+ * @param event - The keyboard event object.
+ * @param gridApi - The Grid API instance from ag-grid.
+ * @param ctrlFDown - A mutable reference object to track the state of the Ctrl + F key combination.
+ */
+const handleKeyDown = (
+  event: KeyboardEvent,
+  gridApi: GridApi,
+  ctrlFDown: React.MutableRefObject<boolean>,
+) => {
+  const noTriggeredRef = { current: true };
 
-  let noTriggered = true;
-  // region: New Data
-  if (event.ctrlKey && event.key === "e") {
-    noTriggered = false;
-    gridApi?.setFilterModel({
-      ["today_location"]: {
-        type: "equals",
-        filter: "Bhuj"
-      }
-    });
-    gridApi?.onFilterChanged();
-  }
-  // endregion
-
-  if (event.ctrlKey && event.key === "f") {
-    ctrlFDown.current = true;
-    noTriggered = false;
-    return
-  }
-
-  if (ctrlFDown.current && event.key === "c") {
-
-    noTriggered = false;
-    gridApi?.setFilterModel(null);
-    gridApi?.onFilterChanged();
-
-    // This is added because some calls give a null filter.
-    if (gridApi) {
-      ctrlFDown.current = false;
+  const handleCtrlFAndC = (
+    event: KeyboardEvent,
+    gridApi: GridApi,
+    ctrlFDown: React.MutableRefObject<boolean>,
+    noTriggered: React.MutableRefObject<boolean>,
+  ) => {
+    if (event.ctrlKey && event.key === "f") {
+      ctrlFDown.current = true;
+      noTriggered.current = false;
+      return;
     }
-  }
-  // endregion
 
-  // region: Group By Shortcuts
-  if (event.ctrlKey && event.key === "ArrowRight") {
-    // Code for Ctrl + S shortcut
-    noTriggered = false;
+    if (ctrlFDown.current && event.key === "c") {
+      noTriggered.current = false;
+      gridApi?.setFilterModel(null);
+      gridApi?.onFilterChanged();
 
-    // Record Maximum NodeLevel
-    let maxLevel = -1;
-    gridApi?.forEachNode((node: any) => {
-      if (node.level > maxLevel && node.displayed === true && node.expanded === true) {
-        maxLevel = node.level
+      // This is added because some calls give a null filter.
+      if (gridApi) {
+        ctrlFDown.current = false;
       }
-    });
-    console.log("check group", maxLevel);
+    }
+  };
 
-    gridApi?.forEachNode((node: any) => {
-      if (node.level <= maxLevel + 1) {
-        node.setExpanded(true);
-      } else {
-        node.setExpanded(false);
-      }
-    });
-  }
+  handleCtrlFAndC(event, gridApi, ctrlFDown, noTriggeredRef);
 
-  if (event.ctrlKey && event.key === "ArrowLeft") {
-    // Code for Ctrl + S shortcut
-    noTriggered = false;
-
-    // Record Maximum NodeLevel
-    let maxLevel = -1;
-    gridApi?.forEachNode((node: any) => {
-      if (node.level > maxLevel && node.displayed === true) {
-        console.log("hihi", node.level, node);
-        maxLevel = node.level
-      }
-    });
-    console.log("check group left", maxLevel, "reduced to", maxLevel - 1);
-
-    gridApi?.forEachNode((node: any) => {
-      if (node.level === maxLevel - 1) {
-        node.setExpanded(false);
-        if (node.level > maxLevel) {
-          node.level = maxLevel;
-        }
-      } else {
-        node.setExpanded(true);
-      }
-    });
-  }
-
-  // Reset the flags
-  // Only update when false is tru.
-  if (gridApi && noTriggered) {
+  // Only update when false is true
+  if (gridApi && noTriggeredRef.current) {
     ctrlFDown.current = false;
   }
-
-
-  // endregion
 };
 
-export default handleKeyDown
+export default handleKeyDown;

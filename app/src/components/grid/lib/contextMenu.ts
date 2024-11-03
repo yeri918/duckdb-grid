@@ -1,28 +1,34 @@
-import { GridApi, Column } from "ag-grid-community";
 import { ContextMenuItem } from "../interface/GridInterface";
 import { ChartType } from "ag-grid-community";
+import {
+  GetContextMenuItemsParams,
+  GridApi,
+  Column,
+} from "@ag-grid-community/core";
 
 // region: Filters
 export const onFilterEqual = (
   gridApi: GridApi,
-  params: any,
+  params: GetContextMenuItemsParams,
 ): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
     name: "Filter equal",
     action: () => {
-      let filterModel = gridApi.getFilterModel();
-
-      filterModel = filterModel === undefined ? {} : filterModel;
-      console.log("filter Model", filterModel);
-
+      // Get Required params
+      const filterModel = gridApi.getFilterModel() ?? {}; // if null, use {}.
       const selectedValue = params.value;
-      let filterColumn = params.column.getColId();
 
+      let filterColumn = params.column?.getColId();
       // Additional logic so that use can filter on the group columns.
       if (filterColumn === "ag-Grid-AutoColumn") {
         filterColumn = gridApi
           .getRowGroupColumns()
-          [params.node.level].getColDef().field;
+          [params.node?.level ?? 0].getColDef().field;
+      }
+
+      // Ensure filterColumn is not null or undefined
+      if (!filterColumn) {
+        return;
       }
 
       // Check the FilterType and create the filter model accordingly.
@@ -35,7 +41,7 @@ export const onFilterEqual = (
             // Switch based on Ag-Grid Filter Type
             switch (colDef.filter) {
               // agMultiColumnFilter
-              case "agNumberColumnFilter":
+              case "agNumberColumnFilter": {
                 const lowerBound = Math.round(selectedValue);
                 const upperBound = lowerBound + 1;
                 filterModel[filterColumn] = {
@@ -53,7 +59,8 @@ export const onFilterEqual = (
                   ],
                 };
                 break;
-              case "agMultiColumnFilter":
+              }
+              case "agMultiColumnFilter": {
                 filterModel[filterColumn] = {
                   filterType: "multi",
                   filterModels: [
@@ -65,13 +72,15 @@ export const onFilterEqual = (
                   ],
                 };
                 break;
-              case "agTextColumnFilter":
+              }
+              case "agTextColumnFilter": {
                 filterModel[filterColumn] = {
                   filter: selectedValue,
                   filterType: "text",
                   type: "equals",
                 };
                 break;
+              }
             }
           }
         }
@@ -84,10 +93,7 @@ export const onFilterEqual = (
   return menuItem;
 };
 
-export const onFilterReset = (
-  gridApi: GridApi,
-  params: any,
-): ContextMenuItem => {
+export const onFilterReset = (gridApi: GridApi): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
     name: "Clear all filters",
     action: () => {
@@ -99,10 +105,7 @@ export const onFilterReset = (
 };
 
 // region: RowGroup
-export const onRowGroupCollapseAll = (
-  gridApi: GridApi,
-  params: any,
-): ContextMenuItem => {
+export const onRowGroupCollapseAll = (gridApi: GridApi): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
     name: "Collapse all",
     action: () => {
@@ -112,14 +115,11 @@ export const onRowGroupCollapseAll = (
   return menuItem;
 };
 
-export const onRowGroupExpandOneLevel = (
-  gridApi: GridApi,
-  params: any,
-): ContextMenuItem => {
+export const onRowGroupExpandOneLevel = (gridApi: GridApi): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
     name: "Expand one level",
     action: () => {
-      gridApi?.forEachNode((node: any) => {
+      gridApi?.forEachNode((node) => {
         if (node.level === 0) {
           node.setExpanded(true);
         } else {
@@ -135,18 +135,20 @@ export const onRowGroupExpandOneLevel = (
 // region: chargin
 export const onChartSelectedCells = (
   gridApi: GridApi,
-  params: any,
+  params: GetContextMenuItemsParams,
   chartType: ChartType = "line", // line, groupedColumn
 ): ContextMenuItem => {
   const menuItem: ContextMenuItem = {
     name: `Chart selected cells (${chartType})`,
     action: () => {
-      // Sanity Check, return null if failed.
-      if (params.column.getColDef().chartDataType === "category") {
-        return;
-      }
+      // Check cell ranges
       const cellRange = gridApi.getCellRanges();
-      if (cellRange === null) {
+      const chartDataType = params.column?.getColDef().chartDataType;
+      if (
+        cellRange === null ||
+        params === null ||
+        chartDataType === "category"
+      ) {
         return;
       }
 
@@ -174,8 +176,9 @@ export const onChartSelectedCells = (
               enabled: true,
               item: {
                 label: {
-                  formatter: (params: { itemId: any }) => {
+                  formatter: (params: { itemId: string }) => {
                     if (params) {
+                      console.log("hihi", params.itemId);
                       return params.itemId;
                     }
                     return "";
