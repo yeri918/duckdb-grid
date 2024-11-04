@@ -1,5 +1,4 @@
 import { IServerSideGetRowsParams } from "ag-grid-community";
-import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
 interface FilterItem {
   filter: string;
@@ -10,11 +9,7 @@ interface FilterItem {
   values?: string[];
 }
 
-const buildWhere = async (
-  database: AsyncDuckDB,
-  params: IServerSideGetRowsParams,
-  tableName: string, // eslint-disable-line @typescript-eslint/no-unused-varsnpm
-) => {
+const buildWhere = async (params: IServerSideGetRowsParams) => {
   const rowGroupCols = params.request?.rowGroupCols;
   const groupKeys = params.request?.groupKeys;
   const filterModel = params.request?.filterModel;

@@ -20,11 +20,11 @@ const duckGridDataSource = (
   const getRows = async (params: IServerSideGetRowsParams) => {
     console.log("Requesting rows", params.request);
 
-    const select = await buildSelect(database, params, tableName);
-    const groupby = await buildGroupBy(database, params, tableName);
-    let where = await buildWhere(database, params, tableName);
-    const orderBy = await buildOrderBy(database, params, tableName);
-    const limit = await buildLimit(database, params, tableName);
+    const select = await buildSelect(params, tableName);
+    const groupby = await buildGroupBy(params);
+    const where = await buildWhere(params);
+    const orderBy = await buildOrderBy(params, tableName);
+    const limit = await buildLimit(params);
 
     // Construct the SQL query
     const sql = `

@@ -1,10 +1,10 @@
 // select.ts
 
 import { IServerSideGetRowsParams } from "ag-grid-community";
-import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
+
+import db from "../../../../duckDB";
 
 const buildSelect = async (
-  database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
   tableName: string,
 ) => {
@@ -37,7 +37,7 @@ const buildSelect = async (
     return "*";
   } else {
     // TODO: separate function to make the connection
-    const connection = await database.connect();
+    const connection = await db.connect();
     const result = await connection.query(sql);
     await connection.close();
 
@@ -49,12 +49,15 @@ const buildSelect = async (
     const valueCols = params.request?.valueCols;
     const aggDict =
       valueCols.length > 0
-        ? valueCols.reduce((acc, col) => {
-            if (col.field != null && col.aggFunc != null) {
-              acc[col.field] = col.aggFunc;
-            }
-            return acc;
-          }, {} as { [key: string]: string })
+        ? valueCols.reduce(
+            (acc, col) => {
+              if (col.field != null && col.aggFunc != null) {
+                acc[col.field] = col.aggFunc;
+              }
+              return acc;
+            },
+            {} as { [key: string]: string },
+          )
         : {};
     // By default, set the aggfunc to sum if not specified
     if (numericCols.length > 0) {

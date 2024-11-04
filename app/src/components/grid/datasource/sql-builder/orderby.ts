@@ -1,10 +1,9 @@
 // orderby.ts
 
 import { IServerSideGetRowsParams } from "ag-grid-community";
-import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
+import db from "../../../../duckDB";
 
 const buildOrderBy = async (
-  database: AsyncDuckDB,
   params: IServerSideGetRowsParams,
   tableName: string,
 ) => {
@@ -35,11 +34,11 @@ const buildOrderBy = async (
   } else {
     // Get No RowGroup Numeric Columns
     const rowGroupColIds = rowGroupCols.map((col) => col.id);
-    let openedrowGroupColIds = rowGroupColIds.slice(groupKeys.length);
+    const openedrowGroupColIds = rowGroupColIds.slice(groupKeys.length);
     const sql = `
         DESCRIBE ${tableName};
     `;
-    const connection = await database.connect();
+    const connection = await db.connect();
     const arrowResult = await connection.query(sql);
     const result = arrowResult.toArray().map((row) => row.toJSON());
 
