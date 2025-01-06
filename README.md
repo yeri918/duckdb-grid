@@ -44,5 +44,4 @@ Inspired by the capabilities of [duckdb-wasm](https://github.com/duckdb/duckdb-w
 - Clone [https://github.com/yeri918/duckdb-grid](https://github.com/yeri918/duckdb-grid).
 - Run `cd app` to enter the app directory.
 - Run `npm i` to install dependencies.
-- Run `npm test` to run the test suite.
-- Run `npm run build` to build client-side bundles.
+- Run `npm start` to try it out.
