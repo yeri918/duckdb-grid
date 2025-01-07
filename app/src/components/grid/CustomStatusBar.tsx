@@ -191,4 +191,44 @@ export const CustomWaterMarkBar = () => {
   );
 };
 
+interface CustomRowGroupLevelBar extends CustomStatusPanelProps {
+  value: number;
+  setValue: React.Dispatch<React.SetStateAction<number>>;
+  setOpenGroups: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+export const CustomRowGroupLevelBar = (props: CustomRowGroupLevelBar) => {
+  const increment = () => {
+    props.setValue(props.value + 1);
+    props.setOpenGroups([]);
+    console.log("Incremented value:", props.value + 1);
+  };
+
+  const decrement = () => {
+    props.setValue(props.value - 1);
+    props.setOpenGroups([]);
+    console.log("Decremented value:", props.value - 1);
+  };
+
+  return (
+    <div className="ag-status-name-value">
+      <span
+        className="component"
+        onClick={decrement}
+        style={{ cursor: "pointer" }}
+      >
+        {"\u25C0 "}
+      </span>
+      <span className="component">{props.value}</span>
+      <span
+        className="component"
+        onClick={increment}
+        style={{ cursor: "pointer" }}
+      >
+        {" \u25B6 "}
+      </span>
+    </div>
+  );
+};
+
 export default CustomCountBar;

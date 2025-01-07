@@ -43,6 +43,7 @@ import "./StdGrid.css";
 import duckGridDataSource from "./datasource/duckGridDataSource";
 import CustomCountBar, {
   CustomFilterModelBar,
+  CustomRowGroupLevelBar,
   CustomWaterMarkBar,
 } from "./CustomStatusBar";
 
@@ -78,6 +79,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   const startTime = useRef(performance.now());
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [openGroups, setOpenGroups] = useState<string[] | undefined>([]);
+  const [openLevel, setOpenLevel] = useState<number>(0);
   const [advancedFilterFlag, setAdvancedFilterFlag] = useState<boolean>(true); // false specifically means advanced filter has failed
 
   useEffect(() => {
@@ -251,7 +253,19 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         },
         {
           statusPanel: (props: CountStatusBarComponentType<any, any>) => (
-            <CustomWaterMarkBar />
+            <CustomWaterMarkBar context={undefined} {...props} />
+          ),
+          align: "left",
+        },
+        {
+          statusPanel: (props: CountStatusBarComponentType<any, any>) => (
+            <CustomRowGroupLevelBar
+              context={undefined}
+              {...props}
+              value={openLevel}
+              setValue={setOpenLevel}
+              setOpenGroups={setOpenGroups}
+            />
           ),
           align: "left",
         },
@@ -261,7 +275,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         },
       ],
     };
-  }, [props.tableName]);
+  }, [props.tableName, openLevel]);
   // endregion
 
   // region: onModelUpdated / onGridReady / onFirstDataRendered / isServerSideGroupOpenByDefault
@@ -305,6 +319,15 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         return false;
       }
 
+      // If openGroups array is not specified, then use openLevel
+      if (openGroups === undefined || openGroups.length === 0) {
+        if (route.length <= openLevel) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
       if (params.rowNode) {
         return params.rowNode.id
           ? (openGroups?.includes(params.rowNode.id) ?? false) // Only return true if not undefined and is in openGroups
@@ -313,7 +336,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         return false;
       }
     },
-    [openGroups],
+    [openGroups, openLevel],
   );
 
   // region: Buttons

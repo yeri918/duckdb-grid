@@ -1,4 +1,4 @@
-import { GridApi } from "ag-grid-enterprise";
+import { GridApi } from "ag-grid-community";
 import React from "react";
 
 /**
