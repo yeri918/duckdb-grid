@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, ReactNode } from "react";
 import * as React from "react";
 
 import db from "./duckDB";
@@ -93,6 +93,7 @@ const App: React.FC = () => {
   const [announcementVisible, setAnnouncementVisible] = useState(true);
   const [isShellVisible, setIsShellVisible] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const shellRef = useRef<ReactNode>(<Shell />);
   /* 
     README: Init Steps
   */
@@ -189,9 +190,9 @@ const App: React.FC = () => {
   };
 
   const onClickAddShell = () => {
-    const newTab = {
+    const newTab: gridTab = {
       label: `${monoValue} - shell`, // Tab starts at 1, 0 is the plus button
-      content: <Shell />,
+      content: <>{shellRef.current}</>,
     };
 
     const newTabData = [...tabData, newTab];
@@ -390,18 +391,6 @@ const App: React.FC = () => {
                 display: "inline-block",
                 cursor: "pointer",
                 marginLeft: "10px",
-                marginTop: "5px",
-              }}
-            >
-              <IoTerminalOutline onClick={toggleShellVisibility} />
-            </div>
-            <div
-              style={{
-                fontSize: "25px",
-                height: "40px",
-                display: "inline-block",
-                cursor: "pointer",
-                marginLeft: "10px",
               }}
             >
               <IoInvertMode onClick={toggleDarkMode} />
@@ -416,13 +405,7 @@ const App: React.FC = () => {
               cursor: "pointer",
               marginLeft: "10px",
             }}
-          >
-            {isShellVisible && (
-              <div>
-                <Shell />
-              </div>
-            )}
-          </div>
+          ></div>
         </Box>
         <div>
           <Box
