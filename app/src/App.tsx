@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import * as React from "react";
 
 import db from "./duckDB";
@@ -87,7 +87,7 @@ interface gridTab {
 
 const App: React.FC = () => {
   const [tabData, setTabData] = useState<gridTab[]>([]);
-  const [value, setValue] = React.useState(1); // Initial state of the tabs
+  const [value, setValue] = React.useState(2); // Start from 2 to account for the buttons
   const [monoValue, setMonoValue] = React.useState(1);
   const [darkMode, setDarkMode] = useState<boolean>(true);
   const [announcementVisible, setAnnouncementVisible] = useState(true);
@@ -159,7 +159,6 @@ const App: React.FC = () => {
     const file = event?.target.files?.[0];
     const newIndex = tabData.length;
     const tableName = `table${newIndex + 1}`;
-    console.log("leudom", file);
 
     // Reset the input value to allow getting the same file
     event.target.value = "";
@@ -184,9 +183,21 @@ const App: React.FC = () => {
         ),
       };
       setTabData([...tabData, newTab]);
-      setValue(newIndex + 1);
+      setValue(newIndex + 2);
       setMonoValue((prev) => prev + 1);
     }
+  };
+
+  const onClickAddShell = () => {
+    const newTab = {
+      label: `${monoValue} - shell`, // Tab starts at 1, 0 is the plus button
+      content: <Shell />,
+    };
+
+    const newTabData = [...tabData, newTab];
+    setTabData(newTabData);
+    setValue(tabData.length + 2);
+    setMonoValue((prev) => prev + 1);
   };
 
   const handleCloseTab = async (index: number) => {
@@ -201,15 +212,17 @@ const App: React.FC = () => {
     await c.close();
   };
 
-  function renderTabs() {
+  const renderTabs = useMemo(() => {
     return (
       <Tabs
         value={value}
         onChange={handleChange}
         aria-label="basic tabs example"
       >
+        {/* Value 0 */}
         <Tooltip title="Import an Excel, CSV, or Parquet file" arrow>
           <IconButton
+            key="add-tab-button"
             onClick={onClickAddTab}
             aria-label="add tab"
             style={{
@@ -221,6 +234,23 @@ const App: React.FC = () => {
             <AddIcon style={{ color: darkMode ? "white" : "gray" }} />
           </IconButton>
         </Tooltip>
+
+        {/* Value 1 */}
+        <Tooltip title="Open a duckdb shell" arrow>
+          <IconButton
+            key="add-icon-button"
+            onClick={onClickAddShell}
+            aria-label="add shell tab"
+            style={{
+              height: "40px",
+              outline: "none",
+              marginTop: "5px",
+            }}
+          >
+            <IoTerminalOutline style={{ color: darkMode ? "white" : "gray" }} />
+          </IconButton>
+        </Tooltip>
+
         {tabData.map((tab, index) => (
           <Tab
             key={index}
@@ -252,21 +282,21 @@ const App: React.FC = () => {
         ))}
       </Tabs>
     );
-  }
+  }, [tabData, value]);
 
-  function renderTabPanels() {
+  const renderTabPanels = useMemo(() => {
     return tabData.map((tab, index) => (
       <CustomTabPanel
-        key={index} // The id to be identified
+        key={index + 2} // The id to be identified
         value={value} // The current tab selected
-        index={index + 1} // The position of the tab in the array
+        index={index + 2} // The position of the tab in the array
         height={"90%"}
         width={"95%"}
       >
         <div style={{ marginTop: -20, height: "95%" }}>{tab.content}</div>
       </CustomTabPanel>
     ));
-  }
+  }, [tabData, value]);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -411,9 +441,9 @@ const App: React.FC = () => {
                 borderColor: darkMode ? "divider" : "gray",
               }}
             >
-              {renderTabs()}
+              {renderTabs}
             </Box>
-            {renderTabPanels()}
+            {renderTabPanels}
             <input
               type="file"
               ref={fileInputRef}
