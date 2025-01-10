@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  ReactNode,
 } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { Button, Tooltip } from "@mui/material";

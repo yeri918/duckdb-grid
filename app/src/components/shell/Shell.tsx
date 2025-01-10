@@ -14,13 +14,16 @@ const Shell: React.FC<ShellProps> = (props: ShellProps) => {
   const term = React.useRef<HTMLDivElement | null>(null);
   const initialized = useRef(false);
 
+  console.log("leudom rerendered");
   useEffect(() => {
     if (!term.current || initialized.current) return;
+
     const embedShell = async () => {
       await shell.embed({
         shellModule: shell_wasm,
         container: term.current!,
-        resolveDatabase: async (props) => {
+        resolveDatabase: async () => {
+          // DuckDB database
           return db;
         },
       });
@@ -38,4 +41,4 @@ const Shell: React.FC<ShellProps> = (props: ShellProps) => {
   return <div ref={term} className="container"></div>;
 };
 
-export default Shell;
+export default React.memo(Shell);
