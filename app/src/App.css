@@ -103,12 +103,29 @@ body {
 /* React-tabs */
 .react-tabs__tab-list {
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .react-tabs__tab {
-  flex: 1;
-  text-align: center;
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.react-tabs__tab--selected {
+  border-bottom: 2px solid #90caf9;
+}
+
+.react-tabs__tab-panel {
+  display: none;
+}
+
+.react-tabs__tab-panel--selected {
+  display: block;
 }
 
 .tab-panel {
