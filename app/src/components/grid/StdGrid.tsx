@@ -4,12 +4,11 @@ import React, {
   useMemo,
   useRef,
   useCallback,
-  ReactNode,
 } from "react";
 import { AgGridReact } from "ag-grid-react";
+import Box from "@mui/material/Box";
 import { Button, Tooltip } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import Box from "@mui/material/Box";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -37,6 +36,7 @@ import initStateTable, {
   applySavedState,
 } from "./lib/gridStates";
 import AdvancedFilterBar from "./AdvancedFilterBar";
+import CustomSideBarPanel from "./customSideBarPanel";
 import GridLoadingOverlay from "./LoadingOverlay";
 import "./StdGrid.css";
 
@@ -389,6 +389,16 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         iconKey: "filter",
         toolPanel: "agFiltersToolPanel",
       },
+      {
+        id: "customStats",
+        labelDefault: "Custom Stats",
+        labelKey: "customStats",
+        iconKey: "custom-stats",
+        toolPanel: CustomSideBarPanel,
+        toolPanelParams: {
+          title: "Custom Stats",
+        },
+      },
     ],
     defaultToolPanel: "columns",
   };
@@ -426,39 +436,23 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
-    if (!isExpanded) {
-      // Add more buttons when expanding
-      setAdditionalButtons([
-        ...additionalButtons,
-        additionalButtons.length + 1,
-      ]);
-    }
   };
 
-  const addMoreButtons = () => {
-    setAdditionalButtons([...additionalButtons, additionalButtons.length + 1]);
-  };
-
-  return (
-    <Box
-      sx={{
-        height: isExpanded ? "90%" : "100%",
-        boxSizing: "border-box",
-        // border: "1px solid red",
-      }}
-    >
+  const controller = useMemo(
+    () => (
       <Box sx={{ display: "flex", width: "100%" }}>
         <Box
           sx={{
-            p: 3,
-            mt: -3,
-            // border: "1px solid red",
-            width: "90%",
+            width: "100%",
+            position: "sticky",
           }}
         >
-          {/* Button Container */}
-          <Grid container spacing={2} alignItems="center">
-            {/* Button: Reset table */}
+          <Grid
+            container
+            spacing={2}
+            alignItems="center"
+            sx={{ pl: 2, height: "100%" }}
+          >
             <Grid spacing={2}>
               <Tooltip title="Removes the row groups and filters.">
                 <Button
@@ -470,7 +464,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 </Button>
               </Tooltip>
             </Grid>
-            {/* Button: Autosize the columns */}
             <Grid spacing={2}>
               <Tooltip title="Autosizes the columns.">
                 <Button
@@ -482,7 +475,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 </Button>
               </Tooltip>
             </Grid>
-            {/* Button: Save view */}
             <Grid spacing={2}>
               <Tooltip title="Saves the current view with row groups and filters.">
                 <Button
@@ -494,7 +486,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid>
+            <Grid spacing={2}>
               <Tooltip title="Retrieve the saved view.">
                 <Button
                   variant="contained"
@@ -519,7 +511,6 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 </Button>
               </Tooltip>
             </Grid>
-            {/* Button: Collapse/Expand for more buttons.  */}
             <Grid spacing={2}>
               <Tooltip title={isExpanded ? "Collapse" : "Expand"}>
                 <Button
@@ -532,29 +523,17 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 </Button>
               </Tooltip>
             </Grid>
-            {/* Execution Time render */}
-            <Grid
-              container
-              justifyContent="space-between"
-              sx={{
-                display: "flex",
-                mb: 1,
-                // border: "1px solid red",
-              }}
-            ></Grid>
-          </Grid>
-          {/* Additional Buttons */}
-          {isExpanded && (
-            <Box sx={{ mt: 2, width: "100%" }}>
-              <Grid sx={{ xs: 12, width: "100%" }}>
+
+            {isExpanded && (
+              <Box sx={{ width: "100%", mt: -1 }}>
                 <AdvancedFilterBar
                   gridApi={gridApi}
                   darkMode={props.darkMode ?? false}
                   success={advancedFilterFlag}
                 />
-              </Grid>
-            </Box>
-          )}
+              </Box>
+            )}
+          </Grid>
         </Box>
         <Box
           sx={{
@@ -576,10 +555,20 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           </Grid>
         </Box>
       </Box>
+    ),
+    [loading, isExpanded],
+  );
 
-      {/* 
-      // endregion 
-      */}
+  return (
+    <Box
+      sx={{
+        height: isExpanded ? "90%" : "100%",
+        boxSizing: "border-box",
+        // border: "1px solid red",
+      }}
+    >
+      {controller}
+
       <div
         style={gridStyle}
         className={
@@ -594,8 +583,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
       >
         <AgGridReact
           /*
-              SSRM Grid Options. Reference: see https://www.ag-grid.com/react-data-grid/server-side-model-api-reference/
-            */
+          SSRM Grid Options. Reference: see https://www.ag-grid.com/react-data-grid/server-side-model-api-reference/
+        */
           rowModelType="serverSide"
           serverSideDatasource={datasource}
           purgeClosedRowNodes={true}
@@ -604,8 +593,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
           serverSideSortAllLevels={true}
           serverSideOnlyRefreshFilteredGroups={true}
           /*
-              Place Holder
-            */
+          Place Holder
+        */
           context={context.current}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}

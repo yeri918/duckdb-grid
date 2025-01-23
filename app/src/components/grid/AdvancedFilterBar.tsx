@@ -52,8 +52,8 @@ const AdvancedFilterBar: React.FC<AdvancedFilterBarProps> = ({
           enter
             ? "Applying the filter..."
             : success
-            ? "Enter a WHERE SQL Expression to filter results"
-            : "Failed to filter"
+              ? "Enter a WHERE SQL Expression to filter results"
+              : "Failed to filter"
         }
         variant="outlined"
         value={filter}
@@ -75,10 +75,10 @@ const AdvancedFilterBar: React.FC<AdvancedFilterBarProps> = ({
               borderColor: enter
                 ? INPROGRESS_COLOR
                 : success
-                ? darkMode
-                  ? "white"
-                  : BLUE_COLOR
-                : FAILED_COLOR, // Change border color on focus based on enter
+                  ? darkMode
+                    ? "white"
+                    : BLUE_COLOR
+                  : FAILED_COLOR, // Change border color on focus based on enter
             },
           },
           "& .MuiInputBase-input": {

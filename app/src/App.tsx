@@ -8,8 +8,6 @@ import StdAgGrid from "./components/grid/StdGrid";
 import Shell from "./components/shell/Shell";
 
 import {
-  Tabs,
-  Tab,
   Box,
   IconButton,
   ThemeProvider,
@@ -20,21 +18,23 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 
 import { initParquetTable } from "./lib/example/initTable";
-import { IoInvertMode, IoLogoGithub, IoTerminalOutline } from "react-icons/io5";
+import {
+  IoInvertMode,
+  IoLogoGithub,
+  IoTerminalOutline,
+  IoGameController,
+} from "react-icons/io5";
 
-// Reference: https://stackoverflow.com/questions/40702842/how-to-import-all-modules-from-a-directory-in-typescript
 import * as load from "./lib/load";
 
 import "react-tabs/style/react-tabs.css";
 import "./App.css";
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-  height: string | number;
-  width: string | number;
-  style?: React.CSSProperties;
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
+
+interface gridTab {
+  label: string;
+  content: JSX.Element;
 }
 
 const darkTheme = createTheme({
@@ -54,46 +54,13 @@ const darkTheme = createTheme({
   },
 });
 
-/* 
-  ------------START OF USER EDITABLE AREA------------
-  Go through the README below to setup the table.
-*/
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, height, width, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      className={`tab-panel${value !== index ? "-hidden" : ""}`}
-      style={{ backgroundColor: "inherit" }}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3, height: height || "auto", width: width || "auto" }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-}
-
-interface gridTab {
-  label: string;
-  content: JSX.Element;
-}
-
 const App: React.FC = () => {
   const [tabData, setTabData] = useState<gridTab[]>([]);
-  const [value, setValue] = React.useState(2); // Start from 2 to account for the buttons
-  const [monoValue, setMonoValue] = React.useState(1);
+  const [value, setValue] = React.useState(0);
+  const [monoValue, setMonoValue] = React.useState(0);
   const [darkMode, setDarkMode] = useState<boolean>(true);
   const [announcementVisible, setAnnouncementVisible] = useState(true);
-  const [isShellVisible, setIsShellVisible] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const shellRef = useRef<ReactNode>(<Shell />);
   /* 
     README: Init Steps
   */
@@ -103,7 +70,6 @@ const App: React.FC = () => {
     const userPrefersDark =
       window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches;
-
     setDarkMode(userPrefersDark);
   }, []);
 
@@ -118,13 +84,26 @@ const App: React.FC = () => {
     }
   }, [announcementVisible]);
 
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [darkMode]);
+
   // Tabs init
   useEffect(() => {
     const tabData = [
       {
         label: "0 - Sample",
         content: (
-          <StdAgGrid tabName="Tab1" darkMode={darkMode} tableName="penguins" />
+          <StdAgGrid
+            tabName="Tab1"
+            tableName="penguins"
+            darkMode={darkMode}
+            controllerVisible={true}
+          />
         ),
       },
     ];
@@ -141,16 +120,6 @@ const App: React.FC = () => {
     );
   }, [darkMode]);
 
-  // render Tabs Functions
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-  function a11yProps(index: number) {
-    return {
-      id: `simple-tab-${index}`,
-      "aria-controls": `simple-tabpanel-${index}`,
-    };
-  }
   const onClickAddTab = () => {
     fileInputRef.current?.click();
   };
@@ -184,7 +153,7 @@ const App: React.FC = () => {
         ),
       };
       setTabData([...tabData, newTab]);
-      setValue(newIndex + 2);
+      setValue(tabData.length);
       setMonoValue((prev) => prev + 1);
     }
   };
@@ -192,7 +161,7 @@ const App: React.FC = () => {
   const onClickAddShell = () => {
     const newTab: gridTab = {
       label: `${monoValue} - shell`, // Tab starts at 1, 0 is the plus button
-      content: <>{shellRef.current}</>,
+      content: <Shell />,
     };
 
     const newTabData = [...tabData, newTab];
@@ -213,39 +182,31 @@ const App: React.FC = () => {
     await c.close();
   };
 
-  const renderTabs = useMemo(() => {
-    return (
-      <Tabs
-        value={value}
-        onChange={handleChange}
-        aria-label="basic tabs example"
-      >
-        {/* Value 0 */}
+  const tabList = useMemo(
+    () => (
+      <TabList>
         <Tooltip title="Import an Excel, CSV, or Parquet file" arrow>
           <IconButton
             key="add-tab-button"
             onClick={onClickAddTab}
             aria-label="add tab"
             style={{
-              height: "40px",
+              height: "30px",
               outline: "none",
-              marginTop: "5px",
             }}
           >
             <AddIcon style={{ color: darkMode ? "white" : "gray" }} />
           </IconButton>
         </Tooltip>
 
-        {/* Value 1 */}
         <Tooltip title="Open a duckdb shell" arrow>
           <IconButton
             key="add-icon-button"
             onClick={onClickAddShell}
             aria-label="add shell tab"
             style={{
-              height: "40px",
+              height: "30px",
               outline: "none",
-              marginTop: "5px",
             }}
           >
             <IoTerminalOutline style={{ color: darkMode ? "white" : "gray" }} />
@@ -253,50 +214,62 @@ const App: React.FC = () => {
         </Tooltip>
 
         {tabData.map((tab, index) => (
-          <Tab
+          <Tab key={index} style={{ outline: "none", paddingTop: 0 }}>
+            <div style={{ margin: 0, padding: 0 }}>
+              {tab.label}
+              <Tooltip title="Close tab" arrow>
+                <IconButton
+                  style={{
+                    color: "gray",
+                    outline: "none",
+                    borderRadius: "50%",
+                    padding: "0px",
+                    marginLeft: "10px",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCloseTab(index);
+                  }}
+                >
+                  <CloseIcon style={{ fontSize: "20px" }} />
+                </IconButton>
+              </Tooltip>
+            </div>
+          </Tab>
+        ))}
+      </TabList>
+    ),
+    [tabData, darkMode],
+  );
+  const renderTabs = useMemo(() => {
+    console.log("leudom value", value);
+    return (
+      <Tabs selectedIndex={value} onSelect={(index) => setValue(index)}>
+        <Tabs selectedIndex={value} onSelect={(index) => setValue(index)}>
+          {tabList}
+          {tabData.map((tab, index) => (
+            <TabPanel
+              key={index}
+              style={{
+                height: "70vh", // Set height using vh units
+              }}
+            >
+              {tab.content}
+            </TabPanel>
+          ))}
+        </Tabs>
+        {tabData.map((tab, index) => (
+          <TabPanel
             key={index}
-            style={{ outline: "none" }}
-            label={
-              <div>
-                {tab.label}
-                <Tooltip title="Close tab" arrow>
-                  <IconButton
-                    style={{
-                      color: darkMode ? "white" : "gray",
-                      outline: "none",
-                      borderRadius: "50%",
-                      padding: "0px",
-                      marginLeft: "10px",
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCloseTab(index);
-                    }}
-                  >
-                    <CloseIcon style={{ fontSize: "20px" }} />
-                  </IconButton>
-                </Tooltip>
-              </div>
-            }
-            {...a11yProps(index)}
-          />
+            style={{
+              height: "70vh", // Set height using vh units
+            }}
+          >
+            {tab.content}
+          </TabPanel>
         ))}
       </Tabs>
     );
-  }, [tabData, value]);
-
-  const renderTabPanels = useMemo(() => {
-    return tabData.map((tab, index) => (
-      <CustomTabPanel
-        key={index + 2} // The id to be identified
-        value={value} // The current tab selected
-        index={index + 2} // The position of the tab in the array
-        height={"90%"}
-        width={"95%"}
-      >
-        <div style={{ marginTop: -20, height: "95%" }}>{tab.content}</div>
-      </CustomTabPanel>
-    ));
   }, [tabData, value]);
 
   const toggleDarkMode = () => {
@@ -305,10 +278,6 @@ const App: React.FC = () => {
 
   const handleAnnouncementClose = () => {
     setAnnouncementVisible(false);
-  };
-
-  const toggleShellVisibility = () => {
-    setIsShellVisible(!isShellVisible);
   };
 
   return (
@@ -396,16 +365,6 @@ const App: React.FC = () => {
               <IoInvertMode onClick={toggleDarkMode} />
             </div>
           </div>
-
-          <div
-            style={{
-              fontSize: "25px",
-              height: "40px",
-              display: "inline-block",
-              cursor: "pointer",
-              marginLeft: "10px",
-            }}
-          ></div>
         </Box>
         <div>
           <Box
@@ -426,7 +385,6 @@ const App: React.FC = () => {
             >
               {renderTabs}
             </Box>
-            {renderTabPanels}
             <input
               type="file"
               ref={fileInputRef}

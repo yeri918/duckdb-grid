@@ -92,21 +92,15 @@ body {
   z-index: 10;
 }
 
-.overlay-content {
-  color: white;
-  font-size: 20px;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  border-radius: 10px;
-}
+
 
 /* React-tabs */
 .react-tabs__tab-list {
   display: flex;
   justify-content: flex-start;
+  height: 30px; /* Reduced height */
   margin: 0;
   padding: 0;
-  list-style: none;
 }
 
 .react-tabs__tab {
@@ -117,7 +111,7 @@ body {
 }
 
 .react-tabs__tab--selected {
-  border-bottom: 2px solid #90caf9;
+  border-bottom: 5px solid #90caf9;
 }
 
 .react-tabs__tab-panel {
@@ -128,21 +122,3 @@ body {
   display: block;
 }
 
-.tab-panel {
-  /* height: 400px; Adjust the height as needed */
-  overflow: auto; /* Optional: to handle overflow content */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80vh;
-  width: 90vw;
-  /* border: 3px solid green; */
-  background-color: #3f3f3f;
-  position: relative;
-  z-index: 1;
-}
-
-.tab-panel-hidden {
-  position: absolute;
-  z-index: -1;
-}
