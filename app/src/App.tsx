@@ -166,7 +166,7 @@ const App: React.FC = () => {
 
     const newTabData = [...tabData, newTab];
     setTabData(newTabData);
-    setValue(tabData.length + 2);
+    setValue(tabData.length);
     setMonoValue((prev) => prev + 1);
   };
 
