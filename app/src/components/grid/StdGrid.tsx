@@ -389,16 +389,16 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         iconKey: "filter",
         toolPanel: "agFiltersToolPanel",
       },
-      {
-        id: "customStats",
-        labelDefault: "Custom Stats",
-        labelKey: "customStats",
-        iconKey: "custom-stats",
-        toolPanel: CustomSideBarPanel,
-        toolPanelParams: {
-          title: "Custom Stats",
-        },
-      },
+      // {
+      //   id: "customStats",
+      //   labelDefault: "Custom Stats",
+      //   labelKey: "customStats",
+      //   iconKey: "custom-stats",
+      //   toolPanel: CustomSideBarPanel,
+      //   toolPanelParams: {
+      //     title: "Custom Stats",
+      //   },
+      // },
     ],
     defaultToolPanel: "columns",
   };
