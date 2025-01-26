@@ -92,40 +92,33 @@ body {
   z-index: 10;
 }
 
-.overlay-content {
-  color: white;
-  font-size: 20px;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  border-radius: 10px;
-}
+
 
 /* React-tabs */
 .react-tabs__tab-list {
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
+  height: 30px; /* Reduced height */
+  margin: 0;
+  padding: 0;
 }
 
 .react-tabs__tab {
-  flex: 1;
-  text-align: center;
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  cursor: pointer;
+  user-select: none;
 }
 
-.tab-panel {
-  /* height: 400px; Adjust the height as needed */
-  overflow: auto; /* Optional: to handle overflow content */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80vh;
-  width: 90vw;
-  /* border: 3px solid green; */
-  background-color: #3f3f3f;
-  position: relative;
-  z-index: 1;
+.react-tabs__tab--selected {
+  border-bottom: 5px solid #90caf9;
 }
 
-.tab-panel-hidden {
-  position: absolute;
-  z-index: -1;
+.react-tabs__tab-panel {
+  display: none;
 }
+
+.react-tabs__tab-panel--selected {
+  display: block;
+}
+
