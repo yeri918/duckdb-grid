@@ -23,6 +23,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.0",
     "@mui/material": "^6.1.0",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "ag-grid-community": "^32.0.2",
     "ag-grid-enterprise": "^32.0.2",
     "ag-grid-react": "^32.0.2",

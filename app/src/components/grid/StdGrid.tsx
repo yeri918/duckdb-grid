@@ -1,17 +1,16 @@
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
-import { AgGridReact } from "ag-grid-react";
-import Box from "@mui/material/Box";
-import { Button, Tooltip } from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
+// table Folder
+import db from "../../duckDB";
+import AdvancedFilterBar from "./AdvancedFilterBar";
+import CustomCountBar, {
+  CustomFilterModelBar,
+  CustomRowGroupLevelBar,
+  CustomWaterMarkBar,
+} from "./CustomStatusBar";
+import GridLoadingOverlay from "./LoadingOverlay";
+import "./StdGrid.css";
+import CustomSideBarPanel from "./customSideBarPanel";
+// duckGrid Folder
+import duckGridDataSource from "./datasource/duckGridDataSource";
 // grid Folder
 import {
   ColumnDataType,
@@ -21,7 +20,7 @@ import {
   PrefetchedColumnValues,
   Context,
 } from "./interface/GridInterface";
-import handleKeyDown from "./lib/keyShortcuts";
+import { getColumnSetValues, getGroupedColumnDefs } from "./lib/columnHelper";
 import {
   onFilterEqual,
   onFilterReset,
@@ -29,43 +28,23 @@ import {
   onRowGroupExpandOneLevel,
   onChartSelectedCells,
 } from "./lib/contextMenu";
-import { getColumnSetValues, getGroupedColumnDefs } from "./lib/columnHelper";
-import initStateTable, {
-  fetchPreviousState,
-  saveState,
-  applySavedState,
-} from "./lib/gridStates";
-import AdvancedFilterBar from "./AdvancedFilterBar";
-import CustomSideBarPanel from "./customSideBarPanel";
-import GridLoadingOverlay from "./LoadingOverlay";
-import "./StdGrid.css";
-
-// duckGrid Folder
-import duckGridDataSource from "./datasource/duckGridDataSource";
-import CustomCountBar, {
-  CustomFilterModelBar,
-  CustomRowGroupLevelBar,
-  CustomWaterMarkBar,
-} from "./CustomStatusBar";
-
-// table Folder
-import db from "../../duckDB";
-
+import initStateTable, { fetchPreviousState, saveState, applySavedState } from "./lib/gridStates";
+import handleKeyDown from "./lib/keyShortcuts";
 // AgGrid imports
 import { StatusPanelDef } from "@ag-grid-community/core";
-import {
-  GridApi,
-  GridPreDestroyedEvent,
-  IsServerSideGroupOpenByDefaultParams,
-} from "ag-grid-community";
-import "ag-grid-enterprise";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Button, Tooltip } from "@mui/material";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import { GridApi, GridPreDestroyedEvent, IsServerSideGroupOpenByDefaultParams } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import "ag-grid-enterprise";
+import { AgGridReact } from "ag-grid-react";
+import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 
-function arePropsEqual(
-  prevProps: StdAgGridProps,
-  nextProps: StdAgGridProps,
-): boolean {
+function arePropsEqual(prevProps: StdAgGridProps, nextProps: StdAgGridProps): boolean {
   return (
     prevProps.darkMode === nextProps.darkMode &&
     prevProps.tabName === nextProps.tabName &&
@@ -88,9 +67,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   }, []);
 
   // Detect if the user prefers dark mode
-  const prefersDarkMode =
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const prefersDarkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [darkMode, setDarkMode] = useState(props.darkMode || prefersDarkMode);
   const [fitGrid, setFitGrid] = useState(false);
   const [execTime, setExecTime] = useState<number>(0);
@@ -142,10 +119,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     const fetchColumnSetValues = async (columnDataTypes: ColumnDataType) => {
       const values: PrefetchedColumnValues = {};
       for (const key in columnDataTypes) {
-        if (
-          columnDataTypes[key] === "VARCHAR" ||
-          columnDataTypes[key] === "DATE"
-        ) {
+        if (columnDataTypes[key] === "VARCHAR" || columnDataTypes[key] === "DATE") {
           values[key] = await getColumnSetValues(key, props.tableName);
         }
       }
@@ -154,11 +128,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     const fetchColumnDefs = async () => {
       const columnDataTypes = await fetchColumnDataTypes();
       const columnSetValues = await fetchColumnSetValues(columnDataTypes);
-      const groupedColumnDefs = getGroupedColumnDefs(
-        columnDataTypes,
-        columnSetValues,
-        gridApi,
-      );
+      const groupedColumnDefs = getGroupedColumnDefs(columnDataTypes, columnSetValues, gridApi);
 
       setColumnDefs(groupedColumnDefs);
     };
@@ -171,9 +141,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   // dl: useState will trigger a rerender of the grid. The useStates will be invalid.
   const ctrlFDown = useRef<boolean>(false);
   useEffect(() => {
-    document.addEventListener("keydown", (event: KeyboardEvent) =>
-      handleKeyDown(event, gridApi, ctrlFDown),
-    );
+    document.addEventListener("keydown", (event: KeyboardEvent) => handleKeyDown(event, gridApi, ctrlFDown));
     return () => {
       // This will remove the componet when the component is unmounted.
       // dl: not sur eif we can remove it
@@ -187,12 +155,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   // region: DataSource
   const source = `FROM ${props.tableName}
                   SELECT *`;
-  const datasource = duckGridDataSource(
-    db!,
-    source,
-    props.tableName,
-    setAdvancedFilterFlag,
-  );
+  const datasource = duckGridDataSource(db!, source, props.tableName, setAdvancedFilterFlag);
   // endregion
 
   // region: Context Menu
@@ -200,20 +163,14 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     return [
       {
         name: "Filters",
-        subMenu: [
-          onFilterEqual(gridApi, params),
-          onFilterReset(gridApi, params),
-        ],
+        subMenu: [onFilterEqual(gridApi, params), onFilterReset(gridApi, params)],
       },
       onFilterEqual(gridApi, params), // This is so commonly used, so we get itout.
       onFilterReset(gridApi, params),
       "separator",
       {
         name: "Groups",
-        subMenu: [
-          onRowGroupCollapseAll(gridApi, params),
-          onRowGroupExpandOneLevel(gridApi, params),
-        ],
+        subMenu: [onRowGroupCollapseAll(gridApi, params), onRowGroupExpandOneLevel(gridApi, params)],
       },
       onRowGroupCollapseAll(gridApi, params),
       onRowGroupExpandOneLevel(gridApi, params),
@@ -235,15 +192,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
     return {
       statusPanels: [
         {
-          statusPanel: (
-            customProps: CountStatusBarComponentType<any, any>,
-            tableName: string,
-          ) => (
-            <CustomCountBar
-              context={undefined}
-              {...customProps}
-              tableName={props.tableName}
-            />
+          statusPanel: (customProps: CountStatusBarComponentType<any, any>, tableName: string) => (
+            <CustomCountBar context={undefined} {...customProps} tableName={props.tableName} />
           ),
         },
         {
@@ -356,9 +306,7 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
         gridApi.sizeColumnsToFit();
       }
     } else {
-      const allColumnIds = gridApi
-        .getColumnDefs()
-        .map((column: { colId: any }) => column.colId);
+      const allColumnIds = gridApi.getColumnDefs().map((column: { colId: any }) => column.colId);
       gridApi.autoSizeColumns(allColumnIds, {
         autoSizeMode: "fitCellContents",
       });
@@ -440,42 +388,37 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
 
   const controller = useMemo(
     () => (
-      <Box sx={{ display: "flex", width: "100%" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column", // Stack buttons and AdvancedFilterBar vertically
+          width: "100%",
+          alignItems: "center",
+          transition: "height 0.3s ease", // Smooth transition for height change
+        }}
+      >
         <Box
           sx={{
             width: "100%",
             position: "sticky",
           }}
         >
-          <Grid
-            container
-            spacing={2}
-            alignItems="center"
-            sx={{ pl: 2, height: "100%" }}
-          >
-            <Grid spacing={2}>
+          <Grid container spacing={2} alignItems="center" sx={{ pl: 2, height: "60px" }}>
+            <Grid item>
               <Tooltip title="Removes the row groups and filters.">
-                <Button
-                  variant="contained"
-                  onClick={resetTable}
-                  sx={{ width: 100, fontSize: 12 }}
-                >
+                <Button variant="contained" onClick={resetTable} sx={{ width: 100, fontSize: 12 }}>
                   Reset
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid spacing={2}>
+            <Grid item>
               <Tooltip title="Autosizes the columns.">
-                <Button
-                  variant="contained"
-                  onClick={autoSizeColumns}
-                  sx={{ width: 100, fontSize: 12 }}
-                >
+                <Button variant="contained" onClick={autoSizeColumns} sx={{ width: 100, fontSize: 12 }}>
                   Autosize
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid spacing={2}>
+            <Grid item>
               <Tooltip title="Saves the current view with row groups and filters.">
                 <Button
                   variant="contained"
@@ -486,24 +429,18 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid spacing={2}>
+            <Grid item>
               <Tooltip title="Retrieve the saved view.">
                 <Button
                   variant="contained"
                   onClick={() => {
-                    // Might need to refactor too.
                     applySavedState(gridApi, props.tableName, "manual");
-                    fetchPreviousState(props.tableName, "manual").then(
-                      (result: any) => {
-                        console.log("leudom result", result);
-                        const gridState = JSON.parse(result[0].state);
-                        if (gridState) {
-                          setOpenGroups(
-                            gridState.rowGroupExpansion?.expandedRowGroupIds,
-                          );
-                        }
-                      },
-                    );
+                    fetchPreviousState(props.tableName, "manual").then((result: any) => {
+                      const gridState = JSON.parse(result[0].state);
+                      if (gridState) {
+                        setOpenGroups(gridState.rowGroupExpansion?.expandedRowGroupIds);
+                      }
+                    });
                   }}
                   sx={{ width: 100, fontSize: 12 }}
                 >
@@ -511,49 +448,32 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid spacing={2}>
+            <Grid item>
               <Tooltip title={isExpanded ? "Collapse" : "Expand"}>
-                <Button
-                  variant="contained"
-                  onClick={toggleExpand}
-                  color="secondary"
-                  sx={{ width: 50 }}
-                >
+                <Button variant="contained" onClick={toggleExpand} color="secondary" sx={{ width: 50 }}>
                   {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </Button>
               </Tooltip>
             </Grid>
-
-            {isExpanded && (
-              <Box sx={{ width: "100%", mt: -1 }}>
-                <AdvancedFilterBar
-                  gridApi={gridApi}
-                  darkMode={props.darkMode ?? false}
-                  success={advancedFilterFlag}
-                />
-              </Box>
-            )}
           </Grid>
         </Box>
-        <Box
-          sx={{
-            p: 3,
-            // border: "1px solid red",
-            width: "10%",
-            position: "relative",
-          }}
-        >
-          <Grid
+
+        {isExpanded && (
+          <Box
             sx={{
-              position: "absolute",
-              top: 10,
-              right: 10,
+              width: "98%",
+              mt: 1, // Add margin between buttons and AdvancedFilterBar
+              ml: 1,
               mb: 1,
             }}
           >
-            <div>{renderExecutionTime()}</div>
-          </Grid>
-        </Box>
+            <AdvancedFilterBar
+              gridApi={gridApi}
+              darkMode={props.darkMode ?? false}
+              success={advancedFilterFlag}
+            />
+          </Box>
+        )}
       </Box>
     ),
     [loading, isExpanded],
@@ -562,9 +482,8 @@ const StdAgGrid: React.FC<StdAgGridProps> = (props) => {
   return (
     <Box
       sx={{
-        height: isExpanded ? "90%" : "100%",
+        height: isExpanded ? "80%" : "100%",
         boxSizing: "border-box",
-        // border: "1px solid red",
       }}
     >
       {controller}
