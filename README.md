@@ -39,9 +39,26 @@ Inspired by the capabilities of [duckdb-wasm](https://github.com/duckdb/duckdb-w
 - Type your own WHERE clause.
   <img width="1559" alt="Screenshot 2024-10-06 at 9 43 27 PM" src="https://github.com/user-attachments/assets/487ad16a-d287-4c95-b962-b7c33bc2752a">
 
-# Build and Usage Instructions
+# Node.js Environment Setup
 
-- Clone [https://github.com/yeri918/duckdb-grid](https://github.com/yeri918/duckdb-grid).
-- Run `cd app` to enter the app directory.
-- Run `npm i` to install dependencies.
-- Run `npm start` to try it out.
+Dependencies are managed by `pnpm` and dev/build processes by [Vite](https://vite.dev/).
+
+Follow the [pnpm docs](https://pnpm.io/installation) to install pnpm locally. For Mac, 
+```bash
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+```
+
+Change the `/app` directory.
+```bash
+# Trying to use the UI from the Vite port (5173) will lead to auth errors.
+pnpm dev
+
+# Generate production build files will be at airflow/ui/dist
+pnpm build
+
+# Format code in .ts, .tsx, .json, .css, .html files
+pnpm format
+
+# Check JS/TS code in .ts, .tsx, .html files and report any errors/warnings
+pnpm lint
+```

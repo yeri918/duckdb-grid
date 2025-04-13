@@ -39,3 +39,8 @@ app/src/components/.DS_Store
 /.vs
 /.idea
 *.code-workspace
+
+# pnlm files
+pnpm-lock.yaml
+node_modules/
+.pnpm-store/
